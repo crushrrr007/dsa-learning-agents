@@ -1,0 +1,10 @@
+{
+  "name": "dsa-multi-agent-platform",
+  "private": true,
+  "scripts": {
+    "dev:web": "npm --prefix apps/web run dev -- -p 3417",
+    "dev:api": "cd apps/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8417",
+    "dev": "npm run dev:api & npm run dev:web",
+    "build:web": "npm --prefix apps/web run build"
+  }
+}

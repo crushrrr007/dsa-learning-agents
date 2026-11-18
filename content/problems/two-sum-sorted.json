@@ -1,0 +1,55 @@
+{
+  "id": "two-sum-sorted",
+  "title": "Two Sum in Sorted Array",
+  "topic": "two-pointers",
+  "difficulty": "easy",
+  "pattern": "Opposite ends",
+  "statement": "Given a sorted list `nums` (ascending) and a `target`, return a list of two indices `[i, j]` (i < j) such that `nums[i] + nums[j] == target`. Exactly one solution exists.",
+  "examples": [
+    {"input": "nums=[2,7,11,15], target=9", "output": "[0, 1]"},
+    {"input": "nums=[1,2,3,4], target=7", "output": "[2, 3]"}
+  ],
+  "constraints": ["2 <= len(nums) <= 1000", "nums is sorted ascending"],
+  "starter_code": "def two_sum_sorted(nums, target):\n    # Return [i, j] with nums[i] + nums[j] == target\n    return [0, 1]\n",
+  "function_name": "two_sum_sorted",
+  "visual": "array",
+  "brute_force_code": "def two_sum_sorted(nums, target):\n    n = len(nums)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return [-1, -1]\n",
+  "demo_input": {"nums": [2, 7, 11, 15], "target": 9},
+  "predict_steps": [
+    {
+      "prompt": "nums=[2,7,11,15], target=9. left=0,right=3 → sum=17. Which pointer moves?",
+      "answer": "right",
+      "hint": "Sum too large → decrease right."
+    },
+    {
+      "prompt": "After right becomes 1, sum is 9. What do you return?",
+      "answer": "[0, 1]",
+      "hint": "Indices of the matching pair."
+    }
+  ],
+  "hidden_tests": [
+    {"args": [[2, 7, 11, 15], 9], "expected": [0, 1]},
+    {"args": [[1, 2, 3, 4], 7], "expected": [2, 3]},
+    {"args": [[1, 3, 5], 6], "expected": [0, 2]},
+    {"args": [[0, 0, 3], 0], "expected": [0, 1]}
+  ],
+  "edge_cases": [[[1, 2], 3], [[1, 2, 3], 5]],
+  "reference_solution": "def two_sum_sorted(nums, target):\n    left, right = 0, len(nums) - 1\n    while left < right:\n        s = nums[left] + nums[right]\n        if s == target:\n            return [left, right]\n        if s < target:\n            left += 1\n        else:\n            right -= 1\n    return [-1, -1]\n",
+  "learn_quiz": [
+    {
+      "question": "If current sum is too small, which pointer moves?",
+      "choices": ["right decreases", "left increases", "both reset", "neither"],
+      "answer_index": 1
+    },
+    {
+      "question": "Brute force nested loops are roughly?",
+      "choices": ["O(n)", "O(n log n)", "O(n²)", "O(1)"],
+      "answer_index": 2
+    },
+    {
+      "question": "Why must the array be sorted for this pattern?",
+      "choices": ["So index 0 is always the answer", "So moving pointers has a predictable effect on the sum", "So duplicates disappear", "So length is even"],
+      "answer_index": 1
+    }
+  ]
+}

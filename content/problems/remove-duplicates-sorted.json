@@ -1,0 +1,51 @@
+{
+  "id": "remove-duplicates-sorted",
+  "title": "Remove Duplicates from Sorted Array",
+  "topic": "arrays",
+  "difficulty": "easy",
+  "pattern": "Same-direction pointers",
+  "statement": "Write `remove_duplicates(arr)` for a sorted list. Remove duplicates in place so each unique value appears once at the front. Return the count of unique values. The values beyond that count may be anything.",
+  "examples": [
+    {"input": "[1,1,2]", "output": "2 (array starts with [1,2,...])"},
+    {"input": "[0,0,1,1,1,2,2,3]", "output": "4"}
+  ],
+  "constraints": ["0 <= len(arr) <= 1000", "arr is sorted"],
+  "starter_code": "def remove_duplicates(arr):\n    # Return count of unique values; unique prefix left in arr\n    return 0\n",
+  "function_name": "remove_duplicates",
+  "visual": "array",
+  "brute_force_code": "def remove_duplicates(arr):\n    if not arr:\n        return 0\n    unique = []\n    for x in arr:\n        if not unique or unique[-1] != x:\n            unique.append(x)\n    for i, x in enumerate(unique):\n        arr[i] = x\n    return len(unique)\n",
+  "demo_input": [0, 0, 1, 1, 1, 2, 2, 3],
+  "predict_steps": [
+    {
+      "prompt": "Slow points at last unique write. When fast sees a new value, what happens?",
+      "answer": "slow advances and writes the new value",
+      "hint": "Grow the unique prefix."
+    }
+  ],
+  "hidden_tests": [
+    {"args": [[1, 1, 2]], "expected": 2},
+    {"args": [[0, 0, 1, 1, 1, 2, 2, 3]], "expected": 4},
+    {"args": [[]], "expected": 0},
+    {"args": [[5]], "expected": 1},
+    {"args": [[1, 2, 3]], "expected": 3}
+  ],
+  "edge_cases": [[], [1], [1, 1], [1, 2, 2]],
+  "reference_solution": "def remove_duplicates(arr):\n    if not arr:\n        return 0\n    slow = 0\n    for fast in range(1, len(arr)):\n        if arr[fast] != arr[slow]:\n            slow += 1\n            arr[slow] = arr[fast]\n    return slow + 1\n",
+  "learn_quiz": [
+    {
+      "question": "Why does sorted order help?",
+      "choices": ["Duplicates are adjacent", "Length becomes even", "Indices start at 1", "No loops needed"],
+      "answer_index": 0
+    },
+    {
+      "question": "Slow pointer marks?",
+      "choices": ["End of unique prefix", "Number of zeros", "Middle index", "Target sum"],
+      "answer_index": 0
+    },
+    {
+      "question": "Return value is?",
+      "choices": ["Sum of array", "Count of unique values", "Largest value", "Index of zero"],
+      "answer_index": 1
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "phase": 1,
+  "title": "Linear Data Structures & Pointers",
+  "description": "Master arrays, two pointers, sliding window, and linked lists with visual tracing and guided agents.",
+  "topics": [
+    {
+      "slug": "arrays",
+      "title": "Arrays",
+      "order": 1,
+      "summary": "Index-based access, in-place updates, and scanning patterns.",
+      "color": "#1d4ed8"
+    },
+    {
+      "slug": "two-pointers",
+      "title": "Two Pointers",
+      "order": 2,
+      "summary": "Move left and right indices together to shrink or expand a search space.",
+      "color": "#0f766e"
+    },
+    {
+      "slug": "sliding-window",
+      "title": "Sliding Window",
+      "order": 3,
+      "summary": "Maintain a window of elements and slide it to find optimal subarrays.",
+      "color": "#b45309"
+    },
+    {
+      "slug": "linked-lists",
+      "title": "Linked Lists",
+      "order": 4,
+      "summary": "Follow next pointers, reverse links, and detect cycles safely.",
+      "color": "#7c3aed"
+    }
+  ]
+}

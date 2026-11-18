@@ -1,0 +1,55 @@
+{
+  "id": "max-sum-subarray-k",
+  "title": "Max Sum of Subarray Size K",
+  "topic": "sliding-window",
+  "difficulty": "easy",
+  "pattern": "Fixed window",
+  "statement": "Write `max_sum_subarray(arr, k)` that returns the maximum sum of any contiguous subarray of length `k`.",
+  "examples": [
+    {"input": "arr=[2,1,5,1,3,2], k=3", "output": "9"},
+    {"input": "arr=[1,2,3], k=2", "output": "5"}
+  ],
+  "constraints": ["1 <= k <= len(arr) <= 1000"],
+  "starter_code": "def max_sum_subarray(arr, k):\n    # Return max sum of any window of size k\n    return 0\n",
+  "function_name": "max_sum_subarray",
+  "visual": "window",
+  "brute_force_code": "def max_sum_subarray(arr, k):\n    best = float(\"-inf\")\n    n = len(arr)\n    for i in range(n - k + 1):\n        s = 0\n        for j in range(i, i + k):\n            s += arr[j]\n        if s > best:\n            best = s\n    return best\n",
+  "demo_input": {"arr": [2, 1, 5, 1, 3, 2], "k": 3},
+  "predict_steps": [
+    {
+      "prompt": "First window [2,1,5] sums to 8. When sliding right, which value leaves?",
+      "answer": "2",
+      "hint": "The leftmost element drops out."
+    },
+    {
+      "prompt": "After leaving 2 and adding 1, what is the new window sum?",
+      "answer": "7",
+      "hint": "8 - 2 + 1."
+    }
+  ],
+  "hidden_tests": [
+    {"args": [[2, 1, 5, 1, 3, 2], 3], "expected": 9},
+    {"args": [[1, 2, 3], 2], "expected": 5},
+    {"args": [[5, 5, 5], 3], "expected": 15},
+    {"args": [[-1, -2, -3, -4], 2], "expected": -3}
+  ],
+  "edge_cases": [[[1], 1], [[1, 2], 2]],
+  "reference_solution": "def max_sum_subarray(arr, k):\n    window = sum(arr[:k])\n    best = window\n    for i in range(k, len(arr)):\n        window += arr[i] - arr[i - k]\n        if window > best:\n            best = window\n    return best\n",
+  "learn_quiz": [
+    {
+      "question": "Fixed window size means?",
+      "choices": ["k changes each step", "Window length stays k", "Only left moves", "Array must be sorted"],
+      "answer_index": 1
+    },
+    {
+      "question": "Sliding updates the sum by?",
+      "choices": ["Recomputing from scratch", "Adding right and removing left", "Sorting the window", "Doubling k"],
+      "answer_index": 1
+    },
+    {
+      "question": "Brute force per window is roughly?",
+      "choices": ["O(n)", "O(n*k)", "O(1)", "O(log n)"],
+      "answer_index": 1
+    }
+  ]
+}

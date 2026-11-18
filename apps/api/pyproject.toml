@@ -1,0 +1,32 @@
+[project]
+name = "dsa-api"
+version = "0.1.0"
+description = "Multi-Agent DSA Learning Platform API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "chromadb>=1.5.9",
+    "fastapi>=0.164.0",
+    "greenlet>=3.5.6",
+    "httpx>=0.28.1",
+    "langchain-core>=1.8.3",
+    "langchain-openai>=1.8.1",
+    "langgraph>=1.2.22",
+    "openai>=3.55.1",
+    "pydantic>=2.14.3",
+    "pydantic-settings>=2.16.3",
+    "python-multipart>=0.0.34",
+    "sqlalchemy[asyncio]>=2.1.9",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.uv]
+package = true
