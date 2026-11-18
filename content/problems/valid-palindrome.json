@@ -19,11 +19,19 @@
     {
       "prompt": "For s='abba', left=0 and right=3 both see 'a'. What next?",
       "answer": "left=1, right=2",
-      "hint": "Move both inward after a match."
+      "accepted_answers": [
+        "left=1, right=2",
+        "1 and 2",
+        "left += 1, right -= 1",
+        "move both inward",
+        "increase left and decrease right"
+      ],
+      "hint": "Move both inward after a match (left becomes 1, right becomes 2)."
     },
     {
       "prompt": "If s[left] != s[right], what should you return?",
       "answer": "False",
+      "accepted_answers": ["False", "false", "return False", "return false"],
       "hint": "One mismatch means not a palindrome."
     }
   ],

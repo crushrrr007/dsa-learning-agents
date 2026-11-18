@@ -12,11 +12,12 @@ export function StageRail({ stage, onSelect }: { stage: number; onSelect: (s: nu
     <div className="flex flex-wrap gap-2">
       {STAGES.map((s) => {
         const active = stage === s.id;
-        const unlocked = stage >= s.id || s.id === 1;
+        // Unlock current and earlier stages; also unlock Code once Predict is reachable (stage >= 2)
+        const unlocked = s.id <= stage || (s.id === 3 && stage >= 2) || s.id === 1;
         return (
           <button
             key={s.id}
-            disabled={!unlocked && s.id > stage}
+            disabled={!unlocked}
             onClick={() => onSelect(s.id)}
             className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
               active

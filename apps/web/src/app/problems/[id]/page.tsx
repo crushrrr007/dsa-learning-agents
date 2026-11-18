@@ -314,7 +314,7 @@ export default function ProblemWorkspacePage() {
             <div className="flex items-center justify-between border-b border-[var(--line)] px-3 py-2">
               <h2 className="text-sm font-semibold">Editor</h2>
               <div className="flex gap-2">
-                <Button size="sm" variant="secondary" onClick={onTrace} disabled={busy || stage < 3}>
+                <Button size="sm" variant="secondary" onClick={onTrace} disabled={busy || stage < 2}>
                   Trace
                 </Button>
                 <Button size="sm" onClick={onTest} disabled={busy || stage < 3}>

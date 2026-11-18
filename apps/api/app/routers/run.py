@@ -97,6 +97,33 @@ async def run_code(body: RunRequest, db: AsyncSession = Depends(get_db)) -> RunR
     )
 
 
+def _normalize_predict_answer(text: str) -> str:
+    cleaned = text.strip().lower()
+    for ch in ("'", '"', "`"):
+        cleaned = cleaned.replace(ch, "")
+    cleaned = cleaned.replace("→", " ").replace("->", " ")
+    for token in ("=", ",", ";", ":"):
+        cleaned = cleaned.replace(token, " ")
+    return " ".join(cleaned.split())
+
+
+def _predict_matches(expected: str, got: str, alternatives: list[str] | None = None) -> bool:
+    candidates = [expected, *(alternatives or [])]
+    norm_got = _normalize_predict_answer(got)
+    for cand in candidates:
+        norm_exp = _normalize_predict_answer(str(cand))
+        if not norm_exp:
+            continue
+        if norm_got == norm_exp or norm_exp in norm_got or norm_got in norm_exp:
+            return True
+        # Token overlap for short numeric / pointer answers
+        exp_tokens = set(norm_exp.split())
+        got_tokens = set(norm_got.split())
+        if exp_tokens and exp_tokens <= got_tokens:
+            return True
+    return False
+
+
 @router.post("/predict", response_model=PredictResponse)
 async def predict(body: PredictRequest, db: AsyncSession = Depends(get_db)) -> PredictResponse:
     try:
@@ -107,9 +134,11 @@ async def predict(body: PredictRequest, db: AsyncSession = Depends(get_db)) -> P
     if body.step_index < 0 or body.step_index >= len(steps):
         raise HTTPException(status_code=400, detail="Invalid step index")
     step = steps[body.step_index]
-    expected = str(step["answer"]).strip().lower()
-    got = body.answer.strip().lower()
-    correct = got == expected or expected in got or got in expected
+    correct = _predict_matches(
+        str(step["answer"]),
+        body.answer,
+        step.get("accepted_answers") or [],
+    )
     stage = 2
     if correct:
         # Advance toward stage 3 once all predicts done — client can call for last step

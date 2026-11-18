@@ -18,7 +18,17 @@ async def get_or_create_progress(
         return row
     row = Progress(session_id=session_id, problem_id=problem_id, topic=topic, stage=0)
     db.add(row)
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        result = await db.execute(
+            select(Progress).where(Progress.session_id == session_id, Progress.problem_id == problem_id)
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            return existing
+        raise
     await db.refresh(row)
     return row
 
@@ -32,7 +42,17 @@ async def get_topic_progress(db: AsyncSession, session_id: str, topic: str) -> T
         return row
     row = TopicProgress(session_id=session_id, topic=topic)
     db.add(row)
-    await db.commit()
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        result = await db.execute(
+            select(TopicProgress).where(TopicProgress.session_id == session_id, TopicProgress.topic == topic)
+        )
+        existing = result.scalar_one_or_none()
+        if existing:
+            return existing
+        raise
     await db.refresh(row)
     return row
 

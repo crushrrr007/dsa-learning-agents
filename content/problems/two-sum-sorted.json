@@ -19,11 +19,13 @@
     {
       "prompt": "nums=[2,7,11,15], target=9. left=0,right=3 → sum=17. Which pointer moves?",
       "answer": "right",
+      "accepted_answers": ["right", "decrease right", "right -= 1", "move right left"],
       "hint": "Sum too large → decrease right."
     },
     {
       "prompt": "After right becomes 1, sum is 9. What do you return?",
       "answer": "[0, 1]",
+      "accepted_answers": ["[0, 1]", "0 1", "0,1", "[0,1]"],
       "hint": "Indices of the matching pair."
     }
   ],
