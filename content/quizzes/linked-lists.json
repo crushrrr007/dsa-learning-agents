@@ -1,0 +1,17 @@
+[
+  {
+    "question": "Why save nxt = curr.next before rewiring?",
+    "choices": ["To sort values", "So you do not lose the rest of the list", "To count nodes", "To detect cycles"],
+    "answer_index": 1
+  },
+  {
+    "question": "In Floyd's algorithm, fast moves how many steps?",
+    "choices": ["1", "2", "3", "n"],
+    "answer_index": 1
+  },
+  {
+    "question": "At the end of an iterative reverse, which pointer is the new head?",
+    "choices": ["curr", "prev", "nxt", "dummy"],
+    "answer_index": 1
+  }
+]

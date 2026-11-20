@@ -20,18 +20,24 @@ def _collection():
             settings=ChromaSettings(anonymized_telemetry=False),
         )
         collection = client.get_or_create_collection("dsa_notes")
-        # Seed if empty
-        if collection.count() == 0:
-            roadmap = load_roadmap()
-            docs, ids, metas = [], [], []
-            for topic in roadmap["topics"]:
-                slug = topic["slug"]
-                text = load_notes(slug)
-                docs.append(text)
-                ids.append(slug)
-                metas.append({"topic": slug, "title": topic["title"]})
-            if docs:
-                collection.add(documents=docs, ids=ids, metadatas=metas)
+        roadmap = load_roadmap()
+        existing = set()
+        try:
+            got = collection.get(include=[])
+            existing = set(got.get("ids") or [])
+        except Exception:
+            existing = set()
+        docs, ids, metas = [], [], []
+        for topic in roadmap["topics"]:
+            slug = topic["slug"]
+            if slug in existing:
+                continue
+            text = load_notes(slug)
+            docs.append(text)
+            ids.append(slug)
+            metas.append({"topic": slug, "title": topic["title"]})
+        if docs:
+            collection.add(documents=docs, ids=ids, metadatas=metas)
         return collection
     except Exception:
         return None
@@ -54,7 +60,6 @@ def retrieve_notes(topic: str | None, query: str, k: int = 2) -> str:
         pass
     if topic:
         return load_notes(topic)
-    # fallback: concatenate first note files
     notes_dir: Path = get_settings().content_dir / "notes"
     parts = []
     for path in sorted(notes_dir.glob("*.md"))[:2]:

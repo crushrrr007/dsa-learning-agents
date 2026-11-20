@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What is the base case for most binary-tree recursions?",
+    "choices": ["node.val == 0", "node is None", "node.left == node.right", "depth > 10"],
+    "answer_index": 1
+  },
+  {
+    "question": "Inorder traversal visits nodes in which order?",
+    "choices": ["node-left-right", "left-node-right", "left-right-node", "right-left-node"],
+    "answer_index": 1
+  },
+  {
+    "question": "Level-order traversal is typically implemented with?",
+    "choices": ["A stack only", "A queue (BFS)", "Binary search", "Sorting children"],
+    "answer_index": 1
+  }
+]

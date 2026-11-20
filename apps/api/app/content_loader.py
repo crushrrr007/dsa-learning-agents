@@ -12,6 +12,12 @@ def _content_dir() -> Path:
     return get_settings().content_dir
 
 
+def clear_content_cache() -> None:
+    load_roadmap.cache_clear()
+    load_all_problems.cache_clear()
+    load_topic_quiz.cache_clear()
+
+
 @lru_cache
 def load_roadmap() -> dict[str, Any]:
     path = _content_dir() / "topics" / "roadmap.json"
@@ -25,6 +31,14 @@ def load_all_problems() -> dict[str, dict[str, Any]]:
         data = json.loads(path.read_text(encoding="utf-8"))
         problems[data["id"]] = data
     return problems
+
+
+@lru_cache
+def load_topic_quiz(topic: str) -> tuple[dict[str, Any], ...]:
+    path = _content_dir() / "quizzes" / f"{topic}.json"
+    if path.exists():
+        return tuple(json.loads(path.read_text(encoding="utf-8")))
+    return tuple()
 
 
 def get_problem(problem_id: str) -> dict[str, Any]:
@@ -70,12 +84,13 @@ def load_notes(topic: str) -> str:
 
 
 def topic_quiz(topic: str) -> list[dict[str, Any]]:
+    dedicated = list(load_topic_quiz(topic))
+    if dedicated:
+        return dedicated
     problems = list_problems(topic)
     if not problems:
         return []
-    quiz = problems[0].get("learn_quiz", [])
-    # Do not leak answer_index to clients in raw form elsewhere; API will strip.
-    return quiz
+    return list(problems[0].get("learn_quiz", []))
 
 
 def public_quiz(topic: str) -> list[dict[str, Any]]:

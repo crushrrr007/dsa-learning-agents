@@ -46,4 +46,15 @@ def default_args_for_problem(problem: dict, n: int) -> list[Any]:
         return [("abc" * (n // 3 + 1))[:n]]
     if fn == "has_cycle":
         return [list(range(n)), -1]
+    if fn in {"max_depth", "invert_tree"}:
+        return [list(range(1, max(2, n // 5) + 1))]
+    if fn == "shortest_path":
+        edges = [[i, i + 1] for i in range(max(1, n // 10) - 1)]
+        return [max(1, n // 10), edges, 0, max(0, n // 10 - 1)]
+    if fn == "count_components":
+        return [max(1, n // 10), []]
+    if fn == "climb_stairs":
+        return [min(20, max(1, n // 10))]
+    if fn == "rob":
+        return [list(range(1, max(2, n // 10) + 1))]
     return [list(range(n))]

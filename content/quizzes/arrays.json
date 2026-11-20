@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What is the time complexity of reversing an array with two indices?",
+    "choices": ["O(1)", "O(n)", "O(n log n)", "O(n²)"],
+    "answer_index": 1
+  },
+  {
+    "question": "Why keep both left and right indices when reversing?",
+    "choices": ["To sort the array", "To swap ends until they meet", "To skip even indices", "To allocate extra memory"],
+    "answer_index": 1
+  },
+  {
+    "question": "When should an in-place reverse loop stop?",
+    "choices": ["When left == 0", "When right == len(arr)", "When left >= right", "When arr is empty only"],
+    "answer_index": 2
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "question": "BFS on an unweighted graph finds?",
+    "choices": ["Maximum spanning tree only", "Shortest path in hops", "Topological sort always", "Strongly connected components only"],
+    "answer_index": 1
+  },
+  {
+    "question": "Why mark a node visited?",
+    "choices": ["To sort neighbors", "To avoid revisiting and infinite loops", "To delete the node", "To compute degree"],
+    "answer_index": 1
+  },
+  {
+    "question": "An adjacency list stores?",
+    "choices": ["Only edge weights in a matrix", "Neighbors for each node", "Only the root", "DFS timestamps only"],
+    "answer_index": 1
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "question": "What must you define first in DP?",
+    "choices": ["A random array size", "What each dp state means", "Only the final answer formula", "A sorting step"],
+    "answer_index": 1
+  },
+  {
+    "question": "Overlapping subproblems mean?",
+    "choices": ["No reuse is possible", "The same smaller states are needed more than once", "The graph is disconnected", "n is always even"],
+    "answer_index": 1
+  },
+  {
+    "question": "Bottom-up DP fills answers by?",
+    "choices": ["Guessing recursively forever", "Iterating from smaller states to larger ones", "Sorting the input only", "Ignoring the recurrence"],
+    "answer_index": 1
+  }
+]

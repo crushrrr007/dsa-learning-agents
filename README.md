@@ -1,23 +1,29 @@
-# Pointer Lab — Multi-Agent DSA Learning Platform (Phase I)
+# Pointer Lab — Multi-Agent DSA Learning Platform
 
-University-lab workspace for learning **Arrays**, **Two Pointers**, **Sliding Window**, and **Linked Lists**.
+University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
-Students learn the concept first, then move through a four-stage loop:
+## Curriculum
 
-1. **See the problem** — run a slow demo and watch it struggle  
-2. **Predict the steps** — answer prompts checked against real traces  
-3. **Code and trace** — write logic in Monaco and watch pointers move  
-4. **Test edge cases** — generated checks + viva questions on *your* code  
+**Phase I — Linear structures**
+- Arrays, Two Pointers, Sliding Window, Linked Lists
 
-Teaching agents (Coordinator, Concept Tutor, Feedback Agent) explain facts from `sys.settrace` / AST analysis. They are prompted **not** to dump full solutions.
+**Phase II — Trees, Graphs & DP**
+- Trees, Graphs, Dynamic Programming
+
+Flow for every topic:
+0. Learn (notes + traced demo + quiz unlock)  
+1. See the problem  
+2. Predict steps  
+3. Code and trace  
+4. Test edge cases + viva  
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
 | Frontend | Next.js, TypeScript, Tailwind, Monaco, React Flow |
-| Backend | FastAPI, LangGraph-style coordinator, ChromaDB notes |
-| Runner | Sandboxed Python subprocess + `sys.settrace` + `ast` |
+| Backend | FastAPI, LangGraph coordinator, ChromaDB notes |
+| Runner | Sandboxed Python (`sys.settrace` + `ast`); optional Docker |
 | Storage | SQLite (attempts, stage unlocks, mastery) |
 
 ## Quick start
@@ -38,13 +44,13 @@ npm install
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8417 npm run dev
 ```
 
-Optional LLM (otherwise deterministic mock tutors run):
+Optional LLM:
 
 ```bash
 export OPENAI_API_KEY=sk-...
 ```
 
-Optional Docker runner (subprocess sandbox is the default):
+Optional Docker runner (subprocess is default):
 
 ```bash
 export DSA_USE_DOCKER=1
@@ -54,18 +60,15 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 ## Demo path
 
 1. Open http://127.0.0.1:3417  
-2. Choose **Two Pointers** → complete the 3-question concept check  
-3. Open **Valid Palindrome** or **Two Sum in Sorted Array**  
-4. Walk stages See → Predict → Code/Trace → Test/Viva  
+2. Phase I → **Two Pointers** → concept demo + quiz  
+3. Complete **Valid Palindrome** through all stages  
+4. Phase II → **Trees** / **Graphs** / **DP** similarly  
+5. Check **/progress** for mastery  
 
 ## Repo layout
 
 ```
 apps/web/       Next.js UI
 apps/api/       FastAPI + runner + agents
-content/        Problem bank + topic notes (solutions stay server-side)
+content/        Problems, notes, quizzes, roadmap
 ```
-
-## Phase II (out of scope here)
-
-Trees, graphs, dynamic programming, accounts/OAuth, contest leaderboards.

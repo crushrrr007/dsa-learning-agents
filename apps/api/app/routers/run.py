@@ -41,6 +41,10 @@ def _normalize_args(problem: dict[str, Any], args: list[Any] | None) -> list[Any
             return [demo["arr"], demo["k"]]
         if fn == "has_cycle":
             return [demo["values"], demo["pos"]]
+        if fn == "shortest_path":
+            return [demo["n"], demo["edges"], demo["src"], demo["dst"]]
+        if fn == "count_components":
+            return [demo["n"], demo["edges"]]
         return list(demo.values())
     return [demo]
 
@@ -205,12 +209,15 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
         )
 
     # Extra edge cases: compare student vs hidden reference on server only
+    multi_arg = {
+        "two_sum_sorted",
+        "max_sum_subarray",
+        "has_cycle",
+        "shortest_path",
+        "count_components",
+    }
     for idx, edge in enumerate(problem.get("edge_cases", [])):
-        if isinstance(edge, list) and problem["function_name"] in {
-            "two_sum_sorted",
-            "max_sum_subarray",
-            "has_cycle",
-        }:
+        if isinstance(edge, list) and problem["function_name"] in multi_arg:
             args = edge
         else:
             args = [edge]

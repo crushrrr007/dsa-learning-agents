@@ -3,18 +3,21 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.agents.notes_store import _collection
+from app.agents import notes_store
 from app.config import get_settings
+from app.content_loader import clear_content_cache
 from app.db import init_db
 from app.routers import agents, problems, progress, run, topics
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    clear_content_cache()
+    notes_store._collection.cache_clear()
     await init_db()
     # Seed Chroma notes (best-effort)
     try:
-        _collection()
+        notes_store._collection()
     except Exception:
         pass
     yield

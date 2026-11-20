@@ -1,0 +1,17 @@
+[
+  {
+    "question": "If a two-sum sorted sum is too small, which pointer moves?",
+    "choices": ["right decreases", "left increases", "both reset", "neither"],
+    "answer_index": 1
+  },
+  {
+    "question": "Brute force nested loops for pair search are roughly?",
+    "choices": ["O(n)", "O(n log n)", "O(n²)", "O(1)"],
+    "answer_index": 2
+  },
+  {
+    "question": "Why must the array be sorted for opposite-end two pointers?",
+    "choices": ["So index 0 is always the answer", "So moving pointers has a predictable effect on the sum", "So duplicates disappear", "So length is even"],
+    "answer_index": 1
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "question": "Fixed window size means?",
+    "choices": ["k changes each step", "Window length stays k", "Only left moves", "Array must be sorted"],
+    "answer_index": 1
+  },
+  {
+    "question": "Sliding updates a window sum by?",
+    "choices": ["Recomputing from scratch", "Adding right and removing left", "Sorting the window", "Doubling k"],
+    "answer_index": 1
+  },
+  {
+    "question": "Brute force per window of size k is roughly?",
+    "choices": ["O(n)", "O(n*k)", "O(1)", "O(log n)"],
+    "answer_index": 1
+  }
+]

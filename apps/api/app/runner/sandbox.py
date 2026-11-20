@@ -67,25 +67,84 @@ def safe_repr(value):
 
 def focus_from_locals(loc):
     focus = {}
-    for key in ("left", "right", "i", "j", "slow", "fast", "write", "prev", "curr", "k", "window", "target"):
+    for key in (
+        "left",
+        "right",
+        "i",
+        "j",
+        "slow",
+        "fast",
+        "write",
+        "prev",
+        "curr",
+        "k",
+        "window",
+        "target",
+        "src",
+        "dst",
+        "u",
+        "v",
+        "dist",
+        "n",
+    ):
         if key in loc:
             focus[key] = safe_repr(loc[key])
-    for key in ("arr", "nums", "values", "s"):
+    for key in ("arr", "nums", "values", "s", "dp"):
         if key in loc:
             val = loc[key]
             if isinstance(val, str):
                 focus["sequence"] = list(val)
             elif isinstance(val, list):
                 focus["sequence"] = val[:40]
+                if key == "dp":
+                    focus["dp"] = val[:40]
             elif hasattr(val, "val"):
                 focus["list_head"] = safe_repr(val)
+    # Binary tree node snapshot
+    for key in ("root", "node"):
+        if key in loc and hasattr(loc[key], "val"):
+            focus["tree"] = _tree_snapshot(loc[key])
+            break
+    # Graph adjacency / edges
+    if "g" in loc and isinstance(loc["g"], dict):
+        focus["graph"] = {str(k): list(v)[:12] for k, v in list(loc["g"].items())[:20]}
+    if "edges" in loc and isinstance(loc["edges"], list):
+        focus["edges"] = loc["edges"][:30]
+    if "seen" in loc:
+        try:
+            focus["seen"] = sorted(list(loc["seen"]))[:40]
+        except Exception:
+            focus["seen"] = safe_repr(loc["seen"])
     # Also surface sequence from common alias names used in demos
     if "sequence" not in focus:
         for key, val in loc.items():
-            if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool)) for x in val[:8]):
+            if key in {"g", "seen", "q", "queue"}:
+                continue
+            if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool, type(None))) for x in val[:8]):
                 focus["sequence"] = val[:40]
                 break
     return focus
+
+
+def _tree_snapshot(root, limit=15):
+    """Level-order values for canvas rendering."""
+    if root is None:
+        return []
+    out = []
+    q = [root]
+    count = 0
+    while q and count < limit:
+        node = q.pop(0)
+        if node is None:
+            out.append(None)
+            continue
+        out.append(getattr(node, "val", None))
+        q.append(getattr(node, "left", None))
+        q.append(getattr(node, "right", None))
+        count += 1
+    while out and out[-1] is None:
+        out.pop()
+    return out
 
 def tracer(frame, event, arg):
     if event not in ("line", "call", "return", "exception"):

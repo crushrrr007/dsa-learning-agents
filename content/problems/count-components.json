@@ -1,0 +1,34 @@
+{
+  "id": "count-components",
+  "title": "Count Connected Components",
+  "topic": "graphs",
+  "difficulty": "easy",
+  "pattern": "DFS / BFS flood",
+  "statement": "Given `n` nodes (0..n-1) and undirected `edges`, return how many connected components the graph has.",
+  "examples": [
+    {"input": "n=5, edges=[[0,1],[1,2],[3,4]]", "output": "2"},
+    {"input": "n=3, edges=[]", "output": "3"}
+  ],
+  "constraints": ["1 <= n <= 100"],
+  "starter_code": "from collections import defaultdict\n\ndef count_components(n, edges):\n    # TODO: DFS or BFS flood fill\n    return 0\n",
+  "function_name": "count_components",
+  "visual": "graph",
+  "brute_force_code": "def count_components(n, edges):\n    parent = list(range(n))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n    for a, b in edges:\n        pa, pb = find(a), find(b)\n        if pa != pb:\n            parent[pa] = pb\n    return len({find(i) for i in range(n)})\n",
+  "demo_input": {"n": 5, "edges": [[0, 1], [1, 2], [3, 4]]},
+  "predict_steps": [
+    {
+      "prompt": "Each DFS/BFS flood from an unvisited node discovers how many new components?",
+      "answer": "1",
+      "accepted_answers": ["1", "one"],
+      "hint": "One start seeds one component."
+    }
+  ],
+  "hidden_tests": [
+    {"args": [5, [[0, 1], [1, 2], [3, 4]]], "expected": 2},
+    {"args": [3, []], "expected": 3},
+    {"args": [4, [[0, 1], [1, 2], [2, 3]]], "expected": 1},
+    {"args": [1, []], "expected": 1}
+  ],
+  "edge_cases": [[1, []], [2, []], [2, [[0, 1]]]],
+  "reference_solution": "from collections import defaultdict\n\ndef count_components(n, edges):\n    g = defaultdict(list)\n    for a, b in edges:\n        g[a].append(b)\n        g[b].append(a)\n    seen = set()\n    def dfs(u):\n        seen.add(u)\n        for v in g[u]:\n            if v not in seen:\n                dfs(v)\n    count = 0\n    for i in range(n):\n        if i not in seen:\n            dfs(i)\n            count += 1\n    return count\n"
+}

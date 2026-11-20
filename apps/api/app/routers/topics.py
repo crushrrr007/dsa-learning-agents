@@ -16,6 +16,9 @@ TOPIC_DEMO_EXPLAIN = {
     "two-pointers": "Watch left and right pointers move toward each other on a real run.",
     "sliding-window": "Watch the window bounds slide while the running sum updates.",
     "linked-lists": "Watch node pointers rewire as the list is traversed or reversed.",
+    "trees": "Watch recursion walk left/right children on a real binary tree.",
+    "graphs": "Watch BFS/DFS expand across adjacency-list neighbors.",
+    "dynamic-programming": "Watch the DP table fill from smaller states to larger ones.",
 }
 
 
@@ -29,6 +32,10 @@ def _demo_args(problem: dict):
             return [demo["arr"], demo["k"]]
         if fn == "has_cycle":
             return [demo["values"], demo["pos"]]
+        if fn == "shortest_path":
+            return [demo["n"], demo["edges"], demo["src"], demo["dst"]]
+        if fn == "count_components":
+            return [demo["n"], demo["edges"]]
         return list(demo.values())
     return [demo]
 
@@ -38,7 +45,13 @@ async def roadmap(session_id: str = "guest", db: AsyncSession = Depends(get_db))
     data = load_roadmap()
     snap = await build_progress_snapshot(db, session_id)
     topics = snap["topics"]
-    return RoadmapOut(phase=data["phase"], title=data["title"], description=data["description"], topics=topics)
+    return RoadmapOut(
+        phase=data["phase"],
+        title=data["title"],
+        description=data["description"],
+        topics=topics,
+        phases=data.get("phases", []),
+    )
 
 
 @router.get("/{slug}/learn", response_model=TopicLearnOut)
@@ -49,7 +62,16 @@ async def topic_learn(slug: str, session_id: str = "guest", db: AsyncSession = D
         raise HTTPException(status_code=404, detail="Topic not found")
     tp = await get_topic_progress(db, session_id, slug)
     problems = list_problems(slug)
-    demo = problems[0] if problems else None
+    preferred = {
+        "arrays": "reverse-array",
+        "two-pointers": "valid-palindrome",
+        "sliding-window": "max-sum-subarray-k",
+        "linked-lists": "reverse-linked-list",
+        "trees": "max-depth-binary-tree",
+        "graphs": "bfs-shortest-path",
+        "dynamic-programming": "climb-stairs",
+    }
+    demo = next((p for p in problems if p["id"] == preferred.get(slug)), problems[0] if problems else None)
     return TopicLearnOut(
         slug=slug,
         title=topic["title"],
@@ -73,6 +95,9 @@ async def topic_demo(slug: str) -> TopicDemoOut:
         "two-pointers": "valid-palindrome",
         "sliding-window": "max-sum-subarray-k",
         "linked-lists": "reverse-linked-list",
+        "trees": "max-depth-binary-tree",
+        "graphs": "bfs-shortest-path",
+        "dynamic-programming": "climb-stairs",
     }
     problem = next((p for p in problems if p["id"] == preferred.get(slug)), problems[0])
     # Load full problem (list_problems returns full dicts already)

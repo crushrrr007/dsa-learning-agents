@@ -36,9 +36,16 @@ export type Topic = {
   order: number;
   summary: string;
   color: string;
+  phase?: number;
   learn_completed: boolean;
   problems_total: number;
   problems_mastered: number;
+};
+
+export type Phase = {
+  id: number;
+  title: string;
+  topic_slugs: string[];
 };
 
 export type Roadmap = {
@@ -46,6 +53,7 @@ export type Roadmap = {
   title: string;
   description: string;
   topics: Topic[];
+  phases?: Phase[];
 };
 
 export type ProblemSummary = {
@@ -197,6 +205,16 @@ export async function submitViva(problemId: string, answers: string[]) {
     method: "POST",
     body: JSON.stringify({ session_id: getSessionId(), problem_id: problemId, answers }),
   });
+}
+
+export async function fetchProgress() {
+  const sid = getSessionId();
+  return request<{
+    session_id: string;
+    problems: ProblemSummary[];
+    topics: Topic[];
+    phases?: Phase[];
+  }>(`/progress?session_id=${encodeURIComponent(sid)}`);
 }
 
 export async function chatAgent(payload: {

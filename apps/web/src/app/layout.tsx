@@ -36,6 +36,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <Link href="/" className="transition hover:text-[var(--accent)]">
                   Roadmap
                 </Link>
+                <Link href="/progress" className="transition hover:text-[var(--accent)]">
+                  Progress
+                </Link>
               </nav>
             </div>
           </header>

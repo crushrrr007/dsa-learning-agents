@@ -1,12 +1,25 @@
 {
-  "phase": 1,
-  "title": "Linear Data Structures & Pointers",
-  "description": "Master arrays, two pointers, sliding window, and linked lists with visual tracing and guided agents.",
+  "phase": 2,
+  "title": "Pointer Lab — Full DSA Path",
+  "description": "Phase I linear structures, then Phase II trees, graphs, and dynamic programming — always with real traces and teaching agents.",
+  "phases": [
+    {
+      "id": 1,
+      "title": "Phase I — Linear Data Structures & Pointers",
+      "topic_slugs": ["arrays", "two-pointers", "sliding-window", "linked-lists"]
+    },
+    {
+      "id": 2,
+      "title": "Phase II — Trees, Graphs & Dynamic Programming",
+      "topic_slugs": ["trees", "graphs", "dynamic-programming"]
+    }
+  ],
   "topics": [
     {
       "slug": "arrays",
       "title": "Arrays",
       "order": 1,
+      "phase": 1,
       "summary": "Index-based access, in-place updates, and scanning patterns.",
       "color": "#1d4ed8"
     },
@@ -14,6 +27,7 @@
       "slug": "two-pointers",
       "title": "Two Pointers",
       "order": 2,
+      "phase": 1,
       "summary": "Move left and right indices together to shrink or expand a search space.",
       "color": "#0f766e"
     },
@@ -21,6 +35,7 @@
       "slug": "sliding-window",
       "title": "Sliding Window",
       "order": 3,
+      "phase": 1,
       "summary": "Maintain a window of elements and slide it to find optimal subarrays.",
       "color": "#b45309"
     },
@@ -28,8 +43,33 @@
       "slug": "linked-lists",
       "title": "Linked Lists",
       "order": 4,
+      "phase": 1,
       "summary": "Follow next pointers, reverse links, and detect cycles safely.",
       "color": "#7c3aed"
+    },
+    {
+      "slug": "trees",
+      "title": "Trees",
+      "order": 5,
+      "phase": 2,
+      "summary": "Traverse binary trees with recursion or stacks; reason about left/right children.",
+      "color": "#047857"
+    },
+    {
+      "slug": "graphs",
+      "title": "Graphs",
+      "order": 6,
+      "phase": 2,
+      "summary": "BFS and DFS over adjacency lists; track visited nodes to avoid cycles.",
+      "color": "#0369a1"
+    },
+    {
+      "slug": "dynamic-programming",
+      "title": "Dynamic Programming",
+      "order": 7,
+      "phase": 2,
+      "summary": "Define subproblems, fill a DP table bottom-up, and reuse overlapping answers.",
+      "color": "#9a3412"
     }
   ]
 }

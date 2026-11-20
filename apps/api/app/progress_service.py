@@ -130,10 +130,16 @@ async def build_progress_snapshot(db: AsyncSession, session_id: str) -> dict:
         topics_out.append(
             {
                 **t,
+                "phase": t.get("phase", 1),
                 "learn_completed": bool(tp.learn_completed) if tp else False,
                 "problems_total": len(topic_problems),
                 "problems_mastered": sum(1 for x in topic_problems if x["mastered"]),
             }
         )
 
-    return {"session_id": session_id, "problems": problem_summaries, "topics": topics_out}
+    return {
+        "session_id": session_id,
+        "problems": problem_summaries,
+        "topics": topics_out,
+        "phases": roadmap.get("phases", []),
+    }

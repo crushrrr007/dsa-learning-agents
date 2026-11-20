@@ -9,9 +9,16 @@ class TopicOut(BaseModel):
     order: int
     summary: str
     color: str
+    phase: int = 1
     learn_completed: bool = False
     problems_total: int = 0
     problems_mastered: int = 0
+
+
+class PhaseOut(BaseModel):
+    id: int
+    title: str
+    topic_slugs: list[str] = Field(default_factory=list)
 
 
 class RoadmapOut(BaseModel):
@@ -19,6 +26,7 @@ class RoadmapOut(BaseModel):
     title: str
     description: str
     topics: list[TopicOut]
+    phases: list[PhaseOut] = Field(default_factory=list)
 
 
 class ProblemSummary(BaseModel):
@@ -134,6 +142,7 @@ class ProgressOut(BaseModel):
     session_id: str
     problems: list[ProblemSummary]
     topics: list[TopicOut]
+    phases: list[PhaseOut] = Field(default_factory=list)
 
 
 class TestRequest(BaseModel):
