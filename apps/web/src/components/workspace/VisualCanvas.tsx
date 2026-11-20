@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -42,14 +42,21 @@ function pointerIndex(focus: Record<string, unknown>, key: string): number | nul
 }
 
 export function VisualCanvas({ visual, event, fallbackSequence }: Props) {
+  const stickySequence = useRef<unknown[]>([]);
   const focus = useMemo(
     () => (event?.focus || {}) as Record<string, unknown>,
     [event],
   );
-  const sequence = useMemo(
-    () => parseSequence(focus, fallbackSequence),
-    [focus, fallbackSequence],
-  );
+  const sequence = useMemo(() => {
+    const parsed = parseSequence(focus, fallbackSequence);
+    if (parsed.length) {
+      stickySequence.current = parsed;
+      return parsed;
+    }
+    // Keep last good sequence so empty early/late frames don't blank the canvas
+    if (stickySequence.current.length) return stickySequence.current;
+    return parsed;
+  }, [focus, fallbackSequence]);
   const left =
     pointerIndex(focus, "left") ??
     pointerIndex(focus, "i") ??

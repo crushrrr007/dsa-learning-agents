@@ -67,7 +67,7 @@ def safe_repr(value):
 
 def focus_from_locals(loc):
     focus = {}
-    for key in ("left", "right", "i", "j", "slow", "fast", "write", "prev", "curr", "k", "window"):
+    for key in ("left", "right", "i", "j", "slow", "fast", "write", "prev", "curr", "k", "window", "target"):
         if key in loc:
             focus[key] = safe_repr(loc[key])
     for key in ("arr", "nums", "values", "s"):
@@ -79,6 +79,12 @@ def focus_from_locals(loc):
                 focus["sequence"] = val[:40]
             elif hasattr(val, "val"):
                 focus["list_head"] = safe_repr(val)
+    # Also surface sequence from common alias names used in demos
+    if "sequence" not in focus:
+        for key, val in loc.items():
+            if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool)) for x in val[:8]):
+                focus["sequence"] = val[:40]
+                break
     return focus
 
 def tracer(frame, event, arg):

@@ -107,8 +107,17 @@ export default function TopicPage() {
     setDemoMeta(null);
     try {
       const res = await runTopicDemo(slug);
-      setDemoEvents(res.events || []);
-      setDemoIdx(0);
+      const events = res.events || [];
+      // Skip empty call/setup frames so the canvas isn't blank on first paint
+      const startIdx = Math.max(
+        0,
+        events.findIndex((e) => {
+          const focus = e.focus || {};
+          return Boolean(focus.sequence || focus.left != null || focus.right != null || focus.list_head);
+        }),
+      );
+      setDemoEvents(events);
+      setDemoIdx(startIdx === -1 ? 0 : startIdx);
       setDemoPlaying(true);
       setDemoVisual(res.visual || demoVisual);
       setDemoTitle(res.title);
