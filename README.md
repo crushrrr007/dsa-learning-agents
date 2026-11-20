@@ -44,6 +44,13 @@ Optional LLM (otherwise deterministic mock tutors run):
 export OPENAI_API_KEY=sk-...
 ```
 
+Optional Docker runner (subprocess sandbox is the default):
+
+```bash
+export DSA_USE_DOCKER=1
+export DSA_DOCKER_IMAGE=python:3.12-slim
+```
+
 ## Demo path
 
 1. Open http://127.0.0.1:3417  

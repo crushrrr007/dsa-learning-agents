@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, TypedDict
+from typing import Any, Literal, TypedDict
+
+from langgraph.graph import END, StateGraph
 
 from app.agents.llm import chat_complete, mock_feedback_reply, mock_tutor_reply
 from app.agents.notes_store import retrieve_notes
@@ -12,51 +14,60 @@ class AgentState(TypedDict, total=False):
     message: str
     code: str
     facts: dict[str, Any]
+    notes: str
+    route: Literal["concept_tutor", "feedback_agent"]
     agent: str
     reply: str
     guiding_question: str
 
 
-def choose_agent(stage: int, message: str) -> str:
+def choose_agent(stage: int, message: str) -> Literal["concept_tutor", "feedback_agent"]:
     lower = message.lower()
-    if stage <= 0 or any(word in lower for word in ("concept", "explain", "why", "pattern", "notes")):
+    if stage <= 0 or any(word in lower for word in ("concept", "explain", "why", "pattern", "notes", "invariant")):
         return "concept_tutor"
     return "feedback_agent"
 
 
-async def run_coordinator(
-    *,
-    stage: int,
-    topic: str | None,
-    message: str,
-    code: str | None = None,
-    facts: dict[str, Any] | None = None,
-) -> dict[str, str]:
-    facts = facts or {}
-    topic_slug = topic or "arrays"
-    agent = choose_agent(stage, message)
-    notes = retrieve_notes(topic_slug, message)
+def route_node(state: AgentState) -> AgentState:
+    route = choose_agent(int(state.get("stage") or 0), state.get("message") or "")
+    topic = state.get("topic") or "arrays"
+    notes = retrieve_notes(topic, state.get("message") or topic)
+    return {**state, "route": route, "notes": notes, "agent": route}
 
-    if agent == "concept_tutor":
-        llm = await chat_complete(
-            system=f"You are the Concept Tutor for {topic_slug}. Use only these notes:\n{notes[:3000]}",
-            user=message,
-        )
-        if llm:
-            return {
-                "agent": agent,
-                "reply": llm,
-                "guiding_question": "Can you restate the pattern in one sentence without code?",
-            }
-        mocked = mock_tutor_reply(topic_slug, notes, message)
-        return {"agent": agent, **mocked}
 
-    # feedback agent
+def pick_route(state: AgentState) -> Literal["concept_tutor", "feedback_agent"]:
+    return state.get("route") or "concept_tutor"
+
+
+async def concept_tutor_node(state: AgentState) -> AgentState:
+    topic = state.get("topic") or "arrays"
+    notes = state.get("notes") or ""
+    message = state.get("message") or ""
+    llm = await chat_complete(
+        system=f"You are the Concept Tutor for {topic}. Use only these notes:\n{notes[:3000]}",
+        user=message,
+    )
+    if llm:
+        return {
+            **state,
+            "agent": "concept_tutor",
+            "reply": llm,
+            "guiding_question": "Can you restate the pattern in one sentence without code?",
+        }
+    mocked = mock_tutor_reply(topic, notes, message)
+    return {**state, "agent": "concept_tutor", **mocked}
+
+
+async def feedback_agent_node(state: AgentState) -> AgentState:
+    facts = state.get("facts") or {}
+    stage = int(state.get("stage") or 0)
+    code = state.get("code") or ""
+    message = state.get("message") or ""
     fact_blob = {
         "ast_insights": facts.get("ast_insights", []),
         "error": facts.get("error"),
         "result": facts.get("result"),
-        "code_excerpt": (code or "")[:500],
+        "code_excerpt": code[:500],
     }
     llm = await chat_complete(
         system=(
@@ -68,9 +79,64 @@ async def run_coordinator(
     )
     if llm:
         return {
-            "agent": agent,
+            **state,
+            "agent": "feedback_agent",
             "reply": llm,
             "guiding_question": "Which line in your code implements the key invariant?",
         }
     mocked = mock_feedback_reply(stage, message, fact_blob)
-    return {"agent": agent, **mocked}
+    return {**state, "agent": "feedback_agent", **mocked}
+
+
+def build_graph():
+    graph = StateGraph(AgentState)
+    graph.add_node("router", route_node)
+    graph.add_node("concept_tutor", concept_tutor_node)
+    graph.add_node("feedback_agent", feedback_agent_node)
+    graph.set_entry_point("router")
+    graph.add_conditional_edges(
+        "router",
+        pick_route,
+        {
+            "concept_tutor": "concept_tutor",
+            "feedback_agent": "feedback_agent",
+        },
+    )
+    graph.add_edge("concept_tutor", END)
+    graph.add_edge("feedback_agent", END)
+    return graph.compile()
+
+
+_GRAPH = None
+
+
+def get_graph():
+    global _GRAPH
+    if _GRAPH is None:
+        _GRAPH = build_graph()
+    return _GRAPH
+
+
+async def run_coordinator(
+    *,
+    stage: int,
+    topic: str | None,
+    message: str,
+    code: str | None = None,
+    facts: dict[str, Any] | None = None,
+) -> dict[str, str]:
+    graph = get_graph()
+    result = await graph.ainvoke(
+        {
+            "stage": stage,
+            "topic": topic or "arrays",
+            "message": message,
+            "code": code or "",
+            "facts": facts or {},
+        }
+    )
+    return {
+        "agent": result.get("agent") or "coordinator",
+        "reply": result.get("reply") or "Ask a more specific question about the concept or your last run.",
+        "guiding_question": result.get("guiding_question"),
+    }

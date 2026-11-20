@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     run_timeout_sec: float = 2.0
     run_max_steps: int = 400
     run_max_output_chars: int = 4000
+    # subprocess (default) | docker | auto — docker only when DSA_USE_DOCKER=1
+    runner_backend: str = "subprocess"
 
 
 @lru_cache

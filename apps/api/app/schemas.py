@@ -56,6 +56,21 @@ class TopicLearnOut(BaseModel):
     quiz: list[dict[str, Any]]
     learn_completed: bool = False
     demo_problem_id: str | None = None
+    demo_title: str | None = None
+    demo_visual: str | None = None
+
+
+class TopicDemoOut(BaseModel):
+    topic: str
+    problem_id: str
+    title: str
+    visual: str
+    ok: bool
+    result: Any = None
+    error: str | None = None
+    events: list[dict[str, Any]] = Field(default_factory=list)
+    duration_ms: float = 0.0
+    explanation: str = ""
 
 
 class RunRequest(BaseModel):

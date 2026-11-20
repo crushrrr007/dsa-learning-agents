@@ -101,7 +101,24 @@ export async function fetchTopicLearn(slug: string) {
     quiz: { question: string; choices: string[] }[];
     learn_completed: boolean;
     demo_problem_id: string | null;
+    demo_title: string | null;
+    demo_visual: string | null;
   }>(`/topics/${slug}/learn?session_id=${encodeURIComponent(sid)}`);
+}
+
+export async function runTopicDemo(slug: string) {
+  return request<{
+    topic: string;
+    problem_id: string;
+    title: string;
+    visual: string;
+    ok: boolean;
+    result: unknown;
+    error: string | null;
+    events: TraceEvent[];
+    duration_ms: number;
+    explanation: string;
+  }>(`/topics/${slug}/demo`, { method: "POST" });
 }
 
 export async function submitQuiz(topic: string, answers: number[]) {

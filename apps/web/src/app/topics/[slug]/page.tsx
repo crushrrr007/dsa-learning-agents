@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -7,9 +8,16 @@ import { Button } from "@/components/ui/button";
 import {
   fetchProblems,
   fetchTopicLearn,
+  runTopicDemo,
   submitQuiz,
   type ProblemSummary,
+  type TraceEvent,
 } from "@/lib/api";
+
+const VisualCanvas = dynamic(
+  () => import("@/components/workspace/VisualCanvas").then((m) => m.VisualCanvas),
+  { ssr: false },
+);
 
 export default function TopicPage() {
   const params = useParams<{ slug: string }>();
@@ -24,6 +32,13 @@ export default function TopicPage() {
   const [quizMsg, setQuizMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [demoTitle, setDemoTitle] = useState<string | null>(null);
+  const [demoVisual, setDemoVisual] = useState("array");
+  const [demoEvents, setDemoEvents] = useState<TraceEvent[]>([]);
+  const [demoIdx, setDemoIdx] = useState(0);
+  const [demoPlaying, setDemoPlaying] = useState(false);
+  const [demoMeta, setDemoMeta] = useState<string | null>(null);
+  const [demoBusy, setDemoBusy] = useState(false);
 
   useEffect(() => {
     Promise.all([fetchTopicLearn(slug), fetchProblems(slug)])
@@ -34,13 +49,28 @@ export default function TopicPage() {
         setAnswers(learn.quiz.map(() => -1));
         setLearnDone(learn.learn_completed);
         setProblems(probs);
+        setDemoTitle(learn.demo_title);
+        setDemoVisual(learn.demo_visual || "array");
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [slug]);
 
+  useEffect(() => {
+    if (!demoPlaying || demoEvents.length === 0) return;
+    const t = setInterval(() => {
+      setDemoIdx((i) => {
+        if (i >= demoEvents.length - 1) {
+          setDemoPlaying(false);
+          return i;
+        }
+        return i + 1;
+      });
+    }, 400);
+    return () => clearInterval(t);
+  }, [demoPlaying, demoEvents.length]);
+
   const htmlNotes = useMemo(() => {
-    // Tiny markdown-ish render for headings and bullets
     return notes
       .split("\n")
       .map((line) => {
@@ -72,12 +102,36 @@ export default function TopicPage() {
     }
   }
 
+  async function onRunDemo() {
+    setDemoBusy(true);
+    setDemoMeta(null);
+    try {
+      const res = await runTopicDemo(slug);
+      setDemoEvents(res.events || []);
+      setDemoIdx(0);
+      setDemoPlaying(true);
+      setDemoVisual(res.visual || demoVisual);
+      setDemoTitle(res.title);
+      setDemoMeta(
+        res.ok
+          ? `${res.explanation} Result: ${JSON.stringify(res.result)} · ${res.duration_ms} ms`
+          : res.error || "Demo failed",
+      );
+    } catch (e) {
+      setDemoMeta(e instanceof Error ? e.message : "Demo failed");
+    } finally {
+      setDemoBusy(false);
+    }
+  }
+
   if (loading) {
     return <div className="mx-auto max-w-5xl px-4 py-12 text-[var(--muted)]">Loading topic…</div>;
   }
   if (error) {
     return <div className="mx-auto max-w-5xl px-4 py-12 text-red-700">{error}</div>;
   }
+
+  const current = demoEvents[demoIdx] || null;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
@@ -86,7 +140,7 @@ export default function TopicPage() {
       </Link>
       <h1 className="display mt-3 text-4xl font-semibold">{title}</h1>
       <p className="mt-2 text-[var(--muted)]">
-        Stage 0 — learn the concept once, then enter the 4-step practice loop.
+        Stage 0 — learn the concept once (notes + traced demo + check), then enter the 4-step practice loop.
       </p>
 
       <article
@@ -94,8 +148,40 @@ export default function TopicPage() {
         dangerouslySetInnerHTML={{ __html: htmlNotes }}
       />
 
+      <section className="panel mt-8 rounded-xl p-6 sm:p-8 animate-rise-delay">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="display text-2xl font-semibold">Traced concept demo</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              {demoTitle ? `Live run of “${demoTitle}”` : "Run a short traced demo for this topic."}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={onRunDemo} disabled={demoBusy}>
+              {demoBusy ? "Running…" : "Run traced demo"}
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={!demoEvents.length}
+              onClick={() => setDemoPlaying((p) => !p)}
+            >
+              {demoPlaying ? "Pause" : "Play"}
+            </Button>
+          </div>
+        </div>
+        <div className="mt-4 h-[260px] overflow-hidden rounded-xl border border-[var(--line)]">
+          <VisualCanvas visual={demoVisual} event={current} />
+        </div>
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          {demoMeta ||
+            (demoEvents.length
+              ? `Frame ${demoIdx + 1}/${demoEvents.length}`
+              : "Press run to stream real sys.settrace frames.")}
+        </p>
+      </section>
+
       {!learnDone ? (
-        <section className="panel mt-8 rounded-xl p-6 sm:p-8 animate-rise-delay">
+        <section className="panel mt-8 rounded-xl p-6 sm:p-8">
           <h2 className="display text-2xl font-semibold">Concept check</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">Answer 3 questions to unlock problems.</p>
           <div className="mt-6 space-y-6">

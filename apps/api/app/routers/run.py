@@ -12,6 +12,7 @@ from app.progress_service import record_attempt, save_code, set_stage
 from app.runner.ast_analyzer import analyze_code, generate_viva
 from app.runner.performance import default_args_for_problem, measure_scaling
 from app.runner.sandbox import run_student_code
+from app.runner.trace_check import answer_supported_by_trace, run_reference_trace
 from app.schemas import (
     PredictRequest,
     PredictResponse,
@@ -134,22 +135,37 @@ async def predict(body: PredictRequest, db: AsyncSession = Depends(get_db)) -> P
     if body.step_index < 0 or body.step_index >= len(steps):
         raise HTTPException(status_code=400, detail="Invalid step index")
     step = steps[body.step_index]
-    correct = _predict_matches(
+
+    # Run a live reference trace so predictions are grounded in real execution facts.
+    trace = run_reference_trace(problem, _normalize_args)
+    events = trace.get("events") or []
+    text_ok = _predict_matches(
         str(step["answer"]),
         body.answer,
         step.get("accepted_answers") or [],
     )
+    trace_ok = answer_supported_by_trace(
+        body.answer,
+        events,
+        keys=step.get("trace_keys"),
+    )
+    # Accept authored/flexible text matches; when the answer is pointer/numeric,
+    # also accept freeform answers that clearly appear in the live trace.
+    correct = text_ok or (trace_ok and bool(events))
+
     stage = 2
     if correct:
-        # Advance toward stage 3 once all predicts done — client can call for last step
         if body.step_index >= len(steps) - 1:
             await set_stage(db, body.session_id, body.problem_id, problem["topic"], 3)
             stage = 3
         else:
             await set_stage(db, body.session_id, body.problem_id, problem["topic"], 2)
             stage = 2
+    hint = None if correct else step.get("hint")
+    if not correct and events:
+        hint = ((hint or "") + " Checked against a live code trace.").strip()
     await record_attempt(db, body.session_id, body.problem_id, 2, correct, body.answer)
-    return PredictResponse(correct=correct, hint=None if correct else step.get("hint"), stage=stage)
+    return PredictResponse(correct=correct, hint=hint, stage=stage)
 
 
 @router.post("/stage/see")

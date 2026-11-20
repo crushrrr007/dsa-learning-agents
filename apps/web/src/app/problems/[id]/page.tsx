@@ -225,8 +225,8 @@ export default function ProblemWorkspacePage() {
         <StageRail stage={stage} onSelect={setStage} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_1.2fr_0.9fr]">
-        <section className="panel space-y-4 rounded-xl p-4 sm:p-5">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.05fr_1.2fr_0.9fr]">
+        <section className="panel order-1 space-y-4 rounded-xl p-4 sm:p-5">
           <div>
             <h2 className="font-semibold">Problem</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{problem.statement}</p>
@@ -309,7 +309,7 @@ export default function ProblemWorkspacePage() {
           )}
         </section>
 
-        <section className="flex min-h-[520px] flex-col gap-3">
+        <section className="order-2 flex min-h-[420px] flex-col gap-3 sm:min-h-[520px] xl:order-2">
           <div className="panel flex flex-1 flex-col overflow-hidden rounded-xl">
             <div className="flex items-center justify-between border-b border-[var(--line)] px-3 py-2">
               <h2 className="text-sm font-semibold">Editor</h2>
@@ -376,7 +376,7 @@ export default function ProblemWorkspacePage() {
           </div>
         </section>
 
-        <section className="min-h-[520px]">
+        <section className="order-3 min-h-[360px] lg:col-span-2 xl:col-span-1 xl:min-h-[520px]">
           <AgentPanel
             topic={problem.topic}
             problemId={problem.id}

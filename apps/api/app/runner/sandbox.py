@@ -149,7 +149,7 @@ sys.stdout.write(json.dumps(out))
 )
 
 
-def run_student_code(
+def run_in_subprocess(
     code: str,
     function_name: str,
     args: list[Any] | None = None,
@@ -188,14 +188,24 @@ def run_student_code(
                 "error": "Execution timed out. Check for infinite loops.",
                 "events": [],
                 "stdout": "",
+                "backend": "subprocess",
             }
 
         if proc.returncode != 0 and not proc.stdout:
             err = proc.stderr.decode("utf-8", errors="replace")[:2000] or "Runner failed"
-            return {"ok": False, "result": None, "error": err, "events": [], "stdout": ""}
+            return {
+                "ok": False,
+                "result": None,
+                "error": err,
+                "events": [],
+                "stdout": "",
+                "backend": "subprocess",
+            }
 
         try:
-            return json.loads(proc.stdout.decode("utf-8"))
+            data = json.loads(proc.stdout.decode("utf-8"))
+            data["backend"] = "subprocess"
+            return data
         except json.JSONDecodeError:
             return {
                 "ok": False,
@@ -203,4 +213,23 @@ def run_student_code(
                 "error": proc.stderr.decode("utf-8", errors="replace")[:2000] or "Invalid runner output",
                 "events": [],
                 "stdout": "",
+                "backend": "subprocess",
             }
+
+
+def run_student_code(
+    code: str,
+    function_name: str,
+    args: list[Any] | None = None,
+    timeout_sec: float | None = None,
+    max_steps: int | None = None,
+) -> dict[str, Any]:
+    """Run student/demo code. Prefers Docker when DSA_USE_DOCKER=1, else subprocess."""
+    try:
+        from app.runner.docker_runner import docker_available, run_in_docker
+
+        if docker_available():
+            return run_in_docker(code, function_name, args=args, timeout_sec=timeout_sec, max_steps=max_steps)
+    except Exception:
+        pass
+    return run_in_subprocess(code, function_name, args=args, timeout_sec=timeout_sec, max_steps=max_steps)
