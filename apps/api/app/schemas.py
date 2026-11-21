@@ -13,6 +13,9 @@ class TopicOut(BaseModel):
     learn_completed: bool = False
     problems_total: int = 0
     problems_mastered: int = 0
+    has_plan: bool = False
+    next_problem_id: str | None = None
+    plan_emphasis: str | None = None
 
 
 class PhaseOut(BaseModel):
@@ -37,6 +40,7 @@ class ProblemSummary(BaseModel):
     pattern: str
     stage: int = 0
     mastered: bool = False
+    plan_badge: str | None = None
 
 
 class ProblemDetail(BaseModel):
@@ -192,3 +196,44 @@ class AgentChatResponse(BaseModel):
     reply: str
     guiding_question: str | None = None
     llm_mode: str | None = None
+
+
+class DiagnosticQuestionOut(BaseModel):
+    id: str
+    type: str
+    prompt: str
+    choices: list[str] = Field(default_factory=list)
+
+
+class DiagnosticOut(BaseModel):
+    topic: str
+    title: str
+    prerequisites: list[str] = Field(default_factory=list)
+    questions: list[DiagnosticQuestionOut] = Field(default_factory=list)
+    has_plan: bool = False
+    overview_completed: bool = False
+
+
+class DiagnosticSubmit(BaseModel):
+    session_id: str
+    answers: dict[str, Any]
+
+
+class TopicPlanOut(BaseModel):
+    topic: str
+    has_plan: bool = False
+    overview_completed: bool = False
+    plan: dict[str, Any] | None = None
+
+
+class OverviewOut(BaseModel):
+    topic: str
+    overview_markdown: str
+    guiding_question: str | None = None
+    source: str = "notes"
+    overview_completed: bool = False
+    plan: dict[str, Any] | None = None
+
+
+class OverviewComplete(BaseModel):
+    session_id: str

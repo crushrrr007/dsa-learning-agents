@@ -3,11 +3,38 @@ import time
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.content_loader import get_problem, list_problems, load_notes, load_roadmap, public_quiz, topic_quiz
+from app.agents.topic_pipeline import run_diagnostic_to_plan, teach_overview
+from app.content_loader import (
+    get_problem,
+    list_problems,
+    load_notes,
+    load_roadmap,
+    public_diagnostic,
+    public_quiz,
+    topic_quiz,
+)
 from app.db import get_db
-from app.progress_service import build_progress_snapshot, get_topic_progress
+from app.progress_service import (
+    build_progress_snapshot,
+    get_topic_plan,
+    get_topic_progress,
+    mark_overview_completed,
+    parse_plan_json,
+    upsert_topic_plan,
+)
 from app.runner.sandbox import run_student_code
-from app.schemas import QuizResult, QuizSubmit, RoadmapOut, TopicDemoOut, TopicLearnOut
+from app.schemas import (
+    DiagnosticOut,
+    DiagnosticSubmit,
+    OverviewComplete,
+    OverviewOut,
+    QuizResult,
+    QuizSubmit,
+    RoadmapOut,
+    TopicDemoOut,
+    TopicLearnOut,
+    TopicPlanOut,
+)
 
 router = APIRouter(prefix="/topics", tags=["topics"])
 
@@ -140,3 +167,81 @@ async def submit_quiz(body: QuizSubmit, db: AsyncSession = Depends(get_db)) -> Q
         tp.learn_completed = 1
     await db.commit()
     return QuizResult(passed=passed, score=score, learn_completed=bool(tp.learn_completed))
+
+
+@router.get("/{slug}/diagnostic", response_model=DiagnosticOut)
+async def get_diagnostic(slug: str, session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> DiagnosticOut:
+    roadmap = load_roadmap()
+    if not any(t["slug"] == slug for t in roadmap["topics"]):
+        raise HTTPException(status_code=404, detail="Topic not found")
+    pub = public_diagnostic(slug)
+    row = await get_topic_plan(db, session_id, slug)
+    return DiagnosticOut(
+        topic=pub["topic"],
+        title=pub["title"],
+        prerequisites=pub["prerequisites"],
+        questions=pub["questions"],
+        has_plan=bool(row),
+        overview_completed=bool(row.overview_completed) if row else False,
+    )
+
+
+@router.post("/{slug}/diagnostic", response_model=TopicPlanOut)
+async def submit_diagnostic(
+    slug: str, body: DiagnosticSubmit, db: AsyncSession = Depends(get_db)
+) -> TopicPlanOut:
+    roadmap = load_roadmap()
+    if not any(t["slug"] == slug for t in roadmap["topics"]):
+        raise HTTPException(status_code=404, detail="Topic not found")
+    plan = await run_diagnostic_to_plan(slug, body.answers or {})
+    row = await upsert_topic_plan(db, body.session_id, slug, answers=body.answers or {}, plan=plan)
+    return TopicPlanOut(
+        topic=slug,
+        has_plan=True,
+        overview_completed=bool(row.overview_completed),
+        plan=plan,
+    )
+
+
+@router.get("/{slug}/plan", response_model=TopicPlanOut)
+async def get_plan(slug: str, session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> TopicPlanOut:
+    row = await get_topic_plan(db, session_id, slug)
+    return TopicPlanOut(
+        topic=slug,
+        has_plan=bool(row),
+        overview_completed=bool(row.overview_completed) if row else False,
+        plan=parse_plan_json(row),
+    )
+
+
+@router.get("/{slug}/overview", response_model=OverviewOut)
+async def get_overview(slug: str, session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> OverviewOut:
+    roadmap = load_roadmap()
+    if not any(t["slug"] == slug for t in roadmap["topics"]):
+        raise HTTPException(status_code=404, detail="Topic not found")
+    row = await get_topic_plan(db, session_id, slug)
+    plan = parse_plan_json(row)
+    taught = await teach_overview(slug, plan)
+    return OverviewOut(
+        topic=slug,
+        overview_markdown=taught["overview_markdown"],
+        guiding_question=taught.get("guiding_question"),
+        source=taught.get("source", "notes"),
+        overview_completed=bool(row.overview_completed) if row else False,
+        plan=plan,
+    )
+
+
+@router.post("/{slug}/overview/complete", response_model=TopicPlanOut)
+async def complete_overview(
+    slug: str, body: OverviewComplete, db: AsyncSession = Depends(get_db)
+) -> TopicPlanOut:
+    row = await mark_overview_completed(db, body.session_id, slug)
+    if not row:
+        raise HTTPException(status_code=404, detail="No plan for topic — complete diagnostic first")
+    return TopicPlanOut(
+        topic=slug,
+        has_plan=True,
+        overview_completed=True,
+        plan=parse_plan_json(row),
+    )

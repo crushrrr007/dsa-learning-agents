@@ -40,6 +40,9 @@ export type Topic = {
   learn_completed: boolean;
   problems_total: number;
   problems_mastered: number;
+  has_plan?: boolean;
+  next_problem_id?: string | null;
+  plan_emphasis?: string | null;
 };
 
 export type Phase = {
@@ -64,6 +67,23 @@ export type ProblemSummary = {
   pattern: string;
   stage: number;
   mastered: boolean;
+  plan_badge?: string | null;
+};
+
+export type TopicPlan = {
+  topic: string;
+  has_plan: boolean;
+  overview_completed: boolean;
+  plan: {
+    summary?: string;
+    review_notes?: string;
+    emphasis?: string;
+    prerequisites?: string[];
+    review_first?: { id: string; title: string; difficulty: string; badge?: string }[];
+    recommended?: { id: string; title: string; difficulty: string; badge?: string }[];
+    optional?: { id: string; title: string; difficulty: string; badge?: string }[];
+    next_problem_id?: string | null;
+  } | null;
 };
 
 export type ProblemDetail = ProblemSummary & {
@@ -112,6 +132,49 @@ export async function fetchTopicLearn(slug: string) {
     demo_title: string | null;
     demo_visual: string | null;
   }>(`/topics/${slug}/learn?session_id=${encodeURIComponent(sid)}`);
+}
+
+export async function fetchDiagnostic(slug: string) {
+  const sid = getSessionId();
+  return request<{
+    topic: string;
+    title: string;
+    prerequisites: string[];
+    questions: { id: string; type: string; prompt: string; choices: string[] }[];
+    has_plan: boolean;
+    overview_completed: boolean;
+  }>(`/topics/${slug}/diagnostic?session_id=${encodeURIComponent(sid)}`);
+}
+
+export async function submitDiagnostic(slug: string, answers: Record<string, string | number>) {
+  return request<TopicPlan>(`/topics/${slug}/diagnostic`, {
+    method: "POST",
+    body: JSON.stringify({ session_id: getSessionId(), answers }),
+  });
+}
+
+export async function fetchTopicPlan(slug: string) {
+  const sid = getSessionId();
+  return request<TopicPlan>(`/topics/${slug}/plan?session_id=${encodeURIComponent(sid)}`);
+}
+
+export async function fetchTopicOverview(slug: string) {
+  const sid = getSessionId();
+  return request<{
+    topic: string;
+    overview_markdown: string;
+    guiding_question: string | null;
+    source: string;
+    overview_completed: boolean;
+    plan: TopicPlan["plan"];
+  }>(`/topics/${slug}/overview?session_id=${encodeURIComponent(sid)}`);
+}
+
+export async function completeTopicOverview(slug: string) {
+  return request<TopicPlan>(`/topics/${slug}/overview/complete`, {
+    method: "POST",
+    body: JSON.stringify({ session_id: getSessionId() }),
+  });
 }
 
 export async function runTopicDemo(slug: string) {

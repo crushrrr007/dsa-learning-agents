@@ -1,0 +1,35 @@
+{
+  "topic": "dynamic-programming",
+  "title": "Dynamic Programming — prerequisite check",
+  "prerequisites": ["recursion", "arrays"],
+  "questions": [
+    {
+      "id": "overlap",
+      "type": "scale",
+      "prompt": "How familiar are you with overlapping subproblems / memoization?",
+      "choices": ["New to me", "Heard of it", "Used it a little", "Comfortable"]
+    },
+    {
+      "id": "state",
+      "type": "mcq",
+      "prompt": "A DP cell should represent…",
+      "choices": ["A random cache", "The answer to one clear subproblem", "Only the final answer", "Input length only"],
+      "answer_index": 1,
+      "skill": "state"
+    },
+    {
+      "id": "order",
+      "type": "mcq",
+      "prompt": "Bottom-up DP fills cells…",
+      "choices": ["In random order", "So dependencies are already computed", "Only recursively", "After sorting input always"],
+      "answer_index": 1,
+      "skill": "order"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from DP?",
+      "choices": ["1D fundamentals", "Overview then practice", "Harder choice DP"]
+    }
+  ]
+}

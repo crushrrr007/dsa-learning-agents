@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Circle, Lock } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { fetchProblems, fetchRoadmap, type ProblemSummary, type Roadmap, type Topic } from "@/lib/api";
 
 function diffColor(d: string) {
@@ -10,6 +10,13 @@ function diffColor(d: string) {
   if (x === "easy") return "text-emerald-600";
   if (x === "hard") return "text-rose-600";
   return "text-amber-600";
+}
+
+function badgeLabel(b?: string | null) {
+  if (b === "review_first") return "Review first";
+  if (b === "optional") return "Optional";
+  if (b === "recommended") return "Recommended";
+  return null;
 }
 
 export default function HomePage() {
@@ -74,14 +81,17 @@ export default function HomePage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">DSA practice roadmap</p>
         <h1 className="display mt-2 text-3xl font-semibold sm:text-4xl">Pointer Lab</h1>
         <p className="mt-2 max-w-2xl text-sm text-[var(--muted)] sm:text-base">
-          NeetCode-style problem list. Open a problem → code like LeetCode → call built-in agents (Hint, Demo, Predict,
-          Debug, Viva) instead of reading solution dumps.
+          Open a topic for a short diagnostic → soft custom plan → teach overview, then solve LeetCode-style with
+          built-in agents. Problems are never hard-locked.
         </p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
           <span className="rounded-md border border-[var(--line)] bg-white/80 px-3 py-1.5 font-medium">
             {mastered}/{problems.length || 20} mastered
           </span>
-          <Link href="/progress" className="rounded-md border border-[var(--line)] bg-white/80 px-3 py-1.5 font-medium hover:border-[var(--accent)]">
+          <Link
+            href="/progress"
+            className="rounded-md border border-[var(--line)] bg-white/80 px-3 py-1.5 font-medium hover:border-[var(--accent)]"
+          >
             Progress
           </Link>
         </div>
@@ -105,6 +115,7 @@ export default function HomePage() {
                 {topics.map((topic) => {
                   const list = byTopic.get(topic.slug) || [];
                   const isOpen = open[topic.slug];
+                  const next = topic.next_problem_id;
                   return (
                     <div key={topic.slug} className="overflow-hidden rounded-xl border border-[var(--line)] bg-white/90">
                       <button
@@ -116,13 +127,19 @@ export default function HomePage() {
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-semibold">{topic.title}</span>
-                            {topic.learn_completed ? (
-                              <span className="text-[11px] font-semibold text-emerald-600">Lesson done</span>
+                            {topic.has_plan ? (
+                              <span className="text-[11px] font-semibold text-emerald-600">
+                                Plan ready{topic.plan_emphasis ? ` · ${topic.plan_emphasis}` : ""}
+                              </span>
                             ) : (
-                              <span className="text-[11px] font-semibold text-amber-600">Lesson locked problems</span>
+                              <span className="text-[11px] font-semibold text-[var(--muted)]">No plan yet</span>
                             )}
                           </div>
-                          <p className="truncate text-xs text-[var(--muted)]">{topic.summary}</p>
+                          <p className="truncate text-xs text-[var(--muted)]">
+                            {topic.has_plan && next
+                              ? `Your plan → next: ${list.find((p) => p.id === next)?.title || next}`
+                              : topic.summary}
+                          </p>
                         </div>
                         <span className="text-xs font-medium text-[var(--muted)]">
                           {topic.problems_mastered}/{topic.problems_total}
@@ -132,7 +149,7 @@ export default function HomePage() {
                           onClick={(e) => e.stopPropagation()}
                           className="rounded-md border border-[var(--line)] px-2 py-1 text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent)]/5"
                         >
-                          Lesson
+                          {topic.has_plan ? "Continue" : "Diagnose"}
                         </Link>
                         <span className="text-xs text-[var(--muted)]">{isOpen ? "▾" : "▸"}</span>
                       </button>
@@ -143,7 +160,7 @@ export default function HomePage() {
                             <li className="px-4 py-3 text-sm text-[var(--muted)]">No problems yet.</li>
                           )}
                           {list.map((p) => {
-                            const locked = p.stage === 0 && !topic.learn_completed;
+                            const bl = badgeLabel(p.plan_badge);
                             return (
                               <li key={p.id} className="border-t border-[var(--line)]/70 first:border-t-0">
                                 <Link
@@ -152,14 +169,19 @@ export default function HomePage() {
                                 >
                                   {p.mastered ? (
                                     <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                                  ) : locked ? (
-                                    <Lock className="h-4 w-4 shrink-0 text-[var(--muted)]" />
                                   ) : (
                                     <Circle className="h-4 w-4 shrink-0 text-[var(--muted)]" />
                                   )}
                                   <span className="min-w-0 flex-1 font-medium">{p.title}</span>
+                                  {bl && (
+                                    <span className="hidden rounded bg-black/5 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--muted)] sm:inline">
+                                      {bl}
+                                    </span>
+                                  )}
                                   <span className="hidden text-xs text-[var(--muted)] sm:inline">{p.pattern}</span>
-                                  <span className={`w-14 text-right text-xs font-bold uppercase ${diffColor(p.difficulty)}`}>
+                                  <span
+                                    className={`w-14 text-right text-xs font-bold uppercase ${diffColor(p.difficulty)}`}
+                                  >
                                     {p.difficulty}
                                   </span>
                                 </Link>

@@ -1,0 +1,35 @@
+{
+  "topic": "two-pointers",
+  "title": "Two Pointers — prerequisite check",
+  "prerequisites": ["arrays", "indexing"],
+  "questions": [
+    {
+      "id": "arrays_prereq",
+      "type": "scale",
+      "prompt": "How solid do you feel with basic array scanning and indices?",
+      "choices": ["Weak", "Okay", "Solid", "Strong"]
+    },
+    {
+      "id": "opposite",
+      "type": "mcq",
+      "prompt": "Opposite-end two pointers usually start where?",
+      "choices": ["Both at 0", "Left at 0 and right at n-1", "Both at n-1", "At the middle only"],
+      "answer_index": 1,
+      "skill": "opposite-ends"
+    },
+    {
+      "id": "progress",
+      "type": "mcq",
+      "prompt": "After comparing ends of a sorted array for a target sum, what should happen?",
+      "choices": ["Always move both", "Move the pointer that improves the sum", "Restart from scratch", "Sort again"],
+      "answer_index": 1,
+      "skill": "pointer-move"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Two Pointers?",
+      "choices": ["Build intuition slowly", "Overview then practice", "Challenge me with mediums"]
+    }
+  ]
+}

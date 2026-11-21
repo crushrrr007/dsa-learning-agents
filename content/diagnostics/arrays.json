@@ -1,0 +1,35 @@
+{
+  "topic": "arrays",
+  "title": "Arrays — prerequisite check",
+  "prerequisites": ["basic Python loops", "indexing"],
+  "questions": [
+    {
+      "id": "comfort",
+      "type": "scale",
+      "prompt": "How comfortable are you writing Python for-loops over a list?",
+      "choices": ["Never done it", "Need a refresher", "Comfortable", "Very comfortable"]
+    },
+    {
+      "id": "index",
+      "type": "mcq",
+      "prompt": "In a 0-indexed array of length n, what is the last valid index?",
+      "choices": ["n", "n-1", "n+1", "0"],
+      "answer_index": 1,
+      "skill": "indexing"
+    },
+    {
+      "id": "inplace",
+      "type": "mcq",
+      "prompt": "What does an in-place array update mean?",
+      "choices": ["Allocate a new array", "Change values without a full copy", "Sort then copy", "Use recursion only"],
+      "answer_index": 1,
+      "skill": "in-place"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Arrays right now?",
+      "choices": ["Start from absolute basics", "Quick overview then practice", "Jump to harder problems"]
+    }
+  ]
+}

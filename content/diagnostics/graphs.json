@@ -1,0 +1,35 @@
+{
+  "topic": "graphs",
+  "title": "Graphs — prerequisite check",
+  "prerequisites": ["queues/stacks", "trees traversal"],
+  "questions": [
+    {
+      "id": "traversal",
+      "type": "scale",
+      "prompt": "How comfortable are you with BFS/DFS ideas (even on trees)?",
+      "choices": ["Weak", "Okay", "Solid", "Strong"]
+    },
+    {
+      "id": "visited",
+      "type": "mcq",
+      "prompt": "Why mark nodes visited in an undirected graph search?",
+      "choices": ["To sort edges", "To avoid infinite revisits", "To compute degrees", "To allocate adjacency lists"],
+      "answer_index": 1,
+      "skill": "visited"
+    },
+    {
+      "id": "bfs",
+      "type": "mcq",
+      "prompt": "BFS from a source typically finds…",
+      "choices": ["Longest path", "Shortest path in unweighted graphs", "MST only", "Topological order only"],
+      "answer_index": 1,
+      "skill": "bfs"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Graphs?",
+      "choices": ["BFS first", "Mix BFS and components", "Harder multi-source ideas"]
+    }
+  ]
+}

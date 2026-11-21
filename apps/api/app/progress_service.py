@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
+from typing import Any
+
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import list_problems, load_roadmap
-from app.models import Attempt, Progress, TopicProgress
+from app.models import Attempt, Progress, TopicPlan, TopicProgress
 
 
 async def get_or_create_progress(
@@ -123,10 +126,13 @@ async def build_progress_snapshot(db: AsyncSession, session_id: str) -> dict:
             }
         )
 
+    plans = await list_topic_plans_summary(db, session_id)
+
     topics_out = []
     for t in roadmap["topics"]:
         tp = by_topic.get(t["slug"])
         topic_problems = [x for x in problem_summaries if x["topic"] == t["slug"]]
+        plan_meta = plans.get(t["slug"])
         topics_out.append(
             {
                 **t,
@@ -134,6 +140,9 @@ async def build_progress_snapshot(db: AsyncSession, session_id: str) -> dict:
                 "learn_completed": bool(tp.learn_completed) if tp else False,
                 "problems_total": len(topic_problems),
                 "problems_mastered": sum(1 for x in topic_problems if x["mastered"]),
+                "has_plan": bool(plan_meta),
+                "next_problem_id": (plan_meta or {}).get("next_problem_id"),
+                "plan_emphasis": (plan_meta or {}).get("emphasis"),
             }
         )
 
@@ -142,16 +151,94 @@ async def build_progress_snapshot(db: AsyncSession, session_id: str) -> dict:
         "problems": problem_summaries,
         "topics": topics_out,
         "phases": roadmap.get("phases", []),
+        "plans": plans,
     }
+
+
+async def get_topic_plan(db: AsyncSession, session_id: str, topic: str) -> TopicPlan | None:
+    result = await db.execute(
+        select(TopicPlan).where(TopicPlan.session_id == session_id, TopicPlan.topic == topic)
+    )
+    return result.scalar_one_or_none()
+
+
+async def upsert_topic_plan(
+    db: AsyncSession,
+    session_id: str,
+    topic: str,
+    *,
+    answers: dict[str, Any],
+    plan: dict[str, Any],
+) -> TopicPlan:
+    row = await get_topic_plan(db, session_id, topic)
+    payload_answers = json.dumps(answers)
+    payload_plan = json.dumps(plan)
+    if row:
+        row.diagnostic_answers = payload_answers
+        row.plan_json = payload_plan
+        # New diagnostic resets overview so teach step runs again
+        row.overview_completed = 0
+    else:
+        row = TopicPlan(
+            session_id=session_id,
+            topic=topic,
+            diagnostic_answers=payload_answers,
+            plan_json=payload_plan,
+            overview_completed=0,
+        )
+        db.add(row)
+    await db.commit()
+    await db.refresh(row)
+    return row
+
+
+async def mark_overview_completed(db: AsyncSession, session_id: str, topic: str) -> TopicPlan | None:
+    row = await get_topic_plan(db, session_id, topic)
+    if not row:
+        return None
+    row.overview_completed = 1
+    # Soft: also mark learn_completed so older UI fields stay coherent
+    tp = await get_topic_progress(db, session_id, topic)
+    tp.learn_completed = 1
+    await db.commit()
+    await db.refresh(row)
+    return row
+
+
+def parse_plan_json(row: TopicPlan | None) -> dict[str, Any] | None:
+    if not row:
+        return None
+    try:
+        return json.loads(row.plan_json or "{}")
+    except json.JSONDecodeError:
+        return {}
+
+
+async def list_topic_plans_summary(db: AsyncSession, session_id: str) -> dict[str, dict[str, Any]]:
+    rows = (await db.execute(select(TopicPlan).where(TopicPlan.session_id == session_id))).scalars().all()
+    out: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        plan = parse_plan_json(row) or {}
+        out[row.topic] = {
+            "topic": row.topic,
+            "has_plan": True,
+            "overview_completed": bool(row.overview_completed),
+            "next_problem_id": plan.get("next_problem_id"),
+            "emphasis": plan.get("emphasis"),
+            "review_notes": plan.get("review_notes"),
+        }
+    return out
 
 
 async def reset_session_progress(db: AsyncSession, session_id: str) -> dict[str, int]:
     prog = await db.execute(delete(Progress).where(Progress.session_id == session_id))
     topics = await db.execute(delete(TopicProgress).where(TopicProgress.session_id == session_id))
     attempts = await db.execute(delete(Attempt).where(Attempt.session_id == session_id))
+    plans = await db.execute(delete(TopicPlan).where(TopicPlan.session_id == session_id))
     await db.commit()
     return {
         "progress_deleted": prog.rowcount or 0,
         "topics_deleted": topics.rowcount or 0,
         "attempts_deleted": attempts.rowcount or 0,
+        "plans_deleted": plans.rowcount or 0,
     }

@@ -1,0 +1,35 @@
+{
+  "topic": "sliding-window",
+  "title": "Sliding Window — prerequisite check",
+  "prerequisites": ["arrays", "two-pointers"],
+  "questions": [
+    {
+      "id": "tp_prereq",
+      "type": "scale",
+      "prompt": "How comfortable are you with two indices moving on an array?",
+      "choices": ["Weak", "Okay", "Solid", "Strong"]
+    },
+    {
+      "id": "fixed",
+      "type": "mcq",
+      "prompt": "In a fixed window of size k, what stays constant?",
+      "choices": ["The sum", "The window length", "The left index only", "The right index only"],
+      "answer_index": 1,
+      "skill": "fixed-window"
+    },
+    {
+      "id": "shrink",
+      "type": "mcq",
+      "prompt": "When does a variable window typically shrink from the left?",
+      "choices": ["Always each step", "When the window becomes invalid", "Only at the end", "Never"],
+      "answer_index": 1,
+      "skill": "variable-window"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Sliding Window?",
+      "choices": ["Start with fixed windows", "Mix fixed and variable", "Jump to harder variable windows"]
+    }
+  ]
+}

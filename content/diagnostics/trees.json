@@ -1,0 +1,35 @@
+{
+  "topic": "trees",
+  "title": "Trees — prerequisite check",
+  "prerequisites": ["recursion", "linked-lists ideas"],
+  "questions": [
+    {
+      "id": "recursion",
+      "type": "scale",
+      "prompt": "How comfortable are you with recursion and base cases?",
+      "choices": ["Weak", "Okay", "Solid", "Strong"]
+    },
+    {
+      "id": "null",
+      "type": "mcq",
+      "prompt": "Typical base case for a binary-tree recursion?",
+      "choices": ["node.val == 0", "node is None", "node.left == node.right", "depth == 1"],
+      "answer_index": 1,
+      "skill": "base-case"
+    },
+    {
+      "id": "combine",
+      "type": "mcq",
+      "prompt": "After recursing on left and right, you usually…",
+      "choices": ["Ignore both answers", "Combine child answers at the current node", "Sort the tree", "Restart from root"],
+      "answer_index": 1,
+      "skill": "combine"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Trees?",
+      "choices": ["Recursion fundamentals", "Overview then practice", "Harder compare/transform problems"]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "topic": "linked-lists",
+  "title": "Linked Lists — prerequisite check",
+  "prerequisites": ["pointers/references", "arrays basics"],
+  "questions": [
+    {
+      "id": "refs",
+      "type": "scale",
+      "prompt": "How comfortable are you with object references / pointers in Python?",
+      "choices": ["Weak", "Okay", "Solid", "Strong"]
+    },
+    {
+      "id": "next",
+      "type": "mcq",
+      "prompt": "Before rewiring node.next, what should you usually save?",
+      "choices": ["The previous value only", "A reference to the next node", "The list length", "Nothing"],
+      "answer_index": 1,
+      "skill": "rewire"
+    },
+    {
+      "id": "cycle",
+      "type": "mcq",
+      "prompt": "Floyd’s cycle detection uses which idea?",
+      "choices": ["Sorting nodes", "Fast and slow pointers", "Binary search", "A heap"],
+      "answer_index": 1,
+      "skill": "cycle"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Linked Lists?",
+      "choices": ["Basics: reverse and middle", "Overview then mix", "Focus on cycles"]
+    }
+  ]
+}

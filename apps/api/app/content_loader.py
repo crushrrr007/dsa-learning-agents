@@ -16,6 +16,7 @@ def clear_content_cache() -> None:
     load_roadmap.cache_clear()
     load_all_problems.cache_clear()
     load_topic_quiz.cache_clear()
+    load_diagnostic.cache_clear()
 
 
 @lru_cache
@@ -98,3 +99,34 @@ def public_quiz(topic: str) -> list[dict[str, Any]]:
         {"question": q["question"], "choices": q["choices"]}
         for q in topic_quiz(topic)
     ]
+
+
+@lru_cache
+def load_diagnostic(topic: str) -> dict[str, Any]:
+    path = _content_dir() / "diagnostics" / f"{topic}.json"
+    if not path.exists():
+        return {
+            "topic": topic,
+            "title": f"{topic} — prerequisite check",
+            "prerequisites": [],
+            "questions": [],
+        }
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def public_diagnostic(topic: str) -> dict[str, Any]:
+    data = load_diagnostic(topic)
+    return {
+        "topic": data.get("topic", topic),
+        "title": data.get("title", topic),
+        "prerequisites": data.get("prerequisites", []),
+        "questions": [
+            {
+                "id": q["id"],
+                "type": q.get("type", "mcq"),
+                "prompt": q["prompt"],
+                "choices": q.get("choices", []),
+            }
+            for q in data.get("questions", [])
+        ],
+    }

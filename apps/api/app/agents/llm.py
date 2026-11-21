@@ -37,6 +37,9 @@ AGENT_ROLES = {
     "predict_coach": "Predict Coach — check step predictions against traced state.",
     "code_mentor": "Code Mentor — hint from AST/errors/tests; never paste a solution.",
     "viva_agent": "Viva Agent — oral-style probes about complexity and edge cases.",
+    "diagnostic_agent": "Diagnostic Agent — assess prerequisites for a topic.",
+    "plan_agent": "Plan Agent — build a soft personalized practice path.",
+    "teach_agent": "Teach Agent — brief topic overview before coding.",
 }
 
 AgentName = str

@@ -114,13 +114,16 @@ def test_agents_status_and_stage_routing(client: TestClient):
     status = client.get("/agents/status")
     assert status.status_code == 200
     body = status.json()
-    assert set(body["agents"]) == {
+    assert {
         "concept_tutor",
         "demo_coach",
         "predict_coach",
         "code_mentor",
         "viva_agent",
-    }
+        "diagnostic_agent",
+        "plan_agent",
+        "teach_agent",
+    } <= set(body["agents"])
     assert body["llm"]["provider"] in {"mock", "groq", "openai"}
 
     expected = {
@@ -158,3 +161,61 @@ def test_agents_status_and_stage_routing(client: TestClient):
     )
     assert forced.status_code == 200
     assert forced.json()["agent"] == "viva_agent"
+
+
+def test_soft_unlock_without_lesson(client: TestClient):
+    """Problems are openable without completing topic quiz (soft plan)."""
+    sid = "soft_unlock_session"
+    res = client.get("/problems/valid-palindrome", params={"session_id": sid})
+    assert res.status_code == 200
+    assert res.json()["stage"] >= 1
+
+
+def test_diagnostic_builds_soft_plan(client: TestClient):
+    sid = "diag_plan_session"
+    diag = client.get("/topics/two-pointers/diagnostic", params={"session_id": sid})
+    assert diag.status_code == 200
+    data = diag.json()
+    assert len(data["questions"]) >= 3
+
+    answers = {}
+    for q in data["questions"]:
+        # pick first choice / index 0 — weak path should still produce a plan
+        answers[q["id"]] = 0 if q["type"] == "mcq" else q["choices"][0]
+
+    built = client.post(
+        "/topics/two-pointers/diagnostic",
+        json={"session_id": sid, "answers": answers},
+    )
+    assert built.status_code == 200
+    plan_body = built.json()
+    assert plan_body["has_plan"] is True
+    plan = plan_body["plan"]
+    assert plan["next_problem_id"]
+    assert plan.get("recommended") or plan.get("review_first")
+
+    fetched = client.get("/topics/two-pointers/plan", params={"session_id": sid})
+    assert fetched.status_code == 200
+    assert fetched.json()["has_plan"] is True
+
+    overview = client.get("/topics/two-pointers/overview", params={"session_id": sid})
+    assert overview.status_code == 200
+    assert overview.json()["overview_markdown"]
+
+    done = client.post(
+        "/topics/two-pointers/overview/complete",
+        json={"session_id": sid},
+    )
+    assert done.status_code == 200
+    assert done.json()["overview_completed"] is True
+
+    # Soft badges appear on problem list
+    probs = client.get("/problems", params={"session_id": sid, "topic": "two-pointers"})
+    assert probs.status_code == 200
+    badges = [p.get("plan_badge") for p in probs.json() if p.get("plan_badge")]
+    assert len(badges) >= 1
+
+
+def test_content_diagnostics_exist():
+    root = Path(__file__).resolve().parents[3] / "content"
+    assert len(list((root / "diagnostics").glob("*.json"))) >= 7

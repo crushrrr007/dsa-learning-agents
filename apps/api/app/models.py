@@ -47,3 +47,16 @@ class Attempt(Base):
     success: Mapped[int] = mapped_column(Integer, default=0)
     detail: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class TopicPlan(Base):
+    __tablename__ = "topic_plans"
+    __table_args__ = (UniqueConstraint("session_id", "topic", name="uq_session_topic_plan"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(String(64), index=True)
+    topic: Mapped[str] = mapped_column(String(64), index=True)
+    diagnostic_answers: Mapped[str] = mapped_column(Text, default="{}")
+    plan_json: Mapped[str] = mapped_column(Text, default="{}")
+    overview_completed: Mapped[int] = mapped_column(Integer, default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)

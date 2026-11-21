@@ -72,16 +72,17 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 ## Product shape
 
-- **Problems list** — NeetCode-style roadmap checklist (topic sections, difficulty, mastery)  
+- **Per-topic adaptive path** — Diagnose prerequisites → Plan Agent soft path → Teach Agent overview → practice  
+- **Problems list** — NeetCode-style roadmap checklist (soft plan badges; nothing hard-locked)  
 - **Workspace** — LeetCode-style split: description | editor | Run/Submit | testcases  
-- **Agents dock** — switchable Hint / Demo / Predict / Debug / Viva (LangGraph + Groq)
+- **Agents dock** — Hint / Demo / Predict / Debug / Viva (+ Diagnostic / Plan / Teach on topic pages)
 
 ## Demo path
 
-1. Open http://127.0.0.1:3417 → pick a problem from the checklist  
-2. Topic **Lesson** unlocks coding (Stage 0 quiz)  
-3. Learn path: See → Predict → Code → Submit → Viva  
-4. Use the **Agents** tab while coding for targeted help  
+1. Open http://127.0.0.1:3417 → **Diagnose** on a topic (or open any problem immediately)  
+2. Answer the short prereq check → soft custom plan  
+3. Teach Agent overview → recommended problem  
+4. In the workspace: See → Predict → Code → Submit → Viva + Agents dock  
 5. **/progress** + **Reset session** for evaluator demos  
 
 ## Tests
