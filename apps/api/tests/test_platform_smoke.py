@@ -145,3 +145,16 @@ def test_agents_status_and_stage_routing(client: TestClient):
         assert data["agent"] == agent
         assert data["reply"]
         assert data["llm_mode"] in {"mock", "groq", "openai"}
+
+    forced = client.post(
+        "/agents/chat",
+        json={
+            "session_id": "agent_route_test",
+            "topic": "arrays",
+            "stage": 1,
+            "message": "Help me",
+            "preferred_agent": "viva_agent",
+        },
+    )
+    assert forced.status_code == 200
+    assert forced.json()["agent"] == "viva_agent"

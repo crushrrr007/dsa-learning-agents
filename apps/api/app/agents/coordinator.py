@@ -23,6 +23,15 @@ AgentRoute = Literal[
 ]
 
 
+VALID_AGENTS: tuple[AgentRoute, ...] = (
+    "concept_tutor",
+    "demo_coach",
+    "predict_coach",
+    "code_mentor",
+    "viva_agent",
+)
+
+
 class AgentState(TypedDict, total=False):
     stage: int
     topic: str
@@ -30,6 +39,7 @@ class AgentState(TypedDict, total=False):
     code: str
     facts: dict[str, Any]
     notes: str
+    preferred_agent: str
     route: AgentRoute
     agent: str
     reply: str
@@ -37,13 +47,16 @@ class AgentState(TypedDict, total=False):
     agent_label: str
 
 
-def choose_agent(stage: int, message: str) -> AgentRoute:
-    """Route by learning stage; explicit phrases can override."""
+def choose_agent(stage: int, message: str, preferred: str | None = None) -> AgentRoute:
+    """Route by explicit UI pick, then learning stage / phrases."""
+    if preferred in VALID_AGENTS:
+        return preferred  # type: ignore[return-value]
     lower = (message or "").lower()
-    # Prefer viva probes when the student asks for them at any stage.
-    if any(phrase in lower for phrase in ("viva", "time complexity", "space complexity", "edge case", "defend your", "interview question")):
+    if any(
+        phrase in lower
+        for phrase in ("viva", "time complexity", "space complexity", "edge case", "defend your", "interview question")
+    ):
         return "viva_agent"
-    # Concept override only for explicit concept/notes asks (avoid bare "why").
     if any(
         phrase in lower
         for phrase in (
@@ -68,7 +81,11 @@ def choose_agent(stage: int, message: str) -> AgentRoute:
 
 
 def route_node(state: AgentState) -> AgentState:
-    route = choose_agent(int(state.get("stage") or 0), state.get("message") or "")
+    route = choose_agent(
+        int(state.get("stage") or 0),
+        state.get("message") or "",
+        state.get("preferred_agent"),
+    )
     topic = state.get("topic") or "arrays"
     notes = retrieve_notes(topic, state.get("message") or topic)
     return {
@@ -204,6 +221,7 @@ async def run_coordinator(
     message: str,
     code: str | None = None,
     facts: dict[str, Any] | None = None,
+    preferred_agent: str | None = None,
 ) -> dict[str, str | None]:
     graph = get_graph()
     result = await graph.ainvoke(
@@ -213,6 +231,7 @@ async def run_coordinator(
             "message": message,
             "code": code or "",
             "facts": facts or {},
+            "preferred_agent": preferred_agent or "",
         }
     )
     return {

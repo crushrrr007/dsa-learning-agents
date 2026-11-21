@@ -3,9 +3,9 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pointer Lab — Multi-Agent DSA Learning",
+  title: "Pointer Lab — Multi-Agent DSA",
   description:
-    "Learn arrays, two pointers, sliding window, and linked lists with real code tracing and teaching agents.",
+    "NeetCode-style DSA practice with LeetCode-like coding and built-in teaching agents.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -15,26 +15,24 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
       <body className="antialiased">
         <div className="relative min-h-screen">
-          <div className="pointer-events-none absolute inset-0 grid-fade opacity-70" />
-          <header className="relative z-10 border-b border-[var(--line)]/80 bg-white/40 backdrop-blur-md">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-              <Link href="/" className="group flex items-baseline gap-2">
-                <span className="display text-xl font-semibold tracking-tight text-[var(--ink)] sm:text-2xl">
-                  Pointer Lab
-                </span>
-                <span className="hidden text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted)] sm:inline">
-                  DSA Phase I
+          <div className="pointer-events-none absolute inset-0 grid-fade opacity-50" />
+          <header className="relative z-10 border-b border-[var(--line)]/80 bg-white/70 backdrop-blur-md">
+            <div className="mx-auto flex max-w-[1600px] items-center justify-between px-3 py-2.5 sm:px-5">
+              <Link href="/" className="flex items-baseline gap-2">
+                <span className="display text-xl font-semibold tracking-tight text-[var(--ink)]">Pointer Lab</span>
+                <span className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] sm:inline">
+                  Multi-agent DSA
                 </span>
               </Link>
-              <nav className="flex items-center gap-4 text-sm font-medium text-[var(--muted)]">
+              <nav className="flex items-center gap-4 text-sm font-semibold text-[var(--muted)]">
                 <Link href="/" className="transition hover:text-[var(--accent)]">
-                  Roadmap
+                  Problems
                 </Link>
                 <Link href="/progress" className="transition hover:text-[var(--accent)]">
                   Progress

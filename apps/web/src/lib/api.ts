@@ -235,6 +235,7 @@ export async function chatAgent(payload: {
   message: string;
   code?: string;
   last_run?: Record<string, unknown>;
+  preferred_agent?: string;
 }) {
   return request<{
     agent: string;

@@ -183,6 +183,7 @@ class AgentChatRequest(BaseModel):
     message: str
     code: str | None = None
     last_run: dict[str, Any] | None = None
+    preferred_agent: str | None = None
 
 
 class AgentChatResponse(BaseModel):

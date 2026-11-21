@@ -33,6 +33,7 @@ async def agent_chat(body: AgentChatRequest) -> AgentChatResponse:
         message=body.message,
         code=body.code,
         facts=body.last_run or {},
+        preferred_agent=body.preferred_agent,
     )
     status = llm_status()
     return AgentChatResponse(

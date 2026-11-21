@@ -2,131 +2,180 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, Circle } from "lucide-react";
-import { fetchRoadmap, type Roadmap, type Topic } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, Circle, Lock } from "lucide-react";
+import { fetchProblems, fetchRoadmap, type ProblemSummary, type Roadmap, type Topic } from "@/lib/api";
+
+function diffColor(d: string) {
+  const x = d.toLowerCase();
+  if (x === "easy") return "text-emerald-600";
+  if (x === "hard") return "text-rose-600";
+  return "text-amber-600";
+}
 
 export default function HomePage() {
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
+  const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    fetchRoadmap()
-      .then(setRoadmap)
-      .catch((e) => setError(e.message || "Failed to load roadmap"))
+    Promise.all([fetchRoadmap(), fetchProblems()])
+      .then(([r, p]) => {
+        setRoadmap(r);
+        setProblems(p);
+        const init: Record<string, boolean> = {};
+        r.topics.forEach((t, i) => {
+          init[t.slug] = i < 2;
+        });
+        setOpen(init);
+      })
+      .catch((e) => setError(e.message || "Failed to load"))
       .finally(() => setLoading(false));
   }, []);
 
-  const bySlug = useMemo(() => {
-    const map = new Map<string, Topic>();
-    roadmap?.topics.forEach((t) => map.set(t.slug, t));
+  const byTopic = useMemo(() => {
+    const map = new Map<string, ProblemSummary[]>();
+    for (const p of problems) {
+      const list = map.get(p.topic) || [];
+      list.push(p);
+      map.set(p.topic, list);
+    }
     return map;
-  }, [roadmap]);
+  }, [problems]);
+
+  const mastered = problems.filter((p) => p.mastered).length;
 
   const phases =
     roadmap?.phases?.length
       ? roadmap.phases
       : [
-          { id: 1, title: "Phase I", topic_slugs: roadmap?.topics.filter((t) => (t.phase ?? 1) === 1).map((t) => t.slug) || [] },
-          { id: 2, title: "Phase II", topic_slugs: roadmap?.topics.filter((t) => t.phase === 2).map((t) => t.slug) || [] },
+          {
+            id: 1,
+            title: "Phase I — Linear structures",
+            topic_slugs: roadmap?.topics.filter((t) => (t.phase ?? 1) === 1).map((t) => t.slug) || [],
+          },
+          {
+            id: 2,
+            title: "Phase II — Trees, Graphs & DP",
+            topic_slugs: roadmap?.topics.filter((t) => t.phase === 2).map((t) => t.slug) || [],
+          },
         ];
 
+  const topicMap = useMemo(() => {
+    const m = new Map<string, Topic>();
+    roadmap?.topics.forEach((t) => m.set(t.slug, t));
+    return m;
+  }, [roadmap]);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-      <section className="animate-rise relative overflow-hidden rounded-2xl panel px-6 py-10 sm:px-10 sm:py-14">
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[var(--accent)]/10 blur-2xl animate-pulse-soft" />
-        <div className="absolute bottom-0 left-1/3 h-40 w-40 rounded-full bg-[var(--accent-2)]/10 blur-2xl" />
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-          Multi-agent learning workspace
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">DSA practice roadmap</p>
+        <h1 className="display mt-2 text-3xl font-semibold sm:text-4xl">Pointer Lab</h1>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--muted)] sm:text-base">
+          NeetCode-style problem list. Open a problem → code like LeetCode → call built-in agents (Hint, Demo, Predict,
+          Debug, Viva) instead of reading solution dumps.
         </p>
-        <h1 className="display mt-3 max-w-3xl text-4xl font-semibold leading-tight text-[var(--ink)] sm:text-5xl">
-          Pointer Lab
-        </h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--muted)] sm:text-lg">
-          {roadmap?.description ||
-            "Learn DSA with real code tracing and teaching agents — from arrays through trees, graphs, and DP."}
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button onClick={() => document.getElementById("roadmap")?.scrollIntoView({ behavior: "smooth" })}>
-            Open full roadmap
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-          <Link
-            href="/progress"
-            className="inline-flex h-10 items-center rounded-md border border-[var(--line)] bg-white/80 px-4 text-sm font-semibold text-[var(--ink)] hover:bg-white"
-          >
-            View progress
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          <span className="rounded-md border border-[var(--line)] bg-white/80 px-3 py-1.5 font-medium">
+            {mastered}/{problems.length || 20} mastered
+          </span>
+          <Link href="/progress" className="rounded-md border border-[var(--line)] bg-white/80 px-3 py-1.5 font-medium hover:border-[var(--accent)]">
+            Progress
           </Link>
         </div>
-      </section>
+      </header>
 
-      <section id="roadmap" className="animate-rise-delay mt-12 space-y-10">
-        {loading && <div className="panel rounded-xl p-8 text-[var(--muted)]">Loading roadmap…</div>}
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-800">
-            Could not reach the API. Start the backend on port 8417.
-            <pre className="mt-2 whitespace-pre-wrap text-xs opacity-80">{error}</pre>
-          </div>
-        )}
+      {loading && <div className="panel rounded-xl p-6 text-[var(--muted)]">Loading problem set…</div>}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-800">
+          Could not reach the API on port 8417.
+          <pre className="mt-2 text-xs opacity-80">{error}</pre>
+        </div>
+      )}
 
+      <div className="space-y-8">
         {phases.map((phase) => {
-          let topics = phase.topic_slugs.map((s) => bySlug.get(s)).filter(Boolean) as Topic[];
-          if (!topics.length && roadmap) {
-            topics = roadmap.topics.filter((t) => (t.phase ?? 1) === phase.id);
-          }
+          const topics = phase.topic_slugs.map((s) => topicMap.get(s)).filter(Boolean) as Topic[];
           return (
-            <div key={phase.id}>
-              <div className="mb-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                  Phase {phase.id}
-                </p>
-                <h2 className="display mt-1 text-3xl font-semibold">{phase.title}</h2>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                {topics.map((topic, idx) => {
-                  const done = topic.learn_completed;
+            <section key={phase.id}>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">{phase.title}</h2>
+              <div className="space-y-3">
+                {topics.map((topic) => {
+                  const list = byTopic.get(topic.slug) || [];
+                  const isOpen = open[topic.slug];
                   return (
-                    <Link
-                      key={topic.slug}
-                      href={`/topics/${topic.slug}`}
-                      className="group panel rounded-xl p-6 transition hover:-translate-y-0.5 hover:border-[var(--accent)]/40"
-                      style={{ animationDelay: `${idx * 80}ms` }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                            <span
-                              className="inline-block h-2.5 w-2.5 rounded-full"
-                              style={{ background: topic.color }}
-                            />
-                            Step {topic.order}
+                    <div key={topic.slug} className="overflow-hidden rounded-xl border border-[var(--line)] bg-white/90">
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-black/[0.02]"
+                        onClick={() => setOpen((o) => ({ ...o, [topic.slug]: !isOpen }))}
+                      >
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ background: topic.color }} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold">{topic.title}</span>
+                            {topic.learn_completed ? (
+                              <span className="text-[11px] font-semibold text-emerald-600">Lesson done</span>
+                            ) : (
+                              <span className="text-[11px] font-semibold text-amber-600">Lesson locked problems</span>
+                            )}
                           </div>
-                          <h3 className="display mt-2 text-2xl font-semibold">{topic.title}</h3>
-                          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{topic.summary}</p>
+                          <p className="truncate text-xs text-[var(--muted)]">{topic.summary}</p>
                         </div>
-                        {done ? (
-                          <CheckCircle2 className="h-5 w-5 shrink-0 text-[var(--good)]" />
-                        ) : (
-                          <Circle className="h-5 w-5 shrink-0 text-[var(--muted)]/50" />
-                        )}
-                      </div>
-                      <div className="mt-5 flex items-center justify-between text-sm">
-                        <span className="text-[var(--muted)]">
-                          {topic.problems_mastered}/{topic.problems_total} mastered
+                        <span className="text-xs font-medium text-[var(--muted)]">
+                          {topic.problems_mastered}/{topic.problems_total}
                         </span>
-                        <span className="font-semibold text-[var(--accent)] group-hover:underline">
-                          {done ? "Practice problems" : "Learn concept"} →
-                        </span>
-                      </div>
-                    </Link>
+                        <Link
+                          href={`/topics/${topic.slug}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-md border border-[var(--line)] px-2 py-1 text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent)]/5"
+                        >
+                          Lesson
+                        </Link>
+                        <span className="text-xs text-[var(--muted)]">{isOpen ? "▾" : "▸"}</span>
+                      </button>
+
+                      {isOpen && (
+                        <ul className="border-t border-[var(--line)]">
+                          {list.length === 0 && (
+                            <li className="px-4 py-3 text-sm text-[var(--muted)]">No problems yet.</li>
+                          )}
+                          {list.map((p) => {
+                            const locked = p.stage === 0 && !topic.learn_completed;
+                            return (
+                              <li key={p.id} className="border-t border-[var(--line)]/70 first:border-t-0">
+                                <Link
+                                  href={`/problems/${p.id}`}
+                                  className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--accent)]/[0.04]"
+                                >
+                                  {p.mastered ? (
+                                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                                  ) : locked ? (
+                                    <Lock className="h-4 w-4 shrink-0 text-[var(--muted)]" />
+                                  ) : (
+                                    <Circle className="h-4 w-4 shrink-0 text-[var(--muted)]" />
+                                  )}
+                                  <span className="min-w-0 flex-1 font-medium">{p.title}</span>
+                                  <span className="hidden text-xs text-[var(--muted)] sm:inline">{p.pattern}</span>
+                                  <span className={`w-14 text-right text-xs font-bold uppercase ${diffColor(p.difficulty)}`}>
+                                    {p.difficulty}
+                                  </span>
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
                   );
                 })}
               </div>
-            </div>
+            </section>
           );
         })}
-      </section>
+      </div>
     </div>
   );
 }

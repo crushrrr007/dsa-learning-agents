@@ -3,10 +3,9 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AgentPanel } from "@/components/workspace/AgentPanel";
-import { StageRail } from "@/components/workspace/StageRail";
+import { AgentDock } from "@/components/workspace/AgentDock";
 import {
   completeSee,
   fetchProblem,
@@ -25,6 +24,16 @@ const VisualCanvas = dynamic(
   { ssr: false },
 );
 
+type LeftTab = "description" | "path" | "trace";
+type BottomTab = "tests" | "agents";
+
+function diffClass(d: string) {
+  const x = d.toLowerCase();
+  if (x === "easy") return "text-emerald-600 bg-emerald-50 border-emerald-200";
+  if (x === "hard") return "text-rose-700 bg-rose-50 border-rose-200";
+  return "text-amber-700 bg-amber-50 border-amber-200";
+}
+
 export default function ProblemWorkspacePage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
@@ -40,9 +49,14 @@ export default function ProblemWorkspacePage() {
   const [predictAnswer, setPredictAnswer] = useState("");
   const [predictMsg, setPredictMsg] = useState<string | null>(null);
   const [testMsg, setTestMsg] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<
+    { index: number; passed: boolean; input: unknown; expected: unknown; got: unknown; error: string | null }[]
+  >([]);
   const [viva, setViva] = useState<{ id: string; prompt: string }[]>([]);
   const [vivaAnswers, setVivaAnswers] = useState<string[]>(["", ""]);
   const [busy, setBusy] = useState(false);
+  const [leftTab, setLeftTab] = useState<LeftTab>("description");
+  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
 
   useEffect(() => {
     fetchProblem(id)
@@ -72,12 +86,6 @@ export default function ProblemWorkspacePage() {
     return () => clearInterval(t);
   }, [playing, events.length]);
 
-  const fallbackSeq = useMemo(() => {
-    if (!problem) return undefined;
-    // best-effort from examples text is hard; leave undefined until run focus fills
-    return undefined;
-  }, [problem]);
-
   async function onSee() {
     if (!problem) return;
     setBusy(true);
@@ -87,6 +95,7 @@ export default function ProblemWorkspacePage() {
       setRun(res);
       setEventIdx(0);
       setPlaying(true);
+      setLeftTab("trace");
       const adv = await completeSee(problem.id);
       setStage(Math.max(stage, adv.stage, 2));
     } catch (e) {
@@ -108,7 +117,7 @@ export default function ProblemWorkspacePage() {
           setPredictAnswer("");
         } else {
           setStage(Math.max(stage, res.stage, 3));
-          setPredictMsg("All predictions passed. Move to Code & Trace.");
+          setPredictMsg("All predictions passed. Editor unlocked for coding.");
         }
       } else {
         setPredictMsg(res.hint || "Not quite — try again.");
@@ -120,36 +129,44 @@ export default function ProblemWorkspacePage() {
     }
   }
 
-  async function onTrace() {
+  async function onRun() {
     if (!problem) return;
     setBusy(true);
+    setBottomTab("tests");
     try {
       const res = await runCode({ problem_id: problem.id, mode: "student", code });
       setRun(res);
       setEventIdx(0);
-      setPlaying(true);
+      setPlaying(Boolean(res.events?.length));
       if (res.ok) setStage((s) => Math.max(s, 3));
+      setTestMsg(res.ok ? `Accepted (demo run) → ${JSON.stringify(res.result)}` : `Runtime error: ${res.error}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Trace failed");
+      setError(e instanceof Error ? e.message : "Run failed");
     } finally {
       setBusy(false);
     }
   }
 
-  async function onTest() {
+  async function onSubmit() {
     if (!problem) return;
     setBusy(true);
     setTestMsg(null);
+    setBottomTab("tests");
     try {
       const res = await runTests(problem.id, code);
       setStage(Math.max(stage, res.stage, 4));
+      setTestResults(res.results);
       const passed = res.results.filter((r) => r.passed).length;
-      setTestMsg(`${passed}/${res.results.length} checks passed.${res.passed_all ? "" : " Fix failures, then re-test."}`);
+      setTestMsg(
+        res.passed_all
+          ? `Accepted — ${passed}/${res.results.length} tests passed. Complete viva to master.`
+          : `Wrong Answer — ${passed}/${res.results.length} passed.`,
+      );
       if (res.passed_all) {
         setViva(res.viva);
         setVivaAnswers(res.viva.map(() => ""));
+        setLeftTab("path");
       }
-      // also show last student run insights
       setRun((prev) => ({
         ...(prev || {
           ok: res.passed_all,
@@ -159,11 +176,12 @@ export default function ProblemWorkspacePage() {
           stdout: "",
           duration_ms: 0,
           performance: [],
+          ast_insights: [],
         }),
         ast_insights: res.ast_insights,
       }));
     } catch (e) {
-      setTestMsg(e instanceof Error ? e.message : "Test failed");
+      setTestMsg(e instanceof Error ? e.message : "Submit failed");
     } finally {
       setBusy(false);
     }
@@ -183,220 +201,312 @@ export default function ProblemWorkspacePage() {
     }
   }
 
-  if (loading) return <div className="p-8 text-[var(--muted)]">Loading workspace…</div>;
+  if (loading) return <div className="p-8 text-[var(--muted)]">Loading problem…</div>;
   if (error && !problem) return <div className="p-8 text-red-700">{error}</div>;
   if (!problem) return null;
 
-  if (stage === 0) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16">
-        <Link href={`/topics/${problem.topic}`} className="text-sm font-medium text-[var(--accent)] hover:underline">
-          ← Back to topic
-        </Link>
-        <h1 className="display mt-4 text-3xl font-semibold">{problem.title}</h1>
-        <p className="mt-3 text-[var(--muted)]">
-          Finish the Stage 0 concept check for <strong>{problem.topic}</strong> before entering the practice loop.
-        </p>
-        <Link
-          href={`/topics/${problem.topic}`}
-          className="mt-6 inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white"
-        >
-          Go to concept lesson
-        </Link>
-      </div>
-    );
-  }
-
+  const locked = stage < 3;
   const step = problem.predict_steps[predictIdx];
 
   return (
-    <div className="mx-auto max-w-[1400px] px-3 py-4 sm:px-5 sm:py-6">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link href={`/topics/${problem.topic}`} className="text-sm font-medium text-[var(--accent)] hover:underline">
-            ← {problem.topic}
-          </Link>
-          <h1 className="display mt-1 text-3xl font-semibold">{problem.title}</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {problem.pattern} · {problem.difficulty}
-            {problem.mastered ? " · mastered" : ""}
-          </p>
+    <div className="flex h-[calc(100vh-3.25rem)] flex-col bg-[#f4f6f8]">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] bg-white px-3 py-2 sm:px-4">
+        <Link href="/" className="text-xs font-semibold text-[var(--accent)] hover:underline">
+          ← Problems
+        </Link>
+        <h1 className="text-base font-semibold sm:text-lg">{problem.title}</h1>
+        <span className={`rounded border px-2 py-0.5 text-[11px] font-bold uppercase ${diffClass(problem.difficulty)}`}>
+          {problem.difficulty}
+        </span>
+        <span className="hidden text-xs text-[var(--muted)] sm:inline">{problem.pattern}</span>
+        <span className="rounded bg-black/5 px-2 py-0.5 text-[11px] font-medium text-[var(--muted)]">
+          {problem.topic}
+        </span>
+        {problem.mastered && (
+          <span className="rounded bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Mastered</span>
+        )}
+        <div className="ml-auto flex items-center gap-1 text-[11px] font-medium text-[var(--muted)]">
+          {["Learn", "See", "Predict", "Code", "Viva"].map((label, i) => (
+            <span
+              key={label}
+              className={`rounded px-1.5 py-0.5 ${stage >= i ? "bg-[var(--accent)]/15 text-[var(--accent)]" : "bg-black/5"}`}
+            >
+              {label}
+            </span>
+          ))}
         </div>
-        <StageRail stage={stage} onSelect={setStage} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.05fr_1.2fr_0.9fr]">
-        <section className="panel order-1 space-y-4 rounded-xl p-4 sm:p-5">
-          <div>
-            <h2 className="font-semibold">Problem</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{problem.statement}</p>
+      {stage === 0 && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900">
+          Unlock coding by finishing the topic lesson first.{" "}
+          <Link href={`/topics/${problem.topic}`} className="font-semibold underline">
+            Open {problem.topic} lesson →
+          </Link>
+        </div>
+      )}
+
+      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+        {/* Left: description / path / trace */}
+        <section className="flex min-h-0 flex-col border-r border-[var(--line)] bg-white">
+          <div className="flex gap-1 border-b border-[var(--line)] px-2 pt-2">
+            {(
+              [
+                ["description", "Description"],
+                ["path", "Learn path"],
+                ["trace", "Visual"],
+              ] as const
+            ).map(([idTab, label]) => (
+              <button
+                key={idTab}
+                type="button"
+                onClick={() => setLeftTab(idTab)}
+                className={`rounded-t-md px-3 py-2 text-sm font-semibold ${
+                  leftTab === idTab ? "bg-[#f4f6f8] text-[var(--ink)]" : "text-[var(--muted)] hover:text-[var(--ink)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Examples</h3>
-            <ul className="mt-2 space-y-2 text-sm">
-              {problem.examples.map((ex, i) => (
-                <li key={i} className="rounded-md bg-black/[0.03] px-3 py-2">
-                  <div>
-                    <span className="font-medium">In:</span> {ex.input}
-                  </div>
-                  <div>
-                    <span className="font-medium">Out:</span> {ex.output}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          {stage === 1 && (
-            <div className="rounded-lg border border-[var(--line)] bg-[#f7faf8] p-3">
-              <h3 className="font-semibold">Stage 1 — See the problem</h3>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Run the slow approach and watch why it struggles before you code.
-              </p>
-              <Button className="mt-3" onClick={onSee} disabled={busy}>
-                Run brute-force demo
-              </Button>
-            </div>
-          )}
-
-          {stage === 2 && step && (
-            <div className="rounded-lg border border-[var(--line)] bg-[#f7faf8] p-3">
-              <h3 className="font-semibold">Stage 2 — Predict</h3>
-              <p className="mt-2 text-sm">{step.prompt}</p>
-              <input
-                value={predictAnswer}
-                onChange={(e) => setPredictAnswer(e.target.value)}
-                className="mt-3 h-10 w-full rounded-md border border-[var(--line)] bg-white px-3 text-sm"
-                placeholder="Your prediction"
-              />
-              <div className="mt-3 flex items-center gap-3">
-                <Button onClick={onPredict} disabled={busy}>
-                  Check
-                </Button>
-                {predictMsg && <span className="text-sm text-[var(--muted)]">{predictMsg}</span>}
-              </div>
-            </div>
-          )}
-
-          {stage >= 4 && (
-            <div className="rounded-lg border border-[var(--line)] bg-[#f7faf8] p-3">
-              <h3 className="font-semibold">Stage 4 — Edge cases & viva</h3>
-              <Button className="mt-3" onClick={onTest} disabled={busy}>
-                Run generated tests
-              </Button>
-              {testMsg && <p className="mt-2 text-sm text-[var(--muted)]">{testMsg}</p>}
-              {viva.length > 0 && (
-                <div className="mt-4 space-y-3">
-                  {viva.map((q, i) => (
-                    <div key={q.id}>
-                      <p className="text-sm font-medium">{q.prompt}</p>
-                      <textarea
-                        value={vivaAnswers[i] || ""}
-                        onChange={(e) =>
-                          setVivaAnswers((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))
-                        }
-                        className="mt-2 w-full rounded-md border border-[var(--line)] bg-white p-2 text-sm"
-                        rows={3}
-                      />
-                    </div>
-                  ))}
-                  <Button onClick={onViva} disabled={busy}>
-                    Submit viva
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-
-        <section className="order-2 flex min-h-[420px] flex-col gap-3 sm:min-h-[520px] xl:order-2">
-          <div className="panel flex flex-1 flex-col overflow-hidden rounded-xl">
-            <div className="flex items-center justify-between border-b border-[var(--line)] px-3 py-2">
-              <h2 className="text-sm font-semibold">Editor</h2>
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary" onClick={onTrace} disabled={busy || stage < 2}>
-                  Trace
-                </Button>
-                <Button size="sm" onClick={onTest} disabled={busy || stage < 3}>
-                  Test
-                </Button>
-              </div>
-            </div>
-            <div className="min-h-[280px] flex-1">
-              <Monaco
-                height="100%"
-                defaultLanguage="python"
-                theme="vs"
-                value={code}
-                onChange={(v) => setCode(v || "")}
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 13,
-                  fontFamily: "IBM Plex Mono, ui-monospace, monospace",
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                }}
-              />
-            </div>
-          </div>
-          <div className="panel rounded-xl p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-semibold">Visual canvas</h2>
-              <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                <button className="underline" onClick={() => setPlaying((p) => !p)} disabled={!events.length}>
-                  {playing ? "Pause" : "Play"}
-                </button>
-                <span>
-                  {events.length ? `${eventIdx + 1}/${events.length}` : "no frames"}
-                </span>
-              </div>
-            </div>
-            <div className="h-[280px]">
-              <VisualCanvas visual={problem.visual} event={currentEvent} fallbackSequence={fallbackSeq} />
-            </div>
-            {run && (
-              <div className="mt-2 space-y-1 text-xs text-[var(--muted)]">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            {leftTab === "description" && (
+              <div className="space-y-4">
+                <p className="text-sm leading-relaxed text-[var(--ink)]">{problem.statement}</p>
                 <div>
-                  {run.ok ? `Result: ${JSON.stringify(run.result)}` : `Error: ${run.error}`} · {run.duration_ms} ms
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Examples</h3>
+                  <ul className="mt-2 space-y-2">
+                    {problem.examples.map((ex, i) => (
+                      <li key={i} className="rounded-md border border-[var(--line)] bg-[#f8faf9] px-3 py-2 font-mono text-xs">
+                        <div>
+                          <span className="font-sans font-semibold text-[var(--muted)]">Input: </span>
+                          {ex.input}
+                        </div>
+                        <div className="mt-1">
+                          <span className="font-sans font-semibold text-[var(--muted)]">Output: </span>
+                          {ex.output}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                {run.ast_insights?.[0] && <div>AST: {run.ast_insights[0]}</div>}
-                {run.performance?.length > 0 && (
+                {problem.constraints?.length > 0 && (
                   <div>
-                    Perf:{" "}
-                    {run.performance.map((p) => `n=${p.n}:${p.ms}ms`).join(" · ")}
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Constraints</h3>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--muted)]">
+                      {problem.constraints.map((c, i) => (
+                        <li key={i}>{c}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-                {currentEvent && (
-                  <div className="truncate">
-                    Line {currentEvent.line} · {JSON.stringify(currentEvent.focus)}
+              </div>
+            )}
+
+            {leftTab === "path" && (
+              <div className="space-y-4">
+                <p className="text-sm text-[var(--muted)]">
+                  NeetCode-style practice with staged unlocks — agents help; they never dump the full solution.
+                </p>
+                <div className="rounded-lg border border-[var(--line)] p-3">
+                  <h3 className="font-semibold">1 · See</h3>
+                  <p className="mt-1 text-sm text-[var(--muted)]">Watch the slow approach struggle.</p>
+                  <Button className="mt-3" size="sm" onClick={onSee} disabled={busy || stage < 1}>
+                    Run brute-force demo
+                  </Button>
+                </div>
+                {step && (
+                  <div className="rounded-lg border border-[var(--line)] p-3">
+                    <h3 className="font-semibold">2 · Predict</h3>
+                    <p className="mt-2 text-sm">{step.prompt}</p>
+                    <input
+                      value={predictAnswer}
+                      onChange={(e) => setPredictAnswer(e.target.value)}
+                      className="mt-3 h-10 w-full rounded-md border border-[var(--line)] bg-white px-3 text-sm"
+                      placeholder="Your prediction"
+                      disabled={stage < 2}
+                    />
+                    <div className="mt-3 flex items-center gap-3">
+                      <Button size="sm" onClick={onPredict} disabled={busy || stage < 2}>
+                        Check
+                      </Button>
+                      {predictMsg && <span className="text-sm text-[var(--muted)]">{predictMsg}</span>}
+                    </div>
                   </div>
+                )}
+                {viva.length > 0 && (
+                  <div className="rounded-lg border border-[var(--line)] p-3">
+                    <h3 className="font-semibold">4 · Viva</h3>
+                    <div className="mt-3 space-y-3">
+                      {viva.map((q, i) => (
+                        <div key={q.id}>
+                          <p className="text-sm font-medium">{q.prompt}</p>
+                          <textarea
+                            value={vivaAnswers[i] || ""}
+                            onChange={(e) =>
+                              setVivaAnswers((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))
+                            }
+                            className="mt-2 w-full rounded-md border border-[var(--line)] bg-white p-2 text-sm"
+                            rows={3}
+                          />
+                        </div>
+                      ))}
+                      <Button size="sm" onClick={onViva} disabled={busy}>
+                        Submit viva
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {leftTab === "trace" && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-[var(--muted)]">
+                  <span>Trace frames</span>
+                  <div className="flex gap-2">
+                    <button type="button" className="underline" onClick={() => setPlaying((p) => !p)} disabled={!events.length}>
+                      {playing ? "Pause" : "Play"}
+                    </button>
+                    <span>{events.length ? `${eventIdx + 1}/${events.length}` : "no frames — Run or demo first"}</span>
+                  </div>
+                </div>
+                <div className="h-[360px] overflow-hidden rounded-md border border-[var(--line)]">
+                  <VisualCanvas visual={problem.visual} event={currentEvent} />
+                </div>
+                {currentEvent && (
+                  <pre className="overflow-x-auto rounded-md bg-[#0f1419] p-3 text-[11px] text-[#d7dee7]">
+                    {JSON.stringify({ line: currentEvent.line, focus: currentEvent.focus, locals: currentEvent.locals }, null, 2)}
+                  </pre>
                 )}
               </div>
             )}
           </div>
         </section>
 
-        <section className="order-3 min-h-[360px] lg:col-span-2 xl:col-span-1 xl:min-h-[520px]">
-          <AgentPanel
-            topic={problem.topic}
-            problemId={problem.id}
-            stage={stage}
-            code={code}
-            lastRun={
-              run
-                ? {
-                    error: run.error,
-                    result: run.result,
-                    ast_insights: run.ast_insights,
+        {/* Right: editor + console/agents */}
+        <section className="flex min-h-0 flex-col bg-[#1e1e1e]">
+          <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-3 py-2">
+            <span className="text-xs font-semibold text-white/70">Python3</span>
+            <div className="ml-auto flex gap-2">
+              <Button size="sm" variant="secondary" onClick={onRun} disabled={busy || stage < 1}>
+                Run
+              </Button>
+              <Button size="sm" onClick={onSubmit} disabled={busy || locked}>
+                Submit
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setBottomTab(bottomTab === "agents" ? "tests" : "agents")}
+              >
+                {bottomTab === "agents" ? "Hide agents" : "Agents"}
+              </Button>
+            </div>
+          </div>
+
+          <div className={`relative min-h-[240px] ${bottomTab === "agents" ? "flex-[0.55]" : "flex-1"}`}>
+            {locked && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/55 p-6 text-center backdrop-blur-[2px]">
+                <div className="max-w-sm rounded-lg border border-white/15 bg-[#161b22] p-4 text-sm text-white">
+                  <p className="font-semibold">Editor unlocks after Predict</p>
+                  <p className="mt-2 text-white/70">
+                    Finish See → Predict on the Learn path tab, or open Agents for Hint / Demo help.
+                  </p>
+                  <Button className="mt-3" size="sm" onClick={() => setLeftTab("path")}>
+                    Open learn path
+                  </Button>
+                </div>
+              </div>
+            )}
+            <Monaco
+              height="100%"
+              defaultLanguage="python"
+              theme="vs-dark"
+              value={code}
+              onChange={(v) => setCode(v || "")}
+              options={{
+                readOnly: locked,
+                minimap: { enabled: false },
+                fontSize: 13,
+                fontFamily: "IBM Plex Mono, ui-monospace, monospace",
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+              }}
+            />
+          </div>
+
+          <div className="flex min-h-[200px] flex-[0.45] flex-col border-t border-white/10 bg-[#0f1419]">
+            <div className="flex gap-1 border-b border-white/10 px-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setBottomTab("tests")}
+                className={`rounded-t px-3 py-1.5 text-xs font-semibold ${
+                  bottomTab === "tests" ? "bg-white/10 text-white" : "text-white/50"
+                }`}
+              >
+                Testcases
+              </button>
+              <button
+                type="button"
+                onClick={() => setBottomTab("agents")}
+                className={`rounded-t px-3 py-1.5 text-xs font-semibold ${
+                  bottomTab === "agents" ? "bg-white/10 text-white" : "text-white/50"
+                }`}
+              >
+                Agents
+              </button>
+            </div>
+            {bottomTab === "tests" ? (
+              <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
+                {testMsg && <p className="mb-3 font-medium text-white">{testMsg}</p>}
+                {testResults.length === 0 && !testMsg && (
+                  <p className="text-white/50">Run or Submit to see results here.</p>
+                )}
+                <ul className="space-y-2">
+                  {testResults.map((r) => (
+                    <li
+                      key={r.index}
+                      className={`rounded border px-3 py-2 font-mono text-xs ${
+                        r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
+                      }`}
+                    >
+                      <div className="font-sans font-semibold">{r.passed ? "Passed" : "Failed"} · Case {r.index + 1}</div>
+                      <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
+                      <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
+                      <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
+                      {r.error && <div className="text-rose-300">{r.error}</div>}
+                    </li>
+                  ))}
+                </ul>
+                {run?.ast_insights?.[0] && <p className="mt-3 text-xs text-white/50">AST: {run.ast_insights[0]}</p>}
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1 p-2">
+                <AgentDock
+                  topic={problem.topic}
+                  problemId={problem.id}
+                  stage={stage}
+                  code={code}
+                  lastRun={
+                    run
+                      ? {
+                          error: run.error,
+                          result: run.result,
+                          ast_insights: run.ast_insights,
+                          events: run.events,
+                          ok: run.ok,
+                        }
+                      : null
                   }
-                : null
-            }
-          />
+                />
+              </div>
+            )}
+          </div>
         </section>
       </div>
-      {error && problem && (
-        <p className="mt-3 text-sm text-red-700">{error}</p>
-      )}
+      {error && problem && <p className="border-t border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
     </div>
   );
 }

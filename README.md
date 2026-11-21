@@ -70,13 +70,19 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 20 problems across 7 topics (3 each except graphs with 2). Solutions stay server-side.
 
+## Product shape
+
+- **Problems list** — NeetCode-style roadmap checklist (topic sections, difficulty, mastery)  
+- **Workspace** — LeetCode-style split: description | editor | Run/Submit | testcases  
+- **Agents dock** — switchable Hint / Demo / Predict / Debug / Viva (LangGraph + Groq)
+
 ## Demo path
 
-1. Open http://127.0.0.1:3417  
-2. Phase I → **Two Pointers** → concept demo + quiz  
-3. Complete **Valid Palindrome** through all stages  
-4. Phase II → **Trees** / **Graphs** / **DP** similarly  
-5. Check **/progress** for mastery (use **Reset session** before a fresh evaluator demo)  
+1. Open http://127.0.0.1:3417 → pick a problem from the checklist  
+2. Topic **Lesson** unlocks coding (Stage 0 quiz)  
+3. Learn path: See → Predict → Code → Submit → Viva  
+4. Use the **Agents** tab while coding for targeted help  
+5. **/progress** + **Reset session** for evaluator demos  
 
 ## Tests
 
