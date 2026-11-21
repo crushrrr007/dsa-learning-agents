@@ -187,5 +187,7 @@ class AgentChatRequest(BaseModel):
 
 class AgentChatResponse(BaseModel):
     agent: str
+    agent_label: str | None = None
     reply: str
     guiding_question: str | None = None
+    llm_mode: str | None = None

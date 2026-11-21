@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { chatAgent } from "@/lib/api";
 
-type Msg = { role: "user" | "agent"; agent?: string; text: string; question?: string | null };
+type Msg = {
+  role: "user" | "agent";
+  agent?: string;
+  agentLabel?: string | null;
+  text: string;
+  question?: string | null;
+};
 
 type Props = {
   topic: string;
@@ -14,17 +20,33 @@ type Props = {
   lastRun?: Record<string, unknown> | null;
 };
 
+const STAGE_AGENT: Record<number, string> = {
+  0: "Concept Tutor",
+  1: "Demo Coach",
+  2: "Predict Coach",
+  3: "Code Mentor",
+  4: "Viva Agent",
+};
+
+function labelFor(agent?: string, fallback?: string | null) {
+  if (fallback) return fallback.split("—")[0].trim();
+  if (!agent) return "agent";
+  return agent.replaceAll("_", " ");
+}
+
 export function AgentPanel({ topic, problemId, stage, code, lastRun }: Props) {
+  const active = STAGE_AGENT[Math.min(stage, 4)] || "Teaching agent";
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "agent",
       agent: "coordinator",
-      text: "Ask about the concept or your latest trace. I will not paste a full solution.",
+      text: `Stage ${stage}: ${active} is on duty. Ask about the concept or your latest trace — I will not paste a full solution.`,
       question: "What invariant are you trying to maintain?",
     },
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [llmMode, setLlmMode] = useState<string | null>(null);
 
   async function send() {
     if (!input.trim() || busy) return;
@@ -41,11 +63,13 @@ export function AgentPanel({ topic, problemId, stage, code, lastRun }: Props) {
         code,
         last_run: lastRun || undefined,
       });
+      if (res.llm_mode) setLlmMode(res.llm_mode);
       setMessages((m) => [
         ...m,
         {
           role: "agent",
           agent: res.agent,
+          agentLabel: res.agent_label,
           text: res.reply,
           question: res.guiding_question,
         },
@@ -68,7 +92,11 @@ export function AgentPanel({ topic, problemId, stage, code, lastRun }: Props) {
     <div className="flex h-full min-h-[280px] flex-col rounded-xl border border-[var(--line)] bg-white/70">
       <div className="border-b border-[var(--line)] px-4 py-3">
         <h3 className="font-semibold">Teaching agents</h3>
-        <p className="text-xs text-[var(--muted)]">Concept Tutor · Feedback Agent · Coordinator</p>
+        <p className="text-xs text-[var(--muted)]">
+          Concept · Demo · Predict · Code · Viva
+          {llmMode ? ` · LLM: ${llmMode}` : ""}
+        </p>
+        <p className="mt-1 text-[11px] text-[var(--accent)]">On duty: {active}</p>
       </div>
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.map((m, i) => (
@@ -80,10 +108,10 @@ export function AgentPanel({ topic, problemId, stage, code, lastRun }: Props) {
           >
             {m.agent && (
               <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]">
-                {m.agent.replaceAll("_", " ")}
+                {labelFor(m.agent, m.agentLabel)}
               </div>
             )}
-            <p className="leading-relaxed">{m.text}</p>
+            <p className="leading-relaxed whitespace-pre-wrap">{m.text}</p>
             {m.question && (
               <p className="mt-2 border-t border-[var(--line)] pt-2 text-xs text-[var(--muted)]">
                 Guiding question: {m.question}

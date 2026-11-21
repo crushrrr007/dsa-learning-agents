@@ -44,11 +44,20 @@ npm install
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8417 npm run dev
 ```
 
-Optional LLM:
+Optional LLM (OpenAI-compatible; **Groq free tier** is the default host):
 
 ```bash
-export OPENAI_API_KEY=sk-...
+# Get a free key at https://console.groq.com
+export GROQ_API_KEY=gsk_...
+# or: export LLM_API_KEY=...
+# optional overrides:
+# export LLM_BASE_URL=https://api.groq.com/openai/v1
+# export LLM_MODEL=llama-3.1-8b-instant
 ```
+
+Without a key, teaching agents use deterministic mock coaches (still stage-routed).
+
+**Five agents:** Concept Tutor → Demo Coach → Predict Coach → Code Mentor → Viva Agent.
 
 Optional Docker runner (subprocess is default):
 

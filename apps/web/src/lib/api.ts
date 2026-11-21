@@ -236,7 +236,13 @@ export async function chatAgent(payload: {
   code?: string;
   last_run?: Record<string, unknown>;
 }) {
-  return request<{ agent: string; reply: string; guiding_question: string | null }>(`/agents/chat`, {
+  return request<{
+    agent: string;
+    agent_label: string | null;
+    reply: string;
+    guiding_question: string | null;
+    llm_mode: string | null;
+  }>(`/agents/chat`, {
     method: "POST",
     body: JSON.stringify({ session_id: getSessionId(), ...payload }),
   });

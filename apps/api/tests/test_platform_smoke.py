@@ -108,3 +108,40 @@ def test_content_files_exist():
     assert (root / "topics" / "roadmap.json").exists()
     assert len(list((root / "problems").glob("*.json"))) >= 16
     assert len(list((root / "quizzes").glob("*.json"))) == 7
+
+
+def test_agents_status_and_stage_routing(client: TestClient):
+    status = client.get("/agents/status")
+    assert status.status_code == 200
+    body = status.json()
+    assert set(body["agents"]) == {
+        "concept_tutor",
+        "demo_coach",
+        "predict_coach",
+        "code_mentor",
+        "viva_agent",
+    }
+    assert body["llm"]["provider"] in {"mock", "groq", "openai"}
+
+    expected = {
+        0: "concept_tutor",
+        1: "demo_coach",
+        2: "predict_coach",
+        3: "code_mentor",
+        4: "viva_agent",
+    }
+    for stage, agent in expected.items():
+        res = client.post(
+            "/agents/chat",
+            json={
+                "session_id": "agent_route_test",
+                "topic": "two-pointers",
+                "stage": stage,
+                "message": "What should I focus on next?",
+            },
+        )
+        assert res.status_code == 200
+        data = res.json()
+        assert data["agent"] == agent
+        assert data["reply"]
+        assert data["llm_mode"] in {"mock", "groq", "openai"}

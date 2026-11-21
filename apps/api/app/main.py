@@ -44,4 +44,6 @@ app.include_router(progress.router)
 
 @app.get("/health")
 async def health():
-    return {"ok": True, "service": "dsa-api"}
+    from app.agents.llm import llm_status
+
+    return {"ok": True, "service": "dsa-api", "llm": llm_status()}

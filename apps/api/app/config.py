@@ -17,8 +17,17 @@ class Settings(BaseSettings):
     content_dir: Path = CONTENT_DIR
     database_url: str = f"sqlite+aiosqlite:///{DATA_DIR / 'dsa.db'}"
     chroma_dir: Path = DATA_DIR / "chroma"
+
+    # OpenAI-compatible LLM (Groq free tier by default when a key is set)
+    # Env aliases: LLM_API_KEY / GROQ_API_KEY / OPENAI_API_KEY
+    llm_api_key: str | None = None
+    llm_base_url: str = "https://api.groq.com/openai/v1"
+    llm_model: str = "llama-3.1-8b-instant"
+    # Legacy aliases still accepted via env OPENAI_*
     openai_api_key: str | None = None
-    openai_model: str = "gpt-4o-mini"
+    openai_model: str | None = None
+    openai_base_url: str | None = None
+
     cors_origins: str = "http://localhost:3417,http://127.0.0.1:3417"
     run_timeout_sec: float = 2.0
     run_max_steps: int = 400
