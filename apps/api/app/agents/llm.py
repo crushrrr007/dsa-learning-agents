@@ -124,7 +124,7 @@ async def chat_complete(system: str, user: str) -> str | None:
 
         client = AsyncOpenAI(api_key=api_key, base_url=cfg["base_url"])
         resp = await client.chat.completions.create(
-            model=cfg["model"] or "llama-3.1-8b-instant",
+            model=cfg["model"] or "openai/gpt-oss-20b",
             messages=[
                 {"role": "system", "content": f"{NO_SOLUTION_POLICY}\n{system}"},
                 {"role": "user", "content": user},

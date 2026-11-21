@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Env aliases: LLM_API_KEY / GROQ_API_KEY / OPENAI_API_KEY
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.groq.com/openai/v1"
-    llm_model: str = "llama-3.1-8b-instant"
+    llm_model: str = "openai/gpt-oss-20b"
     # Legacy aliases still accepted via env OPENAI_*
     openai_api_key: str | None = None
     openai_model: str | None = None

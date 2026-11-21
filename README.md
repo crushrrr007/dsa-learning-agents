@@ -52,7 +52,7 @@ export GROQ_API_KEY=gsk_...
 # or: export LLM_API_KEY=...
 # optional overrides:
 # export LLM_BASE_URL=https://api.groq.com/openai/v1
-# export LLM_MODEL=llama-3.1-8b-instant
+# export LLM_MODEL=openai/gpt-oss-20b
 ```
 
 Without a key, teaching agents use deterministic mock coaches (still stage-routed).
