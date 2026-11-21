@@ -11,6 +11,7 @@ import {
   fetchTopicOverview,
   fetchTopicPlan,
   submitDiagnostic,
+  type MicroReview,
   type ProblemSummary,
   type TopicPlan,
 } from "@/lib/api";
@@ -36,6 +37,34 @@ function badgeClass(b?: string | null) {
   if (b === "optional") return "bg-slate-100 text-slate-600";
   if (b === "recommended") return "bg-emerald-100 text-emerald-800";
   return "bg-black/5 text-[var(--muted)]";
+}
+
+function BeforeYouCode({ reviews }: { reviews: MicroReview[] }) {
+  if (!reviews.length) return null;
+  return (
+    <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-4">
+      <h3 className="text-sm font-bold text-amber-950">Before you code</h3>
+      <p className="mt-1 text-xs text-amber-900/80">
+        Micro-reviews from your diagnostic misses — skim these, then open the recommended problem.
+      </p>
+      <ul className="mt-3 space-y-3">
+        {reviews.map((r) => (
+          <li key={r.skill} className="rounded-md border border-amber-200/60 bg-white/80 px-3 py-2">
+            <p className="text-sm font-semibold text-[var(--ink)]">{r.title}</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">{r.blurb}</p>
+            {r.prereq_topic ? (
+              <Link
+                href={`/topics/${r.prereq_topic}`}
+                className="mt-2 inline-block text-xs font-semibold text-[var(--accent)] hover:underline"
+              >
+                Open {r.prereq_topic.replace(/-/g, " ")} lesson →
+              </Link>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default function TopicPage() {
@@ -220,6 +249,7 @@ export default function TopicPage() {
           <h2 className="text-xl font-semibold">Your soft learning plan</h2>
           <p className="text-sm leading-relaxed text-[var(--muted)]">{plan.review_notes}</p>
           <p className="text-xs text-[var(--muted)]">Emphasis: {plan.emphasis || "balanced"} · guidance only — nothing is locked</p>
+          <BeforeYouCode reviews={plan.micro_reviews || []} />
           <div className="space-y-2">
             {[...(plan.review_first || []), ...(plan.recommended || []), ...(plan.optional || [])].map((item) => (
               <div key={item.id} className="flex items-center justify-between gap-3 rounded-md border border-[var(--line)] px-3 py-2 text-sm">
@@ -256,6 +286,10 @@ export default function TopicPage() {
               Guiding question: {guiding}
             </p>
           )}
+          <BeforeYouCode reviews={plan?.micro_reviews || []} />
+          <p className="text-xs font-medium text-[var(--muted)]">
+            Evaluator: continue to the recommended problem after a quick skim of the cards above.
+          </p>
           <div className="flex flex-wrap gap-2">
             <Button onClick={onCompleteOverview} disabled={busy}>
               Mark overview done → practice
@@ -279,6 +313,11 @@ export default function TopicPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Practice</p>
               <h2 className="text-xl font-semibold">Problems</h2>
               <p className="text-sm text-[var(--muted)]">Open any problem — badges are soft recommendations only.</p>
+              {nextId && (
+                <p className="mt-1 text-xs font-medium text-[var(--accent)]">
+                  Evaluator: continue to recommended problem →
+                </p>
+              )}
             </div>
             {nextId && (
               <Link

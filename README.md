@@ -74,16 +74,20 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 - **Per-topic adaptive path** — Diagnose prerequisites → Plan Agent soft path → Teach Agent overview → practice  
 - **Problems list** — NeetCode-style roadmap checklist (soft plan badges; nothing hard-locked)  
-- **Workspace** — LeetCode-style split: description | editor | Run/Submit | testcases  
-- **Agents dock** — Hint / Demo / Predict / Debug / Viva (+ Diagnostic / Plan / Teach on topic pages)
+- **Workspace** — description | editor + testcases | **persistent agents sidebar**  
+- **Agents** — Hint / Demo / Predict / Debug / Viva always visible while coding; Diagnostic / Plan / Teach on topic pages  
+- **Deeper plans** — diagnostic misses become **Before you code** micro-reviews (soft guidance only)
 
-## Demo path
+## Evaluator demo script (Two Pointers)
 
-1. Open http://127.0.0.1:3417 → **Diagnose** on a topic (or open any problem immediately)  
-2. Answer the short prereq check → soft custom plan  
-3. Teach Agent overview → recommended problem  
-4. In the workspace: See → Predict → Code → Submit → Viva + Agents dock  
-5. **/progress** + **Reset session** for evaluator demos  
+Reset first so the path is clean: open **/progress** → **Reset session** (clears plans + mastery).
+
+1. Home → click **Demo this: Two Pointers** (or **Diagnose** on Two Pointers).  
+2. Answer the prereq check (intentionally miss one MCQ to show micro-reviews) → **Build my soft plan**.  
+3. Skim **Before you code** cards → **Continue to overview** → Teach Agent brief.  
+4. **Start recommended problem** (usually an easy two-pointers item; **Valid Palindrome** is ideal if listed).  
+5. Workspace: **See** → **Predict** → **Code** with the right-hand agents panel — try **Hint** then **Debug**.  
+6. **Submit** → viva if prompted → **/progress** to show mastery → **Reset session** before the next evaluator.
 
 ## Tests
 

@@ -25,7 +25,6 @@ const VisualCanvas = dynamic(
 );
 
 type LeftTab = "description" | "path" | "trace";
-type BottomTab = "tests" | "agents";
 
 function diffClass(d: string) {
   const x = d.toLowerCase();
@@ -56,7 +55,7 @@ export default function ProblemWorkspacePage() {
   const [vivaAnswers, setVivaAnswers] = useState<string[]>(["", ""]);
   const [busy, setBusy] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftTab>("description");
-  const [bottomTab, setBottomTab] = useState<BottomTab>("tests");
+  const [agentsOpen, setAgentsOpen] = useState(false);
 
   useEffect(() => {
     fetchProblem(id)
@@ -132,7 +131,6 @@ export default function ProblemWorkspacePage() {
   async function onRun() {
     if (!problem) return;
     setBusy(true);
-    setBottomTab("tests");
     try {
       const res = await runCode({ problem_id: problem.id, mode: "student", code });
       setRun(res);
@@ -151,7 +149,6 @@ export default function ProblemWorkspacePage() {
     if (!problem) return;
     setBusy(true);
     setTestMsg(null);
-    setBottomTab("tests");
     try {
       const res = await runTests(problem.id, code);
       setStage(Math.max(stage, res.stage, 4));
@@ -245,7 +242,7 @@ export default function ProblemWorkspacePage() {
         anytime — problems stay openable.
       </div>
 
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+      <div className="relative grid min-h-0 flex-1 lg:grid-cols-[minmax(240px,0.95fr)_minmax(320px,1.2fr)_minmax(260px,0.9fr)]">
         {/* Left: description / path / trace */}
         <section className="flex min-h-0 flex-col border-r border-[var(--line)] bg-white">
           <div className="flex gap-1 border-b border-[var(--line)] px-2 pt-2">
@@ -384,8 +381,8 @@ export default function ProblemWorkspacePage() {
           </div>
         </section>
 
-        {/* Right: editor + console/agents */}
-        <section className="flex min-h-0 flex-col bg-[#1e1e1e]">
+        {/* Center: editor + testcases */}
+        <section className="flex min-h-0 flex-col border-r border-[var(--line)] bg-[#1e1e1e]">
           <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-3 py-2">
             <span className="text-xs font-semibold text-white/70">Python3</span>
             <div className="ml-auto flex gap-2">
@@ -398,20 +395,21 @@ export default function ProblemWorkspacePage() {
               <Button
                 size="sm"
                 variant="secondary"
-                onClick={() => setBottomTab(bottomTab === "agents" ? "tests" : "agents")}
+                className="lg:hidden"
+                onClick={() => setAgentsOpen(true)}
               >
-                {bottomTab === "agents" ? "Hide agents" : "Agents"}
+                Agents
               </Button>
             </div>
           </div>
 
-          <div className={`relative min-h-[240px] ${bottomTab === "agents" ? "flex-[0.55]" : "flex-1"}`}>
+          <div className="relative min-h-[240px] flex-1">
             {locked && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/55 p-6 text-center backdrop-blur-[2px]">
                 <div className="max-w-sm rounded-lg border border-white/15 bg-[#161b22] p-4 text-sm text-white">
                   <p className="font-semibold">Editor unlocks after Predict</p>
                   <p className="mt-2 text-white/70">
-                    Finish See → Predict on the Learn path tab, or open Agents for Hint / Demo help.
+                    Finish See → Predict on the Learn path tab, or ask Hint / Demo in the agents panel.
                   </p>
                   <Button className="mt-3" size="sm" onClick={() => setLeftTab("path")}>
                     Open learn path
@@ -436,53 +434,74 @@ export default function ProblemWorkspacePage() {
             />
           </div>
 
-          <div className="flex min-h-[200px] flex-[0.45] flex-col border-t border-white/10 bg-[#0f1419]">
-            <div className="flex gap-1 border-b border-white/10 px-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setBottomTab("tests")}
-                className={`rounded-t px-3 py-1.5 text-xs font-semibold ${
-                  bottomTab === "tests" ? "bg-white/10 text-white" : "text-white/50"
-                }`}
-              >
-                Testcases
-              </button>
-              <button
-                type="button"
-                onClick={() => setBottomTab("agents")}
-                className={`rounded-t px-3 py-1.5 text-xs font-semibold ${
-                  bottomTab === "agents" ? "bg-white/10 text-white" : "text-white/50"
-                }`}
-              >
-                Agents
-              </button>
+          <div className="flex min-h-[180px] flex-[0.4] flex-col border-t border-white/10 bg-[#0f1419]">
+            <div className="border-b border-white/10 px-3 py-1.5 text-xs font-semibold text-white/70">Testcases</div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
+              {testMsg && <p className="mb-3 font-medium text-white">{testMsg}</p>}
+              {testResults.length === 0 && !testMsg && (
+                <p className="text-white/50">Run or Submit to see results here.</p>
+              )}
+              <ul className="space-y-2">
+                {testResults.map((r) => (
+                  <li
+                    key={r.index}
+                    className={`rounded border px-3 py-2 font-mono text-xs ${
+                      r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
+                    }`}
+                  >
+                    <div className="font-sans font-semibold">
+                      {r.passed ? "Passed" : "Failed"} · Case {r.index + 1}
+                    </div>
+                    <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
+                    <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
+                    <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
+                    {r.error && <div className="text-rose-300">{r.error}</div>}
+                  </li>
+                ))}
+              </ul>
+              {run?.ast_insights?.[0] && <p className="mt-3 text-xs text-white/50">AST: {run.ast_insights[0]}</p>}
             </div>
-            {bottomTab === "tests" ? (
-              <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
-                {testMsg && <p className="mb-3 font-medium text-white">{testMsg}</p>}
-                {testResults.length === 0 && !testMsg && (
-                  <p className="text-white/50">Run or Submit to see results here.</p>
-                )}
-                <ul className="space-y-2">
-                  {testResults.map((r) => (
-                    <li
-                      key={r.index}
-                      className={`rounded border px-3 py-2 font-mono text-xs ${
-                        r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
-                      }`}
-                    >
-                      <div className="font-sans font-semibold">{r.passed ? "Passed" : "Failed"} · Case {r.index + 1}</div>
-                      <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
-                      <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
-                      <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
-                      {r.error && <div className="text-rose-300">{r.error}</div>}
-                    </li>
-                  ))}
-                </ul>
-                {run?.ast_insights?.[0] && <p className="mt-3 text-xs text-white/50">AST: {run.ast_insights[0]}</p>}
+          </div>
+        </section>
+
+        {/* Right: persistent agents (desktop) */}
+        <aside className="hidden min-h-0 flex-col border-l border-[var(--line)] bg-[#0f1419] p-2 lg:flex">
+          <AgentDock
+            topic={problem.topic}
+            problemId={problem.id}
+            stage={stage}
+            code={code}
+            lastRun={
+              run
+                ? {
+                    error: run.error,
+                    result: run.result,
+                    ast_insights: run.ast_insights,
+                    events: run.events,
+                    ok: run.ok,
+                  }
+                : null
+            }
+          />
+        </aside>
+
+        {/* Mobile agents drawer */}
+        {agentsOpen && (
+          <div className="absolute inset-0 z-30 flex lg:hidden">
+            <button
+              type="button"
+              className="flex-1 bg-black/50"
+              aria-label="Close agents"
+              onClick={() => setAgentsOpen(false)}
+            />
+            <div className="flex h-full w-[min(100%,380px)] flex-col bg-[#0f1419] p-2 shadow-2xl">
+              <div className="mb-2 flex items-center justify-between px-1">
+                <span className="text-xs font-semibold uppercase tracking-wider text-white/60">Agents</span>
+                <Button size="sm" variant="secondary" onClick={() => setAgentsOpen(false)}>
+                  Close
+                </Button>
               </div>
-            ) : (
-              <div className="min-h-0 flex-1 p-2">
+              <div className="min-h-0 flex-1">
                 <AgentDock
                   topic={problem.topic}
                   problemId={problem.id}
@@ -501,9 +520,9 @@ export default function ProblemWorkspacePage() {
                   }
                 />
               </div>
-            )}
+            </div>
           </div>
-        </section>
+        )}
       </div>
       {error && problem && <p className="border-t border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
     </div>

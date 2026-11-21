@@ -193,6 +193,11 @@ def test_diagnostic_builds_soft_plan(client: TestClient):
     plan = plan_body["plan"]
     assert plan["next_problem_id"]
     assert plan.get("recommended") or plan.get("review_first")
+    # Wrong MCQ answers (index 0) should yield at least one prereq micro-review
+    assert isinstance(plan.get("micro_reviews"), list)
+    assert len(plan["micro_reviews"]) >= 1
+    assert plan["micro_reviews"][0].get("title")
+    assert plan["micro_reviews"][0].get("blurb")
 
     fetched = client.get("/topics/two-pointers/plan", params={"session_id": sid})
     assert fetched.status_code == 200

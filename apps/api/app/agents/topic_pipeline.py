@@ -9,6 +9,154 @@ from app.agents.llm import TOPIC_HINTS, chat_complete
 from app.agents.notes_store import retrieve_notes
 from app.content_loader import list_problems, load_diagnostic, load_notes
 
+# Static micro-reviews keyed by diagnostic skill ids (+ a few prereq aliases)
+SKILL_MICRO_REVIEWS: dict[str, dict[str, str]] = {
+    "indexing": {
+        "title": "Array indexing",
+        "blurb": "Valid indices run from 0 to n-1. Off-by-one bugs usually mean you used n or forgot the empty case.",
+        "prereq_topic": "arrays",
+    },
+    "in-place": {
+        "title": "In-place updates",
+        "blurb": "Change values in the same array when you can; track what must stay true after each swap or write.",
+        "prereq_topic": "arrays",
+    },
+    "opposite-ends": {
+        "title": "Opposite-end pointers",
+        "blurb": "Start left at 0 and right at n-1. Move the pointer that improves the comparison toward the middle.",
+        "prereq_topic": "arrays",
+    },
+    "pointer-move": {
+        "title": "Which pointer moves?",
+        "blurb": "After each comparison, ask which index must advance so the search space shrinks and you never stall.",
+        "prereq_topic": "two-pointers",
+    },
+    "fixed-window": {
+        "title": "Fixed window length",
+        "blurb": "Keep window size k constant: expand right, then drop the left element when the window grows past k.",
+        "prereq_topic": "arrays",
+    },
+    "variable-window": {
+        "title": "When to shrink",
+        "blurb": "Grow right while valid; when the window breaks a constraint, advance left until it is valid again.",
+        "prereq_topic": "two-pointers",
+    },
+    "rewire": {
+        "title": "Save next before rewiring",
+        "blurb": "Before changing node.next, keep a reference to the old next (or you lose the rest of the list).",
+        "prereq_topic": "linked-lists",
+    },
+    "cycle": {
+        "title": "Fast and slow pointers",
+        "blurb": "Slow moves one step, fast two. If they meet, a cycle exists; null checks prevent crashes on open lists.",
+        "prereq_topic": "linked-lists",
+    },
+    "base-case": {
+        "title": "Tree null base case",
+        "blurb": "Recursion bottoms out when node is None. Decide what empty subtree returns before combining children.",
+        "prereq_topic": "trees",
+    },
+    "combine": {
+        "title": "Combine left and right",
+        "blurb": "Solve left and right first, then combine at the current node (depth, equality, invert, etc.).",
+        "prereq_topic": "trees",
+    },
+    "visited": {
+        "title": "Mark visited",
+        "blurb": "In undirected graphs, mark a node visited when you first see it so BFS/DFS cannot loop forever.",
+        "prereq_topic": "graphs",
+    },
+    "bfs": {
+        "title": "BFS layers",
+        "blurb": "BFS explores level by level with a queue — that is why it finds shortest paths in unweighted graphs.",
+        "prereq_topic": "graphs",
+    },
+    "state": {
+        "title": "One DP cell, one subproblem",
+        "blurb": "Name what dp[i] means in one sentence. If you cannot, the transition will stay fuzzy.",
+        "prereq_topic": "dynamic-programming",
+    },
+    "order": {
+        "title": "Fill order matters",
+        "blurb": "Bottom-up DP fills smaller subproblems first so every transition reads answers that already exist.",
+        "prereq_topic": "dynamic-programming",
+    },
+}
+
+# When a topic lists prerequisites as prose, map rough keywords → roadmap slugs
+PREREQ_TOPIC_HINTS: dict[str, str] = {
+    "arrays": "arrays",
+    "two-pointers": "two-pointers",
+    "two pointers": "two-pointers",
+    "indexing": "arrays",
+    "recursion": "trees",
+    "linked-lists": "linked-lists",
+    "queues": "graphs",
+    "stacks": "graphs",
+    "trees": "trees",
+}
+
+
+def build_micro_reviews(topic: str, analysis: dict[str, Any]) -> list[dict[str, str]]:
+    """Turn weak skills + prereq strings into short Before-you-code cards."""
+    reviews: list[dict[str, str]] = []
+    seen: set[str] = set()
+
+    for skill in analysis.get("skills_weak") or []:
+        meta = SKILL_MICRO_REVIEWS.get(skill)
+        if not meta or skill in seen:
+            continue
+        seen.add(skill)
+        reviews.append(
+            {
+                "skill": skill,
+                "title": meta["title"],
+                "blurb": meta["blurb"],
+                "prereq_topic": meta.get("prereq_topic") or "",
+                "notes_anchor": meta["title"],
+            }
+        )
+
+    # Low comfort: add a gentle topic-level card even if MCQs somehow all passed
+    if analysis.get("low_comfort") and topic not in seen:
+        hint = TOPIC_HINTS.get(topic, "Focus on the core invariant for this pattern.")
+        reviews.insert(
+            0,
+            {
+                "skill": f"{topic}-comfort",
+                "title": f"{topic.replace('-', ' ').title()} warm-up",
+                "blurb": f"Take an easier first problem. {hint}",
+                "prereq_topic": "",
+                "notes_anchor": "",
+            },
+        )
+        seen.add(topic)
+
+    for raw in analysis.get("prerequisites") or []:
+        key = str(raw).lower()
+        slug = None
+        for needle, mapped in PREREQ_TOPIC_HINTS.items():
+            if needle in key:
+                slug = mapped
+                break
+        if not slug or slug == topic or slug in seen:
+            continue
+        # Only add prereq topic card if we already have weak skills / low comfort
+        if not (analysis.get("skills_weak") or analysis.get("low_comfort")):
+            continue
+        seen.add(slug)
+        reviews.append(
+            {
+                "skill": f"prereq-{slug}",
+                "title": f"Review: {slug.replace('-', ' ').title()}",
+                "blurb": f"This topic builds on {slug.replace('-', ' ')}. Skim that lesson if the first problem feels stuck.",
+                "prereq_topic": slug,
+                "notes_anchor": "",
+            }
+        )
+
+    return reviews[:5]
+
 
 def _score_mcq(topic: str, answers: dict[str, Any]) -> dict[str, Any]:
     diag = load_diagnostic(topic)
@@ -66,6 +214,8 @@ def build_soft_plan(topic: str, answers: dict[str, Any], analysis: dict[str, Any
     review_first: list[dict[str, str]] = []
     optional: list[dict[str, str]] = []
 
+    micro_reviews = build_micro_reviews(topic, analysis)
+
     if not problems:
         return {
             "topic": topic,
@@ -76,6 +226,7 @@ def build_soft_plan(topic: str, answers: dict[str, Any], analysis: dict[str, Any
             "optional": [],
             "next_problem_id": None,
             "emphasis": "overview",
+            "micro_reviews": micro_reviews,
         }
 
     if analysis.get("low_comfort") or analysis.get("skills_weak"):
@@ -142,6 +293,7 @@ def build_soft_plan(topic: str, answers: dict[str, Any], analysis: dict[str, Any
         "recommended": recommended,
         "optional": optional,
         "next_problem_id": next_id,
+        "micro_reviews": micro_reviews,
     }
     return plan
 
@@ -159,6 +311,21 @@ async def enrich_plan_with_llm(topic: str, plan: dict[str, Any]) -> dict[str, An
     )
     if llm and not llm.startswith("(LLM unavailable:"):
         plan = {**plan, "review_notes": llm.strip()[:500]}
+
+    # Optional one-liner polish for the first micro-review blurb
+    reviews = list(plan.get("micro_reviews") or [])
+    if reviews:
+        first = reviews[0]
+        polished = await chat_complete(
+            system=(
+                "You are a DSA coach. Rewrite the micro-review blurb in one short sentence. "
+                "No code, no full solutions."
+            ),
+            user=json.dumps({"title": first.get("title"), "blurb": first.get("blurb")}),
+        )
+        if polished and not polished.startswith("(LLM unavailable:"):
+            reviews[0] = {**first, "blurb": polished.strip()[:240]}
+            plan = {**plan, "micro_reviews": reviews}
     return plan
 
 

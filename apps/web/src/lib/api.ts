@@ -70,6 +70,14 @@ export type ProblemSummary = {
   plan_badge?: string | null;
 };
 
+export type MicroReview = {
+  skill: string;
+  title: string;
+  blurb: string;
+  prereq_topic?: string;
+  notes_anchor?: string;
+};
+
 export type TopicPlan = {
   topic: string;
   has_plan: boolean;
@@ -83,6 +91,7 @@ export type TopicPlan = {
     recommended?: { id: string; title: string; difficulty: string; badge?: string }[];
     optional?: { id: string; title: string; difficulty: string; badge?: string }[];
     next_problem_id?: string | null;
+    micro_reviews?: MicroReview[];
   } | null;
 };
 

@@ -33,7 +33,7 @@ export default function ProgressPage() {
   }, []);
 
   async function onReset() {
-    if (!confirm("Reset all progress for this guest session?")) return;
+    if (!confirm("Reset plans + mastery for this guest session? Use before a fresh evaluator demo.")) return;
     setResetting(true);
     setResetMsg(null);
     try {
@@ -70,12 +70,17 @@ export default function ProgressPage() {
       <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="display text-4xl font-semibold">Your progress</h1>
-          <p className="mt-2 text-[var(--muted)]">Guest session mastery across Phase I and Phase II.</p>
+          <p className="mt-2 text-[var(--muted)]">
+            Guest session mastery across Phase I and Phase II. Use Reset before each evaluator demo.
+          </p>
         </div>
         <Button variant="secondary" onClick={onReset} disabled={resetting}>
           {resetting ? "Resetting…" : "Reset session"}
         </Button>
       </div>
+      <p className="mt-2 text-xs text-[var(--muted)]">
+        Reset clears plans, overview flags, attempts, and mastery for this browser session — fresh demo path.
+      </p>
       {resetMsg && <p className="mt-3 text-sm text-[var(--muted)]">{resetMsg}</p>}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">

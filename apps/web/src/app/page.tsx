@@ -95,6 +95,34 @@ export default function HomePage() {
             Progress
           </Link>
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent)]/5 px-4 py-3 text-sm">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-[var(--ink)]">Demo this: Two Pointers</p>
+            <p className="text-xs text-[var(--muted)]">
+              Evaluator path — diagnose → soft plan → overview → recommended problem → agents → reset.
+              {topicMap.get("two-pointers")?.next_problem_id
+                ? ` Next: ${
+                    problems.find((p) => p.id === topicMap.get("two-pointers")?.next_problem_id)?.title ||
+                    topicMap.get("two-pointers")?.next_problem_id
+                  }`
+                : ""}
+            </p>
+          </div>
+          <Link
+            href="/topics/two-pointers"
+            className="inline-flex h-9 shrink-0 items-center rounded-md bg-[var(--accent)] px-3 text-xs font-bold text-white"
+          >
+            Start demo
+          </Link>
+          {topicMap.get("two-pointers")?.next_problem_id && (
+            <Link
+              href={`/problems/${topicMap.get("two-pointers")!.next_problem_id}`}
+              className="inline-flex h-9 shrink-0 items-center rounded-md border border-[var(--line)] bg-white px-3 text-xs font-bold text-[var(--ink)]"
+            >
+              Open next problem
+            </Link>
+          )}
+        </div>
       </header>
 
       {loading && <div className="panel rounded-xl p-6 text-[var(--muted)]">Loading problem set…</div>}
