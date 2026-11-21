@@ -217,6 +217,17 @@ export async function fetchProgress() {
   }>(`/progress?session_id=${encodeURIComponent(sid)}`);
 }
 
+export async function resetProgress() {
+  return request<{
+    ok: boolean;
+    deleted: Record<string, number>;
+    progress: { session_id: string; problems: ProblemSummary[]; topics: Topic[] };
+  }>(`/progress/reset`, {
+    method: "POST",
+    body: JSON.stringify({ session_id: getSessionId() }),
+  });
+}
+
 export async function chatAgent(payload: {
   problem_id?: string;
   topic?: string;

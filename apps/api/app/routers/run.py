@@ -45,6 +45,10 @@ def _normalize_args(problem: dict[str, Any], args: list[Any] | None) -> list[Any
             return [demo["n"], demo["edges"], demo["src"], demo["dst"]]
         if fn == "count_components":
             return [demo["n"], demo["edges"]]
+        if fn == "min_subarray_len":
+            return [demo["nums"], demo["k"]]
+        if fn == "is_same_tree":
+            return [demo["a"], demo["b"]]
         return list(demo.values())
     return [demo]
 
@@ -215,6 +219,8 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
         "has_cycle",
         "shortest_path",
         "count_components",
+        "min_subarray_len",
+        "is_same_tree",
     }
     for idx, edge in enumerate(problem.get("edge_cases", [])):
         if isinstance(edge, list) and problem["function_name"] in multi_arg:

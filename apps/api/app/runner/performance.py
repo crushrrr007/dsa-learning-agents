@@ -57,4 +57,13 @@ def default_args_for_problem(problem: dict, n: int) -> list[Any]:
         return [min(20, max(1, n // 10))]
     if fn == "rob":
         return [list(range(1, max(2, n // 10) + 1))]
+    if fn == "max_area":
+        return [list(range(1, max(2, n // 10) + 1))]
+    if fn == "min_subarray_len":
+        return [list(range(1, max(2, n // 10) + 1)), max(2, n // 20)]
+    if fn == "is_same_tree":
+        vals = list(range(1, max(2, n // 20) + 1))
+        return [vals, vals]
+    if fn == "fib":
+        return [min(20, max(1, n // 10))]
     return [list(range(n))]

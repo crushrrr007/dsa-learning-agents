@@ -36,6 +36,10 @@ def _demo_args(problem: dict):
             return [demo["n"], demo["edges"], demo["src"], demo["dst"]]
         if fn == "count_components":
             return [demo["n"], demo["edges"]]
+        if fn == "min_subarray_len":
+            return [demo["nums"], demo["k"]]
+        if fn == "is_same_tree":
+            return [demo["a"], demo["b"]]
         return list(demo.values())
     return [demo]
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import list_problems, load_roadmap
@@ -142,4 +142,16 @@ async def build_progress_snapshot(db: AsyncSession, session_id: str) -> dict:
         "problems": problem_summaries,
         "topics": topics_out,
         "phases": roadmap.get("phases", []),
+    }
+
+
+async def reset_session_progress(db: AsyncSession, session_id: str) -> dict[str, int]:
+    prog = await db.execute(delete(Progress).where(Progress.session_id == session_id))
+    topics = await db.execute(delete(TopicProgress).where(TopicProgress.session_id == session_id))
+    attempts = await db.execute(delete(Attempt).where(Attempt.session_id == session_id))
+    await db.commit()
+    return {
+        "progress_deleted": prog.rowcount or 0,
+        "topics_deleted": topics.rowcount or 0,
+        "attempts_deleted": attempts.rowcount or 0,
     }

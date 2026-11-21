@@ -1,9 +1,13 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import DateTime, Float, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
+
+
+def _utcnow() -> datetime:
+    return datetime.now(UTC)
 
 
 class Progress(Base):
@@ -18,7 +22,7 @@ class Progress(Base):
     mastered: Mapped[int] = mapped_column(Integer, default=0)
     mastery_score: Mapped[float] = mapped_column(Float, default=0.0)
     last_code: Mapped[str] = mapped_column(Text, default="")
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
 
 
 class TopicProgress(Base):
@@ -30,7 +34,7 @@ class TopicProgress(Base):
     topic: Mapped[str] = mapped_column(String(64), index=True)
     learn_completed: Mapped[int] = mapped_column(Integer, default=0)
     quiz_score: Mapped[float] = mapped_column(Float, default=0.0)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
 
 
 class Attempt(Base):
@@ -42,4 +46,4 @@ class Attempt(Base):
     stage: Mapped[int] = mapped_column(Integer, default=0)
     success: Mapped[int] = mapped_column(Integer, default=0)
     detail: Mapped[str] = mapped_column(Text, default="")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

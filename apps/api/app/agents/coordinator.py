@@ -40,11 +40,19 @@ def pick_route(state: AgentState) -> Literal["concept_tutor", "feedback_agent"]:
 
 
 async def concept_tutor_node(state: AgentState) -> AgentState:
+    from app.agents.llm import STAGE_HINTS, TOPIC_HINTS
+
     topic = state.get("topic") or "arrays"
     notes = state.get("notes") or ""
     message = state.get("message") or ""
+    stage = int(state.get("stage") or 0)
     llm = await chat_complete(
-        system=f"You are the Concept Tutor for {topic}. Use only these notes:\n{notes[:3000]}",
+        system=(
+            f"You are the Concept Tutor for {topic}. "
+            f"Topic guidance: {TOPIC_HINTS.get(topic, '')} "
+            f"Stage guidance: {STAGE_HINTS.get(stage, '')} "
+            f"Use only these notes:\n{notes[:3000]}"
+        ),
         user=message,
     )
     if llm:
@@ -59,10 +67,13 @@ async def concept_tutor_node(state: AgentState) -> AgentState:
 
 
 async def feedback_agent_node(state: AgentState) -> AgentState:
+    from app.agents.llm import STAGE_HINTS, TOPIC_HINTS
+
     facts = state.get("facts") or {}
     stage = int(state.get("stage") or 0)
     code = state.get("code") or ""
     message = state.get("message") or ""
+    topic = state.get("topic") or "arrays"
     fact_blob = {
         "ast_insights": facts.get("ast_insights", []),
         "error": facts.get("error"),
@@ -71,7 +82,9 @@ async def feedback_agent_node(state: AgentState) -> AgentState:
     }
     llm = await chat_complete(
         system=(
-            f"You are the Feedback Agent for stage {stage}. "
+            f"You are the Feedback Agent for topic {topic}, stage {stage}. "
+            f"Topic guidance: {TOPIC_HINTS.get(topic, '')} "
+            f"Stage guidance: {STAGE_HINTS.get(stage, '')} "
             f"Facts from the runner/AST: {fact_blob}. "
             "Ask viva-style questions about the student's own code."
         ),
@@ -84,7 +97,7 @@ async def feedback_agent_node(state: AgentState) -> AgentState:
             "reply": llm,
             "guiding_question": "Which line in your code implements the key invariant?",
         }
-    mocked = mock_feedback_reply(stage, message, fact_blob)
+    mocked = mock_feedback_reply(stage, message, fact_blob, topic=topic)
     return {**state, "agent": "feedback_agent", **mocked}
 
 

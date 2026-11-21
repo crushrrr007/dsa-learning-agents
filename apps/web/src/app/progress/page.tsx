@@ -3,23 +3,50 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Circle } from "lucide-react";
-import { fetchProgress, type ProblemSummary, type Topic } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { fetchProgress, resetProgress, type ProblemSummary, type Topic } from "@/lib/api";
 
 export default function ProgressPage() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resetting, setResetting] = useState(false);
+  const [resetMsg, setResetMsg] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const p = await fetchProgress();
+      setTopics(p.topics);
+      setProblems(p.problems);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load progress");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetchProgress()
-      .then((p) => {
-        setTopics(p.topics);
-        setProblems(p.problems);
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+    load();
   }, []);
+
+  async function onReset() {
+    if (!confirm("Reset all progress for this guest session?")) return;
+    setResetting(true);
+    setResetMsg(null);
+    try {
+      const res = await resetProgress();
+      setTopics(res.progress.topics);
+      setProblems(res.progress.problems);
+      setResetMsg("Progress cleared. You can re-run the evaluator demo path.");
+    } catch (e) {
+      setResetMsg(e instanceof Error ? e.message : "Reset failed");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   const totals = useMemo(() => {
     const mastered = problems.filter((p) => p.mastered).length;
@@ -40,8 +67,16 @@ export default function ProgressPage() {
       <Link href="/" className="text-sm font-medium text-[var(--accent)] hover:underline">
         ← Roadmap
       </Link>
-      <h1 className="display mt-3 text-4xl font-semibold">Your progress</h1>
-      <p className="mt-2 text-[var(--muted)]">Guest session mastery across Phase I and Phase II.</p>
+      <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="display text-4xl font-semibold">Your progress</h1>
+          <p className="mt-2 text-[var(--muted)]">Guest session mastery across Phase I and Phase II.</p>
+        </div>
+        <Button variant="secondary" onClick={onReset} disabled={resetting}>
+          {resetting ? "Resetting…" : "Reset session"}
+        </Button>
+      </div>
+      {resetMsg && <p className="mt-3 text-sm text-[var(--muted)]">{resetMsg}</p>}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="panel rounded-xl p-5">
