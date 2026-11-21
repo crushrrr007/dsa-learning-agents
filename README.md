@@ -57,13 +57,23 @@ export DSA_USE_DOCKER=1
 export DSA_DOCKER_IMAGE=python:3.12-slim
 ```
 
+## Content
+
+20 problems across 7 topics (3 each except graphs with 2). Solutions stay server-side.
+
 ## Demo path
 
 1. Open http://127.0.0.1:3417  
 2. Phase I → **Two Pointers** → concept demo + quiz  
 3. Complete **Valid Palindrome** through all stages  
 4. Phase II → **Trees** / **Graphs** / **DP** similarly  
-5. Check **/progress** for mastery  
+5. Check **/progress** for mastery (use **Reset session** before a fresh evaluator demo)  
+
+## Tests
+
+```bash
+cd apps/api && uv run pytest tests/test_platform_smoke.py -q
+```
 
 ## Repo layout
 
