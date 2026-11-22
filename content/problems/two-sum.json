@@ -3,7 +3,7 @@
   "title": "Two Sum",
   "topic": "arrays",
   "difficulty": "easy",
-  "pattern": "Hash map lookup",
+  "pattern": "Hashing",
   "statement": "Given a list `nums` and an integer `target`, return the two indices `[i, j]` (with `i < j`) such that `nums[i] + nums[j] == target`. Exactly one solution is guaranteed. Return the indices as a sorted list `[i, j]`.",
   "examples": [
     {

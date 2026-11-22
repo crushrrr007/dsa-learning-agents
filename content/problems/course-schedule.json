@@ -3,7 +3,7 @@
   "title": "Course Schedule",
   "topic": "graphs",
   "difficulty": "medium",
-  "pattern": "Cycle detection / Kahn",
+  "pattern": "Topological sort",
   "statement": "There are `n` courses labeled `0 .. n-1`. Each pair in `edges` is `[a, b]` meaning course `a` requires course `b` first (directed dependency from `b` to `a`). Return `true` if you can finish every course, otherwise `false`. A cycle in the dependency graph means you cannot finish.",
   "examples": [
     {

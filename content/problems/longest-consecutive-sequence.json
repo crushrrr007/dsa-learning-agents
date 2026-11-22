@@ -3,7 +3,7 @@
   "title": "Longest Consecutive Sequence",
   "topic": "arrays",
   "difficulty": "medium",
-  "pattern": "Set membership",
+  "pattern": "Hashing",
   "statement": "Given an unsorted list `nums` of integers, return the length of the longest sequence of consecutive values (order in `nums` does not matter). Duplicates do not extend the sequence. An empty list has length 0.",
   "examples": [
     {

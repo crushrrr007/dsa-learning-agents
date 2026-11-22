@@ -3,7 +3,7 @@
   "title": "Maximum Subarray",
   "topic": "arrays",
   "difficulty": "medium",
-  "pattern": "Running extremum",
+  "pattern": "Running scan",
   "statement": "Given a nonempty list `nums`, return the largest possible sum of any contiguous subarray. The subarray must contain at least one element.",
   "examples": [
     {

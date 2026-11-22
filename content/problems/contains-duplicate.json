@@ -3,7 +3,7 @@
   "title": "Contains Duplicate",
   "topic": "arrays",
   "difficulty": "easy",
-  "pattern": "Hash map lookup",
+  "pattern": "Hashing",
   "statement": "Given a list `nums`, return `true` if any value appears at least twice, otherwise return `false`.",
   "examples": [
     {

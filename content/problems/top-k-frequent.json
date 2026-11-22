@@ -3,7 +3,7 @@
   "title": "Top K Frequent Elements",
   "topic": "arrays",
   "difficulty": "medium",
-  "pattern": "Frequency select",
+  "pattern": "Hashing",
   "statement": "Given a list `nums` and an integer `k`, return the `k` most frequent values. Canonical order: sort candidates by frequency descending, breaking ties by value ascending, then take the first `k` values in that order.",
   "examples": [
     {

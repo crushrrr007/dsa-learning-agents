@@ -3,7 +3,7 @@
   "title": "Group Anagrams",
   "topic": "arrays",
   "difficulty": "medium",
-  "pattern": "Hash grouping",
+  "pattern": "Hashing",
   "statement": "Given a list of strings `arr`, group anagrams together. Return a list of groups. Canonical order: sort the strings inside each group alphabetically, then sort the list of groups by each group's first string.",
   "examples": [
     {

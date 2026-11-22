@@ -3,7 +3,7 @@
   "title": "Best Time to Buy and Sell Stock",
   "topic": "arrays",
   "difficulty": "easy",
-  "pattern": "Running extremum",
+  "pattern": "Running scan",
   "statement": "You are given daily prices in a list `nums`. Choose one day to buy and a later day to sell. Return the maximum profit. If no profitable sale exists, return 0.",
   "examples": [
     {

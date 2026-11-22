@@ -3,7 +3,7 @@
   "title": "Valid Anagram",
   "topic": "arrays",
   "difficulty": "easy",
-  "pattern": "Hash map lookup",
+  "pattern": "Hashing",
   "statement": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s` (same characters with the same frequencies), otherwise `false`. Treat characters case-sensitively; inputs use lowercase letters only in these tests.",
   "examples": [
     {

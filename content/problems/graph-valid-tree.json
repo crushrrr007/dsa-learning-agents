@@ -3,7 +3,7 @@
   "title": "Graph Valid Tree",
   "topic": "graphs",
   "difficulty": "medium",
-  "pattern": "Union structure / DFS tree check",
+  "pattern": "Union-Find / DFS",
   "statement": "You are given `n` nodes labeled `0 .. n-1` and a list of undirected `edges` as pairs `[u, v]`. Return `true` if these edges form a valid tree, otherwise `false`. A valid tree is connected and has exactly `n - 1` edges (equivalently: connected with no cycles).",
   "examples": [
     {
