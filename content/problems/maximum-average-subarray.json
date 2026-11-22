@@ -1,0 +1,162 @@
+{
+  "id": "maximum-average-subarray",
+  "title": "Maximum Average Subarray",
+  "topic": "sliding-window",
+  "difficulty": "easy",
+  "pattern": "Fixed window",
+  "statement": "Given a list `nums` and an integer `k`, find a contiguous subarray of length exactly `k` with the largest average value. Return that average as a floating-point number.",
+  "examples": [
+    {
+      "input": "nums=[1,12,-5,-6,50,3], k=4",
+      "output": "12.75"
+    },
+    {
+      "input": "nums=[5], k=1",
+      "output": "5.0"
+    },
+    {
+      "input": "nums=[0,4,0,3,2], k=1",
+      "output": "4.0"
+    }
+  ],
+  "constraints": [
+    "1 <= k <= len(nums) <= 100"
+  ],
+  "starter_code": "def find_max_average(nums, k):\n    left = 0\n    # Fixed window of length k; track the max window sum\n    return 0.0\n",
+  "function_name": "find_max_average",
+  "visual": "window",
+  "brute_force_code": "def find_max_average(nums, k):\n    best = None\n    for i in range(len(nums) - k + 1):\n        avg = sum(nums[i : i + k]) / k\n        if best is None or avg > best:\n            best = avg\n    return best\n",
+  "demo_input": {
+    "nums": [
+      1,
+      12,
+      -5,
+      -6,
+      50,
+      3
+    ],
+    "k": 4
+  },
+  "predict_steps": [
+    {
+      "prompt": "First window of length 4 is [1,12,-5,-6]. What is its sum?",
+      "answer": "2",
+      "accepted_answers": [
+        "2",
+        "two"
+      ],
+      "hint": "1+12-5-6."
+    },
+    {
+      "prompt": "When the window slides so left becomes 2 (values -5,-6,50,3), what average do you get?",
+      "answer": "10.5",
+      "accepted_answers": [
+        "10.5",
+        "42/4"
+      ],
+      "hint": "Sum 42 over length 4."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          12,
+          -5,
+          -6,
+          50,
+          3
+        ],
+        4
+      ],
+      "expected": 12.75
+    },
+    {
+      "args": [
+        [
+          5
+        ],
+        1
+      ],
+      "expected": 5.0
+    },
+    {
+      "args": [
+        [
+          0,
+          4,
+          0,
+          3,
+          2
+        ],
+        1
+      ],
+      "expected": 4.0
+    },
+    {
+      "args": [
+        [
+          -1,
+          -2,
+          -3,
+          -4
+        ],
+        2
+      ],
+      "expected": -1.5
+    },
+    {
+      "args": [
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        4
+      ],
+      "expected": 7.0
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        2
+      ],
+      "expected": 4.5
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ],
+      1
+    ],
+    [
+      [
+        1,
+        2
+      ],
+      2
+    ],
+    [
+      [
+        -5,
+        0,
+        5
+      ],
+      1
+    ]
+  ],
+  "reference_solution": "def find_max_average(nums, k):\n    left = 0\n    window_sum = sum(nums[:k])\n    best = window_sum\n    for right in range(k, len(nums)):\n        window_sum += nums[right] - nums[left]\n        left += 1\n        if window_sum > best:\n            best = window_sum\n    return best / k\n",
+  "sources": [
+    "neetcode150"
+  ]
+}

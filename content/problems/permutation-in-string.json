@@ -1,0 +1,126 @@
+{
+  "id": "permutation-in-string",
+  "title": "Permutation in String",
+  "topic": "sliding-window",
+  "difficulty": "medium",
+  "pattern": "Fixed window",
+  "statement": "Given two strings `s1` and `s2`, return `true` if `s2` contains a permutation of `s1` as a contiguous substring, otherwise `false`. Scan `s2` with a window of length `len(s1)`.",
+  "examples": [
+    {
+      "input": "s1=\"ab\", s2=\"eidbaooo\"",
+      "output": "true"
+    },
+    {
+      "input": "s1=\"ab\", s2=\"eidboaoo\"",
+      "output": "false"
+    },
+    {
+      "input": "s1=\"adc\", s2=\"dcda\"",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= len(s1) <= 50",
+    "1 <= len(s2) <= 100",
+    "lowercase English letters"
+  ],
+  "starter_code": "def check_inclusion(s1, s2):\n    # Treat s2 as the scanned string; window size is len(s1)\n    s = s2\n    t = s1\n    left = 0\n    return False\n",
+  "function_name": "check_inclusion",
+  "visual": "window",
+  "brute_force_code": "def check_inclusion(s1, s2):\n    need = sorted(s1)\n    m = len(s1)\n    for i in range(len(s2) - m + 1):\n        if sorted(s2[i : i + m]) == need:\n            return True\n    return False\n",
+  "demo_input": {
+    "s1": "ab",
+    "s2": "eidbaooo"
+  },
+  "predict_steps": [
+    {
+      "prompt": "Window size equals len(s1). For s1='ab', what is that size?",
+      "answer": "2",
+      "accepted_answers": [
+        "2",
+        "two"
+      ],
+      "hint": "Fixed window length matches the pattern string."
+    },
+    {
+      "prompt": "In s2='eidbaooo', which starting index first matches a permutation of 'ab'?",
+      "answer": "3",
+      "accepted_answers": [
+        "3",
+        "index 3",
+        "ba"
+      ],
+      "hint": "Substring 'ba' at indices 3..4."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "ab",
+        "eidbaooo"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "ab",
+        "eidboaoo"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "adc",
+        "dcda"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "a",
+        "a"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "a",
+        "b"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "hello",
+        "ooolleoooleh"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "abc",
+        "bbbca"
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    [
+      "a",
+      "a"
+    ],
+    [
+      "ab",
+      "a"
+    ],
+    [
+      "abc",
+      "ccccba"
+    ]
+  ],
+  "reference_solution": "def check_inclusion(s1, s2):\n    s = s2\n    t = s1\n    m, n = len(t), len(s)\n    if m > n:\n        return False\n    need = {}\n    for ch in t:\n        need[ch] = need.get(ch, 0) + 1\n    window = {}\n    left = 0\n    matches = 0\n    required = len(need)\n    for right in range(n):\n        ch = s[right]\n        window[ch] = window.get(ch, 0) + 1\n        if ch in need and window[ch] == need[ch]:\n            matches += 1\n        if right - left + 1 > m:\n            left_ch = s[left]\n            if left_ch in need and window[left_ch] == need[left_ch]:\n                matches -= 1\n            window[left_ch] -= 1\n            left += 1\n        if matches == required:\n            return True\n    return False\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

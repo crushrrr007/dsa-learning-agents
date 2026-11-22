@@ -1,0 +1,135 @@
+{
+  "id": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "topic": "sliding-window",
+  "difficulty": "hard",
+  "pattern": "Variable window",
+  "statement": "Given strings `s` and `t`, return the shortest substring of `s` that contains every character of `t` with at least the same multiplicity. If several shortest substrings exist, return the leftmost one. Return an empty string `\"\"` if no such substring exists.",
+  "examples": [
+    {
+      "input": "s=\"ABAC\", t=\"ABC\"",
+      "output": "\"BAC\""
+    },
+    {
+      "input": "s=\"a\", t=\"a\"",
+      "output": "\"a\""
+    },
+    {
+      "input": "s=\"a\", t=\"aa\"",
+      "output": "\"\""
+    }
+  ],
+  "constraints": [
+    "1 <= len(s) <= 80",
+    "1 <= len(t) <= 40",
+    "uppercase and lowercase English letters"
+  ],
+  "starter_code": "def min_window(s, t):\n    left = 0\n    # Expand right until t is covered, then shrink left\n    return \"\"\n",
+  "function_name": "min_window",
+  "visual": "window",
+  "brute_force_code": "def min_window(s, t):\n    need = {}\n    for ch in t:\n        need[ch] = need.get(ch, 0) + 1\n    best = \"\"\n    n = len(s)\n    for i in range(n):\n        have = {}\n        missing = len(need)\n        for j in range(i, n):\n            ch = s[j]\n            have[ch] = have.get(ch, 0) + 1\n            if ch in need and have[ch] == need[ch]:\n                missing -= 1\n            if missing == 0:\n                cand = s[i : j + 1]\n                if best == \"\" or len(cand) < len(best):\n                    best = cand\n                break\n    return best\n",
+  "demo_input": {
+    "s": "ABAC",
+    "t": "ABC"
+  },
+  "predict_steps": [
+    {
+      "prompt": "For s='ABAC' and t='ABC', the first covering window ends when right hits the first 'C'. What substring is that?",
+      "answer": "ABAC",
+      "accepted_answers": [
+        "ABAC",
+        "abac"
+      ],
+      "hint": "Indices 0..3 first contain A,B,C."
+    },
+    {
+      "prompt": "After shrinking from the left past the first A, the covering window becomes BAC. Do you keep it?",
+      "answer": "yes, it is shorter",
+      "accepted_answers": [
+        "yes",
+        "keep BAC",
+        "yes, it is shorter",
+        "replace with BAC"
+      ],
+      "hint": "Length 3 beats length 4; leftmost among equals is already handled by scan order."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "ABAC",
+        "ABC"
+      ],
+      "expected": "BAC"
+    },
+    {
+      "args": [
+        "ADOBECODEBANC",
+        "ABC"
+      ],
+      "expected": "BANC"
+    },
+    {
+      "args": [
+        "a",
+        "a"
+      ],
+      "expected": "a"
+    },
+    {
+      "args": [
+        "a",
+        "aa"
+      ],
+      "expected": ""
+    },
+    {
+      "args": [
+        "ab",
+        "b"
+      ],
+      "expected": "b"
+    },
+    {
+      "args": [
+        "aaflslflsldkalskaaa",
+        "aaa"
+      ],
+      "expected": "aaa"
+    },
+    {
+      "args": [
+        "abc",
+        "x"
+      ],
+      "expected": ""
+    },
+    {
+      "args": [
+        "bba",
+        "ab"
+      ],
+      "expected": "ba"
+    }
+  ],
+  "edge_cases": [
+    [
+      "a",
+      "a"
+    ],
+    [
+      "a",
+      "b"
+    ],
+    [
+      "ab",
+      "a"
+    ]
+  ],
+  "reference_solution": "def min_window(s, t):\n    if not t or not s:\n        return \"\"\n    need = {}\n    for ch in t:\n        need[ch] = need.get(ch, 0) + 1\n    required = len(need)\n    window = {}\n    have = 0\n    left = 0\n    best = (float(\"inf\"), 0, 0)\n    for right in range(len(s)):\n        ch = s[right]\n        window[ch] = window.get(ch, 0) + 1\n        if ch in need and window[ch] == need[ch]:\n            have += 1\n        while have == required and left <= right:\n            if right - left + 1 < best[0]:\n                best = (right - left + 1, left, right)\n            left_ch = s[left]\n            window[left_ch] -= 1\n            if left_ch in need and window[left_ch] < need[left_ch]:\n                have -= 1\n            left += 1\n    length, lo, hi = best\n    if length == float(\"inf\"):\n        return \"\"\n    return s[lo : hi + 1]\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

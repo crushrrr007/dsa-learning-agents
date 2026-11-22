@@ -1,0 +1,126 @@
+{
+  "id": "longest-repeating-character-replacement",
+  "title": "Longest Repeating Character Replacement",
+  "topic": "sliding-window",
+  "difficulty": "medium",
+  "pattern": "Variable window",
+  "statement": "You are given a string `s` of uppercase letters and an integer `k`. You may replace at most `k` characters in `s` so that some contiguous substring becomes all the same letter. Return the length of the longest substring you can achieve this way.",
+  "examples": [
+    {
+      "input": "s=\"ABAB\", k=2",
+      "output": "4"
+    },
+    {
+      "input": "s=\"AABABBA\", k=1",
+      "output": "4"
+    },
+    {
+      "input": "s=\"AAAA\", k=2",
+      "output": "4"
+    }
+  ],
+  "constraints": [
+    "1 <= len(s) <= 100",
+    "0 <= k <= len(s)",
+    "s contains uppercase English letters"
+  ],
+  "starter_code": "def character_replacement(s, k):\n    left = 0\n    # Expand right; shrink when replacements needed exceed k\n    return 0\n",
+  "function_name": "character_replacement",
+  "visual": "window",
+  "brute_force_code": "def character_replacement(s, k):\n    n = len(s)\n    best = 0\n    for i in range(n):\n        counts = {}\n        for j in range(i, n):\n            counts[s[j]] = counts.get(s[j], 0) + 1\n            need = (j - i + 1) - max(counts.values())\n            if need <= k:\n                best = max(best, j - i + 1)\n    return best\n",
+  "demo_input": {
+    "s": "AABABBA",
+    "k": 1
+  },
+  "predict_steps": [
+    {
+      "prompt": "Window covers AABA (indices 0..3). The most frequent letter count is 3 (A). How many replacements does this window need?",
+      "answer": "1",
+      "accepted_answers": [
+        "1",
+        "one"
+      ],
+      "hint": "length 4 minus max frequency 3."
+    },
+    {
+      "prompt": "When need > k, which pointer moves?",
+      "answer": "left",
+      "accepted_answers": [
+        "left",
+        "left += 1",
+        "shrink left"
+      ],
+      "hint": "Shrink from the left until the window is valid again."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "ABAB",
+        2
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        "AABABBA",
+        1
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        "AAAA",
+        2
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        "A",
+        0
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        "ABCDE",
+        0
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        "ABBB",
+        2
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        "BAAAB",
+        2
+      ],
+      "expected": 5
+    }
+  ],
+  "edge_cases": [
+    [
+      "A",
+      0
+    ],
+    [
+      "AB",
+      1
+    ],
+    [
+      "AA",
+      0
+    ]
+  ],
+  "reference_solution": "def character_replacement(s, k):\n    left = 0\n    counts = {}\n    best = 0\n    max_freq = 0\n    for right in range(len(s)):\n        counts[s[right]] = counts.get(s[right], 0) + 1\n        max_freq = max(max_freq, counts[s[right]])\n        while (right - left + 1) - max_freq > k:\n            counts[s[left]] -= 1\n            left += 1\n        best = max(best, right - left + 1)\n    return best\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}
