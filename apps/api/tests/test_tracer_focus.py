@@ -44,6 +44,24 @@ def scan(grid):
     )
 
 
+def test_matrix_local_lands_in_grid_focus():
+    code = """
+def scan(matrix):
+    rows = len(matrix)
+    cols = len(matrix[0]) if matrix else 0
+    left, right = 0, rows * cols - 1
+    mid = (left + right) // 2
+    r, c = divmod(mid, cols)
+    return matrix[r][c]
+"""
+    matrix = [[1, 3, 5], [7, 9, 11]]
+    raw = run_student_code(code, "scan", args=[matrix])
+    assert raw["ok"] is True
+    focuses = [e.get("focus") or {} for e in raw["events"]]
+    assert any(f.get("grid") == matrix for f in focuses)
+    assert any("mid" in f for f in focuses)
+
+
 def test_heap_captures_as_sequence():
     code = """
 import heapq

@@ -16,11 +16,12 @@
     },
     {
       "id": 2,
-      "title": "Phase II \u2014 Trees, Graphs & Dynamic Programming",
+      "title": "Phase II \u2014 Trees, Graphs, DP & Binary Search",
       "topic_slugs": [
         "trees",
         "graphs",
-        "dynamic-programming"
+        "dynamic-programming",
+        "binary-search"
       ]
     }
   ],
@@ -88,6 +89,14 @@
       "phase": 1,
       "summary": "LIFO push/pop, matching brackets, and monotonic stacks for next-greater queries.",
       "color": "#be185d"
+    },
+    {
+      "slug": "binary-search",
+      "title": "Binary Search",
+      "order": 9,
+      "phase": 2,
+      "summary": "Halve a sorted range with left/right/mid pointers; search answers and rotated arrays.",
+      "color": "#4338ca"
     }
   ]
 }

@@ -1,0 +1,232 @@
+{
+  "id": "search-a-2d-matrix",
+  "title": "Search a 2D Matrix",
+  "topic": "binary-search",
+  "difficulty": "medium",
+  "pattern": "Binary search",
+  "statement": "You are given an `m x n` `matrix` where each row is sorted ascending and the first entry of each row is greater than the last entry of the previous row. Return `true` if `target` appears in the matrix, else `false`. Treat the matrix as one sorted sequence and binary-search it; keep the 2D layout in a local named `matrix` so the tracer can draw the grid.",
+  "examples": [
+    {
+      "input": "matrix=[[1,3,5,7],[10,11,16,20],[23,30,34,60]], target=3",
+      "output": "true"
+    },
+    {
+      "input": "matrix=[[1,3,5,7],[10,11,16,20],[23,30,34,60]], target=13",
+      "output": "false"
+    },
+    {
+      "input": "matrix=[[1]], target=1",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 20"
+  ],
+  "starter_code": "def search_matrix(matrix, target):\n    matrix = matrix  # keep name for the tracer\n    rows, cols = len(matrix), len(matrix[0]) if matrix else 0\n    left, right = 0, rows * cols - 1\n    while left <= right:\n        mid = (left + right) // 2\n        pass\n    return False\n",
+  "function_name": "search_matrix",
+  "visual": "grid",
+  "brute_force_code": "def search_matrix(matrix, target):\n    for row in matrix:\n        for v in row:\n            if v == target:\n                return True\n    return False\n",
+  "demo_input": {
+    "matrix": [
+      [
+        1,
+        3,
+        5,
+        7
+      ],
+      [
+        10,
+        11,
+        16,
+        20
+      ],
+      [
+        23,
+        30,
+        34,
+        60
+      ]
+    ],
+    "target": 3
+  },
+  "predict_steps": [
+    {
+      "prompt": "Flattened mid index maps to row how?",
+      "answer": "mid // cols",
+      "accepted_answers": [
+        "mid // cols",
+        "divmod",
+        "row = mid // cols"
+      ],
+      "hint": "Integer divide by column count."
+    },
+    {
+      "prompt": "If matrix[r][c] > target, which bound shrinks?",
+      "answer": "right",
+      "accepted_answers": [
+        "right",
+        "right = mid - 1"
+      ],
+      "hint": "Discard the upper half."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          [
+            1,
+            3,
+            5,
+            7
+          ],
+          [
+            10,
+            11,
+            16,
+            20
+          ],
+          [
+            23,
+            30,
+            34,
+            60
+          ]
+        ],
+        3
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            3,
+            5,
+            7
+          ],
+          [
+            10,
+            11,
+            16,
+            20
+          ],
+          [
+            23,
+            30,
+            34,
+            60
+          ]
+        ],
+        13
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          [
+            1
+          ]
+        ],
+        1
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          [
+            1
+          ]
+        ],
+        0
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        4
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        5
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          [
+            -5,
+            -2
+          ],
+          [
+            0,
+            8
+          ]
+        ],
+        -2
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        [
+          1
+        ]
+      ],
+      1
+    ],
+    [
+      [
+        [
+          1,
+          2
+        ]
+      ],
+      3
+    ],
+    [
+      [
+        [
+          1
+        ],
+        [
+          3
+        ]
+      ],
+      2
+    ]
+  ],
+  "reference_solution": "def search_matrix(matrix, target):\n    matrix = matrix\n    if not matrix or not matrix[0]:\n        return False\n    rows, cols = len(matrix), len(matrix[0])\n    left, right = 0, rows * cols - 1\n    while left <= right:\n        mid = (left + right) // 2\n        r, c = divmod(mid, cols)\n        val = matrix[r][c]\n        if val == target:\n            return True\n        if val < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return False\n",
+  "sources": [
+    "blind75",
+    "neetcode150"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "topic": "binary-search",
+  "title": "Binary Search \u2014 prerequisite check",
+  "prerequisites": [
+    "sorted arrays",
+    "loops"
+  ],
+  "questions": [
+    {
+      "id": "comfort",
+      "type": "scale",
+      "prompt": "How comfortable are you with left/right/mid on a sorted array?",
+      "choices": [
+        "Never used it",
+        "Need a refresher",
+        "Comfortable",
+        "Very comfortable"
+      ]
+    },
+    {
+      "id": "mid",
+      "type": "mcq",
+      "prompt": "In classic binary search, mid is usually computed as?",
+      "choices": [
+        "left + right",
+        "(left + right) // 2",
+        "left - right",
+        "right only"
+      ],
+      "answer_index": 1,
+      "skill": "midpoint"
+    },
+    {
+      "id": "invariant",
+      "type": "mcq",
+      "prompt": "Why must the search range stay sorted (or answer-monotonic)?",
+      "choices": [
+        "So hashing works",
+        "So discarding half never drops the answer",
+        "So recursion is illegal",
+        "So stacks grow"
+      ],
+      "answer_index": 1,
+      "skill": "invariant"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Binary Search right now?",
+      "choices": [
+        "Start from absolute basics",
+        "Quick overview then practice",
+        "Jump to harder problems"
+      ]
+    }
+  ]
+}

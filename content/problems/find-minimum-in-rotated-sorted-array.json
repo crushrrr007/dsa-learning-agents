@@ -1,0 +1,163 @@
+{
+  "id": "find-minimum-in-rotated-sorted-array",
+  "title": "Find Minimum in Rotated Sorted Array",
+  "topic": "binary-search",
+  "difficulty": "medium",
+  "pattern": "Rotated search",
+  "statement": "A sorted ascending array of distinct values was rotated at an unknown pivot. Given `nums`, return the minimum element. Values are unique.",
+  "examples": [
+    {
+      "input": "nums=[3,4,5,1,2]",
+      "output": "1"
+    },
+    {
+      "input": "nums=[4,5,6,7,0,1,2]",
+      "output": "0"
+    },
+    {
+      "input": "nums=[11,13,15,17]",
+      "output": "11"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 80",
+    "all values distinct"
+  ],
+  "starter_code": "def find_min(nums):\n    left, right = 0, len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        pass\n    return nums[left]\n",
+  "function_name": "find_min",
+  "visual": "array",
+  "brute_force_code": "def find_min(nums):\n    return min(nums)\n",
+  "demo_input": [
+    3,
+    4,
+    5,
+    1,
+    2
+  ],
+  "predict_steps": [
+    {
+      "prompt": "If nums[mid] > nums[right], the minimum is in which half?",
+      "answer": "right half",
+      "accepted_answers": [
+        "right",
+        "right half",
+        "left = mid + 1"
+      ],
+      "hint": "Rotation cut is to the right of mid."
+    },
+    {
+      "prompt": "Unrotated array [11,13,15,17] \u2014 minimum is?",
+      "answer": "11",
+      "accepted_answers": [
+        "11"
+      ],
+      "hint": "First element."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          4,
+          5,
+          1,
+          2
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          4,
+          5,
+          6,
+          7,
+          0,
+          1,
+          2
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          11,
+          13,
+          15,
+          17
+        ]
+      ],
+      "expected": 11
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          2,
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          5,
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          -1,
+          0,
+          3,
+          -5,
+          -3
+        ]
+      ],
+      "expected": -5
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        2,
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ]
+    ]
+  ],
+  "reference_solution": "def find_min(nums):\n    left, right = 0, len(nums) - 1\n    while left < right:\n        mid = (left + right) // 2\n        if nums[mid] > nums[right]:\n            left = mid + 1\n        else:\n            right = mid\n    return nums[left]\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

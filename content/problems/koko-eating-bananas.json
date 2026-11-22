@@ -1,0 +1,162 @@
+{
+  "id": "koko-eating-bananas",
+  "title": "Koko Eating Bananas",
+  "topic": "binary-search",
+  "difficulty": "medium",
+  "pattern": "Binary search",
+  "statement": "Koko has `piles` of bananas and `h` hours. Each hour she chooses one pile and eats exactly `k` bananas from it (or the whole pile if smaller). She wants the minimum integer speed `k` so she can finish all piles within `h` hours. Return that minimum `k`.",
+  "examples": [
+    {
+      "input": "piles=[3,6,7,11], h=8",
+      "output": "4"
+    },
+    {
+      "input": "piles=[7,4,5], h=8",
+      "output": "3"
+    },
+    {
+      "input": "piles=[2,2,2,2], h=8",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= len(piles) <= 12",
+    "len(piles) <= h <= 40",
+    "1 <= piles[i] <= 20"
+  ],
+  "starter_code": "def min_eating_speed(piles, h):\n    left, right = 1, max(piles)\n    while left < right:\n        mid = (left + right) // 2\n        # Check if speed mid finishes in h hours\n        pass\n    return left\n",
+  "function_name": "min_eating_speed",
+  "visual": "array",
+  "brute_force_code": "def min_eating_speed(piles, h):\n    def hours(k):\n        return sum((p + k - 1) // k for p in piles)\n    for k in range(1, max(piles) + 1):\n        if hours(k) <= h:\n            return k\n    return max(piles)\n",
+  "demo_input": {
+    "piles": [
+      3,
+      6,
+      7,
+      11
+    ],
+    "h": 8
+  },
+  "predict_steps": [
+    {
+      "prompt": "If mid speed finishes within h, which bound moves?",
+      "answer": "right",
+      "accepted_answers": [
+        "right",
+        "right = mid"
+      ],
+      "hint": "Try a smaller speed."
+    },
+    {
+      "prompt": "Lower bound for k starts at?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "At least one banana per hour."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          6,
+          7,
+          11
+        ],
+        8
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          7,
+          4,
+          5
+        ],
+        8
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          2,
+          2,
+          2,
+          2
+        ],
+        8
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        1
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          10,
+          10
+        ],
+        3
+      ],
+      "expected": 10
+    },
+    {
+      "args": [
+        [
+          5,
+          5,
+          5
+        ],
+        3
+      ],
+      "expected": 5
+    },
+    {
+      "args": [
+        [
+          8,
+          3
+        ],
+        4
+      ],
+      "expected": 3
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ],
+      1
+    ],
+    [
+      [
+        10
+      ],
+      10
+    ],
+    [
+      [
+        5,
+        5
+      ],
+      2
+    ]
+  ],
+  "reference_solution": "def min_eating_speed(piles, h):\n    def hours(k):\n        return sum((p + k - 1) // k for p in piles)\n    left, right = 1, max(piles)\n    while left < right:\n        mid = (left + right) // 2\n        if hours(mid) <= h:\n            right = mid\n        else:\n            left = mid + 1\n    return left\n",
+  "sources": [
+    "neetcode150",
+    "blind75"
+  ]
+}

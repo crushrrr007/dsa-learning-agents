@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What do left, right, and mid represent in array binary search?",
+    "choices": [
+      "Three random indices",
+      "The current search window bounds and midpoint",
+      "Only stack tops",
+      "Graph distances"
+    ],
+    "answer_index": 1
+  },
+  {
+    "question": "If nums[mid] is less than target in ascending order, you usually?",
+    "choices": [
+      "Set right = mid - 1",
+      "Set left = mid + 1",
+      "Return mid immediately",
+      "Clear the array"
+    ],
+    "answer_index": 1
+  },
+  {
+    "question": "Binary search on the answer (e.g. eating speed) needs what property?",
+    "choices": [
+      "Random order",
+      "A monotonic feasibility check",
+      "A hash map",
+      "A linked list"
+    ],
+    "answer_index": 1
+  }
+]

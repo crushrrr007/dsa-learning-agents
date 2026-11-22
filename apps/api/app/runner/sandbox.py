@@ -70,6 +70,7 @@ def focus_from_locals(loc):
     for key in (
         "left",
         "right",
+        "mid",
         "i",
         "j",
         "slow",
@@ -111,15 +112,17 @@ def focus_from_locals(loc):
             except Exception:
                 focus["sequence"] = safe_repr(val)
             break
-    # 2D grid matrix
-    if "grid" in loc and isinstance(loc["grid"], list):
-        rows = []
-        for row in loc["grid"][:40]:
-            if isinstance(row, (list, tuple)):
-                rows.append(list(row)[:40])
-            else:
-                rows.append(row)
-        focus["grid"] = rows
+    # 2D grid / matrix
+    for grid_key in ("grid", "matrix"):
+        if grid_key in loc and isinstance(loc[grid_key], list):
+            rows = []
+            for row in loc[grid_key][:40]:
+                if isinstance(row, (list, tuple)):
+                    rows.append(list(row)[:40])
+                else:
+                    rows.append(row)
+            focus["grid"] = rows
+            break
     # Binary tree node snapshot
     for key in ("root", "node"):
         if key in loc and hasattr(loc[key], "val"):
@@ -140,7 +143,7 @@ def focus_from_locals(loc):
     # Also surface sequence from common alias names used in demos
     if "sequence" not in focus:
         for key, val in loc.items():
-            if key in {"g", "seen", "visited", "q", "queue", "grid", "stack", "heap"}:
+            if key in {"g", "seen", "visited", "q", "queue", "grid", "matrix", "stack", "heap"}:
                 continue
             if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool, type(None))) for x in val[:8]):
                 focus["sequence"] = val[:40]
