@@ -1,0 +1,122 @@
+{
+  "id": "unique-paths",
+  "title": "Unique Paths",
+  "topic": "dynamic-programming",
+  "difficulty": "medium",
+  "pattern": "2D DP",
+  "statement": "A robot on an `m` by `n` grid starts at the top-left and may only move right or down. Return how many unique paths reach the bottom-right cell.",
+  "examples": [
+    {
+      "input": "m=3, n=2",
+      "output": "3"
+    },
+    {
+      "input": "m=2, n=2",
+      "output": "2"
+    },
+    {
+      "input": "m=1, n=1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= m, n <= 12"
+  ],
+  "starter_code": "def unique_paths(m, n):\n    # dp[r][c] = ways to reach cell (r, c)\n    dp = [[0] * n for _ in range(m)]\n    return 0\n",
+  "function_name": "unique_paths",
+  "visual": "dp",
+  "brute_force_code": "def unique_paths(m, n):\n    def dfs(r, c):\n        if r == m - 1 and c == n - 1:\n            return 1\n        if r >= m or c >= n:\n            return 0\n        return dfs(r + 1, c) + dfs(r, c + 1)\n    return dfs(0, 0)\n",
+  "demo_input": {
+    "m": 3,
+    "n": 2
+  },
+  "predict_steps": [
+    {
+      "prompt": "What should every cell in the first row of dp equal?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "Only right moves along the top."
+    },
+    {
+      "prompt": "For a 3x2 grid, how many paths reach the end?",
+      "answer": "3",
+      "accepted_answers": [
+        "3"
+      ],
+      "hint": "DDR, DRD, RDD."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        3,
+        2
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        3,
+        7
+      ],
+      "expected": 28
+    },
+    {
+      "args": [
+        1,
+        1
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        1,
+        5
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        5,
+        1
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        2,
+        2
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        3,
+        3
+      ],
+      "expected": 6
+    }
+  ],
+  "edge_cases": [
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      1
+    ]
+  ],
+  "reference_solution": "def unique_paths(m, n):\n    dp = [[0] * n for _ in range(m)]\n    for r in range(m):\n        dp[r][0] = 1\n    for c in range(n):\n        dp[0][c] = 1\n    for r in range(1, m):\n        for c in range(1, n):\n            dp[r][c] = dp[r - 1][c] + dp[r][c - 1]\n    return dp[m - 1][n - 1]\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

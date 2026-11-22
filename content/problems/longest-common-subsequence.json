@@ -1,0 +1,124 @@
+{
+  "id": "longest-common-subsequence",
+  "title": "Longest Common Subsequence",
+  "topic": "dynamic-programming",
+  "difficulty": "medium",
+  "pattern": "2D DP",
+  "statement": "Given two strings `text1` and `text2`, return the length of their longest common subsequence. A subsequence is formed by deleting zero or more characters without changing order.",
+  "examples": [
+    {
+      "input": "text1=\"abcde\", text2=\"ace\"",
+      "output": "3"
+    },
+    {
+      "input": "text1=\"abc\", text2=\"abc\"",
+      "output": "3"
+    },
+    {
+      "input": "text1=\"abc\", text2=\"def\"",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= len(text1), len(text2) <= 20"
+  ],
+  "starter_code": "def longest_common_subsequence(text1, text2):\n    # dp[i][j] = LCS of text1[:i] and text2[:j]\n    dp = [[0] * (len(text2) + 1) for _ in range(len(text1) + 1)]\n    return 0\n",
+  "function_name": "longest_common_subsequence",
+  "visual": "dp",
+  "brute_force_code": "def longest_common_subsequence(text1, text2):\n    memo = {}\n    def dfs(i, j):\n        if i == len(text1) or j == len(text2):\n            return 0\n        key = (i, j)\n        if key in memo:\n            return memo[key]\n        if text1[i] == text2[j]:\n            memo[key] = 1 + dfs(i + 1, j + 1)\n        else:\n            memo[key] = max(dfs(i + 1, j), dfs(i, j + 1))\n        return memo[key]\n    return dfs(0, 0)\n",
+  "demo_input": {
+    "text1": "abcde",
+    "text2": "ace"
+  },
+  "predict_steps": [
+    {
+      "prompt": "When text1[i-1] equals text2[j-1], how do you set dp[i][j]?",
+      "answer": "dp[i-1][j-1] + 1",
+      "accepted_answers": [
+        "dp[i-1][j-1]+1",
+        "1 + diagonal",
+        "dp[i-1][j-1] + 1"
+      ],
+      "hint": "Extend the LCS of the prefixes."
+    },
+    {
+      "prompt": "For abcde and ace, what is the LCS length?",
+      "answer": "3",
+      "accepted_answers": [
+        "3"
+      ],
+      "hint": "a,c,e."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "abcde",
+        "ace"
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        "abc",
+        "abc"
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        "abc",
+        "def"
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        "a",
+        "a"
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        "a",
+        "b"
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        "bsbininm",
+        "jmjkbkjkv"
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        "oxcpqrsvwf",
+        "shmtulqrypy"
+      ],
+      "expected": 2
+    }
+  ],
+  "edge_cases": [
+    [
+      "a",
+      "a"
+    ],
+    [
+      "a",
+      "b"
+    ],
+    [
+      "ab",
+      "ba"
+    ]
+  ],
+  "reference_solution": "def longest_common_subsequence(text1, text2):\n    m, n = len(text1), len(text2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if text1[i - 1] == text2[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    return dp[m][n]\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

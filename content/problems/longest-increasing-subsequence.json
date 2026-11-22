@@ -1,0 +1,165 @@
+{
+  "id": "longest-increasing-subsequence",
+  "title": "Longest Increasing Subsequence",
+  "topic": "dynamic-programming",
+  "difficulty": "medium",
+  "pattern": "1D DP",
+  "statement": "Given an integer list `nums`, return the length of the longest strictly increasing subsequence (not necessarily contiguous).",
+  "examples": [
+    {
+      "input": "nums=[10,9,2,5,3,7]",
+      "output": "3"
+    },
+    {
+      "input": "nums=[0,1,0,3,2,3]",
+      "output": "4"
+    },
+    {
+      "input": "nums=[7,7,7,7]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 40"
+  ],
+  "starter_code": "def length_of_lis(nums):\n    # dp[i] = LIS length ending at index i\n    dp = [1] * len(nums)\n    return 1\n",
+  "function_name": "length_of_lis",
+  "visual": "dp",
+  "brute_force_code": "def length_of_lis(nums):\n    n = len(nums)\n    best = 0\n    def dfs(start, prev, length):\n        nonlocal best\n        best = max(best, length)\n        for i in range(start, n):\n            if nums[i] > prev:\n                dfs(i + 1, nums[i], length + 1)\n    dfs(0, float('-inf'), 0)\n    return best\n",
+  "demo_input": [
+    10,
+    9,
+    2,
+    5,
+    3,
+    7
+  ],
+  "predict_steps": [
+    {
+      "prompt": "For each index i, dp[i] starts at what value?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "A single element is an increasing subsequence."
+    },
+    {
+      "prompt": "One LIS in the demo is 2,5,7. What length is that?",
+      "answer": "3",
+      "accepted_answers": [
+        "3"
+      ],
+      "hint": "Three values."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          10,
+          9,
+          2,
+          5,
+          3,
+          7
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          10,
+          9,
+          2,
+          5,
+          3,
+          7,
+          101,
+          18
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          0,
+          1,
+          0,
+          3,
+          2,
+          3
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          7,
+          7,
+          7,
+          7
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          4,
+          3,
+          2,
+          1
+        ]
+      ],
+      "expected": 1
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        3,
+        2,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "def length_of_lis(nums):\n    n = len(nums)\n    dp = [1] * n\n    best = 1\n    for i in range(n):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                dp[i] = max(dp[i], dp[j] + 1)\n        best = max(best, dp[i])\n    return best\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}
