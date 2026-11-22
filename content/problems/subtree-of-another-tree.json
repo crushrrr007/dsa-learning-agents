@@ -1,0 +1,199 @@
+{
+  "id": "subtree-of-another-tree",
+  "title": "Subtree of Another Tree",
+  "topic": "trees",
+  "difficulty": "easy",
+  "pattern": "Recursive compare",
+  "statement": "You are given two binary trees as level-order lists `root` and `sub_root` (use `null` for missing children). Return `true` if there is a node in `root` such that the subtree rooted there is identical in structure and values to `sub_root`, otherwise `false`.",
+  "examples": [
+    {
+      "input": "root=[3,4,5,1,2], sub_root=[4,1,2]",
+      "output": "true"
+    },
+    {
+      "input": "root=[3,4,5,1,2,null,null,null,null,0], sub_root=[4,1,2]",
+      "output": "false"
+    },
+    {
+      "input": "root=[1], sub_root=[1]",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "0 <= nodes in each tree <= 40"
+  ],
+  "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_subtree(root, sub_root):\n    root = build(root)\n    sub_root = build(sub_root)\n    # TODO: check whether sub_root matches any subtree of root\n    return False\n",
+  "function_name": "is_subtree",
+  "visual": "tree",
+  "brute_force_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_subtree(root, sub_root):\n    def same(a, b):\n        if not a and not b:\n            return True\n        if not a or not b or a.val != b.val:\n            return False\n        return same(a.left, b.left) and same(a.right, b.right)\n    def walk(node, target):\n        if not node:\n            return False\n        if same(node, target):\n            return True\n        return walk(node.left, target) or walk(node.right, target)\n    return walk(build(root), build(sub_root))\n",
+  "demo_input": {
+    "root": [
+      3,
+      4,
+      5,
+      1,
+      2
+    ],
+    "sub_root": [
+      4,
+      1,
+      2
+    ]
+  },
+  "predict_steps": [
+    {
+      "prompt": "At node 3, does the subtree match sub_root=[4,1,2]?",
+      "answer": "no",
+      "accepted_answers": [
+        "no",
+        "false",
+        "False"
+      ],
+      "hint": "Root values 3 vs 4 differ."
+    },
+    {
+      "prompt": "When you move to the left child 4, what do you compare next?",
+      "answer": "the whole subtree rooted at 4 against sub_root",
+      "accepted_answers": [
+        "subtree at 4",
+        "same(4, sub_root)",
+        "the whole subtree rooted at 4 against sub_root"
+      ],
+      "hint": "Try a full structural match at each candidate."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          4,
+          5,
+          1,
+          2
+        ],
+        [
+          4,
+          1,
+          2
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          3,
+          4,
+          5,
+          1,
+          2,
+          null,
+          null,
+          null,
+          null,
+          0
+        ],
+        [
+          4,
+          1,
+          2
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [],
+        [
+          1
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          2
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1,
+          null,
+          1,
+          null,
+          1,
+          null,
+          1
+        ],
+        [
+          1,
+          null,
+          1
+        ]
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    [
+      [],
+      []
+    ],
+    [
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ],
+      [
+        2
+      ]
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_subtree(root, sub_root):\n    def same(a, b):\n        if not a and not b:\n            return True\n        if not a or not b or a.val != b.val:\n            return False\n        return same(a.left, b.left) and same(a.right, b.right)\n    def walk(node):\n        if not node:\n            return False\n        if same(node, sub):\n            return True\n        return walk(node.left) or walk(node.right)\n    tree = build(root)\n    sub = build(sub_root)\n    if not sub:\n        return True\n    return walk(tree)\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

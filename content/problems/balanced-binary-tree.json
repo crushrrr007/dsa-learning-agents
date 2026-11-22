@@ -1,0 +1,157 @@
+{
+  "id": "balanced-binary-tree",
+  "title": "Balanced Binary Tree",
+  "topic": "trees",
+  "difficulty": "easy",
+  "pattern": "Tree recursion",
+  "statement": "Given a binary tree as a level-order list `root`, return `true` if it is height-balanced: for every node, the heights of the left and right subtrees differ by at most 1.",
+  "examples": [
+    {
+      "input": "root=[3,9,20,null,null,15,7]",
+      "output": "true"
+    },
+    {
+      "input": "root=[1,2,2,3,3,null,null,4,4]",
+      "output": "false"
+    },
+    {
+      "input": "root=[]",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "0 <= nodes <= 40"
+  ],
+  "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_balanced(root):\n    root = build(root)\n    # Return height or a sentinel when unbalanced\n    return True\n",
+  "function_name": "is_balanced",
+  "visual": "tree",
+  "brute_force_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_balanced(root):\n    def height(node):\n        if not node:\n            return 0\n        return 1 + max(height(node.left), height(node.right))\n    def walk(node):\n        if not node:\n            return True\n        if abs(height(node.left) - height(node.right)) > 1:\n            return False\n        return walk(node.left) and walk(node.right)\n    return walk(build(root))\n",
+  "demo_input": [
+    1,
+    2,
+    2,
+    3,
+    null,
+    null,
+    null,
+    4
+  ],
+  "predict_steps": [
+    {
+      "prompt": "At the left child 2, the left chain goes 3\u21924 while the right child is missing. About how tall is the left side vs right?",
+      "answer": "left much taller (difference > 1)",
+      "accepted_answers": [
+        "left taller",
+        "difference > 1",
+        "left much taller (difference > 1)",
+        "2"
+      ],
+      "hint": "Height gap exceeds 1."
+    },
+    {
+      "prompt": "Does that make the whole tree balanced?",
+      "answer": "no",
+      "accepted_answers": [
+        "no",
+        "false",
+        "False"
+      ],
+      "hint": "Any node with height gap > 1 fails the check."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          2,
+          3,
+          3,
+          null,
+          null,
+          4,
+          4
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        []
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          null,
+          3
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          null,
+          2,
+          null,
+          3
+        ]
+      ],
+      "expected": false
+    }
+  ],
+  "edge_cases": [
+    [],
+    [
+      1
+    ],
+    [
+      1,
+      2,
+      3
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_balanced(root):\n    def check(node):\n        if not node:\n            return 0\n        left = check(node.left)\n        if left < 0:\n            return -1\n        right = check(node.right)\n        if right < 0:\n            return -1\n        if abs(left - right) > 1:\n            return -1\n        return 1 + max(left, right)\n    return check(build(root)) >= 0\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "id": "kth-smallest-element-in-a-bst",
+  "title": "Kth Smallest Element in a BST",
+  "topic": "trees",
+  "difficulty": "medium",
+  "pattern": "Tree recursion",
+  "statement": "Given a binary search tree as a level-order list `root` and a 1-indexed integer `k` that is always valid, return the k-th smallest value in the tree.",
+  "examples": [
+    {
+      "input": "root=[3,1,4,null,2], k=1",
+      "output": "1"
+    },
+    {
+      "input": "root=[5,3,6,2,4,null,null,1], k=3",
+      "output": "3"
+    },
+    {
+      "input": "root=[1], k=1",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= nodes <= 40",
+    "1 <= k <= nodes"
+  ],
+  "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef kth_smallest(root, k):\n    root = build(root)\n    # In-order walk until you have visited k nodes\n    return 0\n",
+  "function_name": "kth_smallest",
+  "visual": "tree",
+  "brute_force_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef kth_smallest(root, k):\n    def inorder(node, out):\n        if not node:\n            return\n        inorder(node.left, out)\n        out.append(node.val)\n        inorder(node.right, out)\n    vals = []\n    inorder(build(root), vals)\n    return vals[k - 1]\n",
+  "demo_input": {
+    "root": [
+      3,
+      1,
+      4,
+      null,
+      2
+    ],
+    "k": 1
+  },
+  "predict_steps": [
+    {
+      "prompt": "In-order on the demo visits which value first?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "Leftmost node."
+    },
+    {
+      "prompt": "For k=1, when do you stop?",
+      "answer": "after visiting the first in-order node",
+      "accepted_answers": [
+        "after first visit",
+        "after visiting the first in-order node",
+        "when count reaches 1"
+      ],
+      "hint": "Return as soon as the visit count hits k."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          1,
+          4,
+          null,
+          2
+        ],
+        1
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          5,
+          3,
+          6,
+          2,
+          4,
+          null,
+          null,
+          1
+        ],
+        3
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        1
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          2,
+          1,
+          3
+        ],
+        2
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          2,
+          1,
+          3
+        ],
+        3
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          5,
+          3,
+          7,
+          2,
+          4,
+          6,
+          8
+        ],
+        5
+      ],
+      "expected": 6
+    },
+    {
+      "args": [
+        [
+          4,
+          2,
+          6,
+          1,
+          3,
+          5,
+          7
+        ],
+        7
+      ],
+      "expected": 7
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ],
+      1
+    ],
+    [
+      [
+        2,
+        1
+      ],
+      1
+    ],
+    [
+      [
+        2,
+        1,
+        3
+      ],
+      2
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef kth_smallest(root, k):\n    root = build(root)\n    trail = []\n    curr = root\n    count = 0\n    while trail or curr:\n        while curr:\n            trail.append(curr)\n            curr = curr.left\n        curr = trail.pop()\n        count += 1\n        if count == k:\n            return curr.val\n        curr = curr.right\n    return -1\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

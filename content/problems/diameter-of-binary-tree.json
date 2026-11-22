@@ -1,0 +1,157 @@
+{
+  "id": "diameter-of-binary-tree",
+  "title": "Diameter of Binary Tree",
+  "topic": "trees",
+  "difficulty": "easy",
+  "pattern": "Tree recursion",
+  "statement": "Given a binary tree as a level-order list `root`, return the length of the diameter: the number of edges on the longest path between any two nodes. The path may or may not pass through the root.",
+  "examples": [
+    {
+      "input": "root=[1,2,3,4,5]",
+      "output": "3"
+    },
+    {
+      "input": "root=[1,2]",
+      "output": "1"
+    },
+    {
+      "input": "root=[1]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "1 <= nodes <= 40"
+  ],
+  "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef diameter_of_tree(root):\n    root = build(root)\n    # At each node, diameter candidate is left_height + right_height\n    return 0\n",
+  "function_name": "diameter_of_tree",
+  "visual": "tree",
+  "brute_force_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef diameter_of_tree(root):\n    def height(node):\n        if not node:\n            return 0\n        return 1 + max(height(node.left), height(node.right))\n    def walk(node, best):\n        if not node:\n            return\n        best[0] = max(best[0], height(node.left) + height(node.right))\n        walk(node.left, best)\n        walk(node.right, best)\n    best = [0]\n    walk(build(root), best)\n    return best[0]\n",
+  "demo_input": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "predict_steps": [
+    {
+      "prompt": "At node 2 with children 4 and 5, what left_height + right_height do you get?",
+      "answer": "2",
+      "accepted_answers": [
+        "2"
+      ],
+      "hint": "Each child is height 1."
+    },
+    {
+      "prompt": "At the root 1, left_height is 2 and right_height is 1. What candidate diameter is that?",
+      "answer": "3",
+      "accepted_answers": [
+        "3"
+      ],
+      "hint": "Sum of the two heights counts edges through the root."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          null,
+          3,
+          null,
+          4
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          1,
+          null,
+          2,
+          null,
+          3
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          4,
+          2,
+          null,
+          1,
+          3
+        ]
+      ],
+      "expected": 2
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ]
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef diameter_of_tree(root):\n    best = [0]\n    def height(node):\n        if not node:\n            return 0\n        left = height(node.left)\n        right = height(node.right)\n        best[0] = max(best[0], left + right)\n        return 1 + max(left, right)\n    height(build(root))\n    return best[0]\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

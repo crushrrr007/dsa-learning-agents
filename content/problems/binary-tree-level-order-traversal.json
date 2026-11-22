@@ -1,0 +1,220 @@
+{
+  "id": "binary-tree-level-order-traversal",
+  "title": "Binary Tree Level Order Traversal",
+  "topic": "trees",
+  "difficulty": "medium",
+  "pattern": "BFS layers",
+  "statement": "Given a binary tree as a level-order list `root` (with `null` for missing children), return a list of lists: each inner list is one level from left to right, starting at the root level.",
+  "examples": [
+    {
+      "input": "root=[3,9,20,null,null,15,7]",
+      "output": "[[3], [9, 20], [15, 7]]"
+    },
+    {
+      "input": "root=[1]",
+      "output": "[[1]]"
+    },
+    {
+      "input": "root=[]",
+      "output": "[]"
+    }
+  ],
+  "constraints": [
+    "0 <= nodes <= 40"
+  ],
+  "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef level_order(root):\n    root = build(root)\n    # BFS level by level\n    return []\n",
+  "function_name": "level_order",
+  "visual": "tree",
+  "brute_force_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef level_order(root):\n    root = build(root)\n    if not root:\n        return []\n    out = []\n    q = [root]\n    while q:\n        level = []\n        nxt = []\n        for node in q:\n            level.append(node.val)\n            if node.left:\n                nxt.append(node.left)\n            if node.right:\n                nxt.append(node.right)\n        out.append(level)\n        q = nxt\n    return out\n",
+  "demo_input": [
+    3,
+    9,
+    20,
+    null,
+    null,
+    15,
+    7
+  ],
+  "predict_steps": [
+    {
+      "prompt": "After processing the root level [3], which nodes are in the next queue?",
+      "answer": "9 and 20",
+      "accepted_answers": [
+        "9,20",
+        "9 and 20",
+        "[9,20]"
+      ],
+      "hint": "Left then right children of 3."
+    },
+    {
+      "prompt": "What values appear on the third level of the demo?",
+      "answer": "[15, 7]",
+      "accepted_answers": [
+        "15 7",
+        "[15,7]",
+        "15,7"
+      ],
+      "hint": "Children of 20 only."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      ],
+      "expected": [
+        [
+          3
+        ],
+        [
+          9,
+          20
+        ],
+        [
+          15,
+          7
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "args": [
+        []
+      ],
+      "expected": []
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          null,
+          3
+        ]
+      ],
+      "expected": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          null,
+          2,
+          null,
+          3
+        ]
+      ],
+      "expected": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          5,
+          4,
+          6,
+          3,
+          null,
+          null,
+          7
+        ]
+      ],
+      "expected": [
+        [
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          3,
+          7
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      ],
+      "expected": [
+        [
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6,
+          7
+        ]
+      ]
+    }
+  ],
+  "edge_cases": [
+    [],
+    [
+      1
+    ],
+    [
+      1,
+      2,
+      3
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef level_order(root):\n    root = build(root)\n    if not root:\n        return []\n    out = []\n    q = [root]\n    while q:\n        level = []\n        size = len(q)\n        for _ in range(size):\n            node = q.pop(0)\n            level.append(node.val)\n            if node.left:\n                q.append(node.left)\n            if node.right:\n                q.append(node.right)\n        out.append(level)\n    return out\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}
