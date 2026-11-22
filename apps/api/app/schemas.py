@@ -39,6 +39,8 @@ class ProblemSummary(BaseModel):
     difficulty: str
     pattern: str
     pattern_id: str = ""
+    sources: list[str] = Field(default_factory=list)
+    variant: bool = False
     stage: int = 0
     mastered: bool = False
     plan_badge: str | None = None
@@ -58,6 +60,8 @@ class ProblemDetail(BaseModel):
     function_name: str
     visual: str
     predict_steps: list[dict[str, Any]]
+    sources: list[str] = Field(default_factory=list)
+    variant: bool = False
     stage: int = 0
     mastered: bool = False
     last_code: str = ""

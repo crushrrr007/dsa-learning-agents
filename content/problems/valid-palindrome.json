@@ -6,10 +6,19 @@
   "pattern": "Opposite ends",
   "statement": "Write `is_palindrome(s)` that returns True if string `s` reads the same forward and backward. Compare characters directly (assume lowercase letters only, no spaces).",
   "examples": [
-    {"input": "\"abba\"", "output": "true"},
-    {"input": "\"abc\"", "output": "false"}
+    {
+      "input": "\"abba\"",
+      "output": "true"
+    },
+    {
+      "input": "\"abc\"",
+      "output": "false"
+    }
   ],
-  "constraints": ["0 <= len(s) <= 1000", "s contains lowercase letters only"],
+  "constraints": [
+    "0 <= len(s) <= 1000",
+    "s contains lowercase letters only"
+  ],
   "starter_code": "def is_palindrome(s):\n    # Return True if s is a palindrome\n    return False\n",
   "function_name": "is_palindrome",
   "visual": "array",
@@ -31,35 +40,95 @@
     {
       "prompt": "If s[left] != s[right], what should you return?",
       "answer": "False",
-      "accepted_answers": ["False", "false", "return False", "return false"],
+      "accepted_answers": [
+        "False",
+        "false",
+        "return False",
+        "return false"
+      ],
       "hint": "One mismatch means not a palindrome."
     }
   ],
   "hidden_tests": [
-    {"args": ["abba"], "expected": true},
-    {"args": ["abc"], "expected": false},
-    {"args": [""], "expected": true},
-    {"args": ["a"], "expected": true},
-    {"args": ["racecar"], "expected": true},
-    {"args": ["raceacar"], "expected": false}
+    {
+      "args": [
+        "abba"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "abc"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        ""
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "a"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "racecar"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "raceacar"
+      ],
+      "expected": false
+    }
   ],
-  "edge_cases": ["", "a", "aa", "ab"],
+  "edge_cases": [
+    "",
+    "a",
+    "aa",
+    "ab"
+  ],
   "reference_solution": "def is_palindrome(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        right -= 1\n    return True\n",
   "learn_quiz": [
     {
       "question": "Why start pointers at opposite ends?",
-      "choices": ["To sort characters", "To compare symmetric positions", "To skip vowels", "To count length"],
+      "choices": [
+        "To sort characters",
+        "To compare symmetric positions",
+        "To skip vowels",
+        "To count length"
+      ],
       "answer_index": 1
     },
     {
       "question": "Extra memory for an ideal two-pointer check is?",
-      "choices": ["O(n)", "O(1)", "O(n²)", "O(log n)"],
+      "choices": [
+        "O(n)",
+        "O(1)",
+        "O(n\u00b2)",
+        "O(log n)"
+      ],
       "answer_index": 1
     },
     {
       "question": "When left and right meet, the string is?",
-      "choices": ["Always invalid", "A palindrome so far", "Must be empty", "Must be sorted"],
+      "choices": [
+        "Always invalid",
+        "A palindrome so far",
+        "Must be empty",
+        "Must be sorted"
+      ],
       "answer_index": 1
     }
+  ],
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
   ]
 }

@@ -6,15 +6,29 @@
   "pattern": "Fast and slow pointers",
   "statement": "Given list values, return the value at the middle node. If there are two middles, return the second middle. Use slow/fast pointers conceptually.",
   "examples": [
-    {"input": "[1, 2, 3, 4, 5]", "output": "3"},
-    {"input": "[1, 2, 3, 4]", "output": "3"}
+    {
+      "input": "[1, 2, 3, 4, 5]",
+      "output": "3"
+    },
+    {
+      "input": "[1, 2, 3, 4]",
+      "output": "3"
+    }
   ],
-  "constraints": ["1 <= len(values) <= 500"],
+  "constraints": [
+    "1 <= len(values) <= 500"
+  ],
   "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef find_middle(values):\n    head = build(values)\n    # TODO: slow/fast to middle\n    return head.val if head else None\n",
   "function_name": "find_middle",
   "visual": "linkedlist",
   "brute_force_code": "def find_middle(values):\n    # Count length then walk n//2 steps\n    n = len(values)\n    return values[n // 2]\n",
-  "demo_input": [1, 2, 3, 4, 5],
+  "demo_input": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
   "predict_steps": [
     {
       "prompt": "When fast reaches the end, where is slow?",
@@ -23,28 +37,109 @@
     }
   ],
   "hidden_tests": [
-    {"args": [[1, 2, 3, 4, 5]], "expected": 3},
-    {"args": [[1, 2, 3, 4]], "expected": 3},
-    {"args": [[1]], "expected": 1},
-    {"args": [[1, 2]], "expected": 2}
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      ],
+      "expected": 4
+    }
   ],
-  "edge_cases": [[1], [1, 2], [1, 2, 3]],
+  "edge_cases": [
+    [
+      1
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      2,
+      3
+    ]
+  ],
   "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef find_middle(values):\n    head = build(values)\n    slow = head\n    fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    return slow.val\n",
   "learn_quiz": [
     {
       "question": "Slow moves one step while fast moves?",
-      "choices": ["Zero", "One", "Two", "To the end"],
+      "choices": [
+        "Zero",
+        "One",
+        "Two",
+        "To the end"
+      ],
       "answer_index": 2
     },
     {
       "question": "For even length, this method returns?",
-      "choices": ["First middle", "Second middle", "Head", "Tail always"],
+      "choices": [
+        "First middle",
+        "Second middle",
+        "Head",
+        "Tail always"
+      ],
       "answer_index": 1
     },
     {
       "question": "Why avoid counting length first?",
-      "choices": ["Counting is impossible", "One pass is enough with two pointers", "Arrays cannot be counted", "It changes values"],
+      "choices": [
+        "Counting is impossible",
+        "One pass is enough with two pointers",
+        "Arrays cannot be counted",
+        "It changes values"
+      ],
       "answer_index": 1
     }
+  ],
+  "sources": [
+    "neetcode150",
+    "grind75"
   ]
 }

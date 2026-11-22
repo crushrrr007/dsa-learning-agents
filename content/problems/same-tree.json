@@ -6,29 +6,133 @@
   "pattern": "Recursive compare",
   "statement": "Given two binary trees as level-order lists `a` and `b`, return True if they are structurally identical with the same node values.",
   "examples": [
-    {"input": "a=[1,2,3], b=[1,2,3]", "output": "true"},
-    {"input": "a=[1,2], b=[1,null,2]", "output": "false"}
+    {
+      "input": "a=[1,2,3], b=[1,2,3]",
+      "output": "true"
+    },
+    {
+      "input": "a=[1,2], b=[1,null,2]",
+      "output": "false"
+    }
   ],
-  "constraints": ["0 <= nodes <= 100"],
+  "constraints": [
+    "0 <= nodes <= 100"
+  ],
   "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_same_tree(a, b):\n    # TODO: compare build(a) and build(b)\n    return False\n",
   "function_name": "is_same_tree",
   "visual": "tree",
   "brute_force_code": "def is_same_tree(a, b):\n    return a == b\n",
-  "demo_input": {"a": [1, 2, 3], "b": [1, 2, 3]},
+  "demo_input": {
+    "a": [
+      1,
+      2,
+      3
+    ],
+    "b": [
+      1,
+      2,
+      3
+    ]
+  },
   "predict_steps": [
     {
       "prompt": "If both nodes are None, what do you return?",
       "answer": "True",
-      "accepted_answers": ["True", "true"],
+      "accepted_answers": [
+        "True",
+        "true"
+      ],
       "hint": "Empty trees match."
     }
   ],
   "hidden_tests": [
-    {"args": [[1, 2, 3], [1, 2, 3]], "expected": true},
-    {"args": [[1, 2], [1, null, 2]], "expected": false},
-    {"args": [[], []], "expected": true},
-    {"args": [[1], [1, null, 2]], "expected": false}
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          null,
+          2
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [],
+        []
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        [
+          1,
+          null,
+          2
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "expected": true
+    }
   ],
-  "edge_cases": [[[], []], [[1], [1]], [[1], [2]]],
-  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_same_tree(a, b):\n    def same(x, y):\n        if not x and not y:\n            return True\n        if not x or not y or x.val != y.val:\n            return False\n        return same(x.left, y.left) and same(x.right, y.right)\n    return same(build(a), build(b))\n"
+  "edge_cases": [
+    [
+      [],
+      []
+    ],
+    [
+      [
+        1
+      ],
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    q = [root]\n    i = 1\n    while q and i < len(values):\n        node = q.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i]); q.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i]); q.append(node.right)\n        i += 1\n    return root\n\ndef is_same_tree(a, b):\n    def same(x, y):\n        if not x and not y:\n            return True\n        if not x or not y or x.val != y.val:\n            return False\n        return same(x.left, y.left) and same(x.right, y.right)\n    return same(build(a), build(b))\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
 }

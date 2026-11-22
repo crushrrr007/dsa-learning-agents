@@ -66,6 +66,8 @@ export type ProblemSummary = {
   difficulty: string;
   pattern: string;
   pattern_id?: string;
+  sources?: string[];
+  variant?: boolean;
   stage: number;
   mastered: boolean;
   plan_badge?: string | null;

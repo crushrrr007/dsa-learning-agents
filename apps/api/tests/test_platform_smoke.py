@@ -104,6 +104,30 @@ def test_solutions_not_leaked(client: TestClient):
     assert "hidden_tests" not in blob
 
 
+def test_sources_pass_through_and_optional(client: TestClient):
+    """sources/variant are public; problems without sources still load."""
+    from app.content_loader import public_problem
+
+    climb = client.get("/problems/climb-stairs", params={"session_id": "src_check"}).json()
+    assert "blind75" in climb["sources"]
+    assert climb["variant"] is False
+
+    variant = client.get("/problems/two-sum-sorted", params={"session_id": "src_check"}).json()
+    assert variant["sources"] == ["neetcode150"]
+    assert variant["variant"] is True
+
+    lab = get_problem("reverse-array")
+    assert "sources" not in lab
+    pub = public_problem(lab)
+    assert pub["sources"] == []
+    assert pub["variant"] is False
+
+    listed = client.get("/problems", params={"topic": "arrays", "session_id": "src_check"}).json()
+    by_id = {p["id"]: p for p in listed}
+    assert by_id["reverse-array"]["sources"] == []
+    assert "neetcode150" in by_id["move-zeros"]["sources"]
+
+
 def test_content_files_exist():
     root = Path(__file__).resolve().parents[3] / "content"
     assert (root / "topics" / "roadmap.json").exists()

@@ -12,6 +12,7 @@ from app.kg_service import record_attempt_kg, record_mastered_kg
 from app.progress_service import record_attempt, save_code, set_stage
 from app.runner.ast_analyzer import analyze_code, generate_viva
 from app.runner.performance import default_args_for_problem, measure_scaling
+from app.runner.problem_args import edge_case_args, normalize_demo_args
 from app.runner.sandbox import run_student_code
 from app.runner.trace_check import answer_supported_by_trace, run_reference_trace
 from app.schemas import (
@@ -31,27 +32,7 @@ router = APIRouter(tags=["run"])
 
 
 def _normalize_args(problem: dict[str, Any], args: list[Any] | None) -> list[Any]:
-    if args is not None:
-        return args
-    demo = problem.get("demo_input")
-    fn = problem["function_name"]
-    if isinstance(demo, dict):
-        if fn == "two_sum_sorted":
-            return [demo["nums"], demo["target"]]
-        if fn == "max_sum_subarray":
-            return [demo["arr"], demo["k"]]
-        if fn == "has_cycle":
-            return [demo["values"], demo["pos"]]
-        if fn == "shortest_path":
-            return [demo["n"], demo["edges"], demo["src"], demo["dst"]]
-        if fn == "count_components":
-            return [demo["n"], demo["edges"]]
-        if fn == "min_subarray_len":
-            return [demo["nums"], demo["k"]]
-        if fn == "is_same_tree":
-            return [demo["a"], demo["b"]]
-        return list(demo.values())
-    return [demo]
+    return normalize_demo_args(problem, args)
 
 
 def _code_for_mode(problem: dict[str, Any], mode: str, code: str | None) -> str:
@@ -219,20 +200,8 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
         )
 
     # Extra edge cases: compare student vs hidden reference on server only
-    multi_arg = {
-        "two_sum_sorted",
-        "max_sum_subarray",
-        "has_cycle",
-        "shortest_path",
-        "count_components",
-        "min_subarray_len",
-        "is_same_tree",
-    }
     for idx, edge in enumerate(problem.get("edge_cases", [])):
-        if isinstance(edge, list) and problem["function_name"] in multi_arg:
-            args = edge
-        else:
-            args = [edge]
+        args = edge_case_args(problem, edge)
         ref = run_student_code(problem["reference_solution"], problem["function_name"], args=args)
         stu = run_student_code(body.code, problem["function_name"], args=args)
         expected = ref.get("result") if ref.get("ok") else None

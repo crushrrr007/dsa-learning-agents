@@ -6,35 +6,116 @@
   "pattern": "Tree recursion",
   "statement": "A binary tree is given as a level-order list `values` (`None` for missing children). Implement `max_depth(values)` that builds the tree and returns its maximum depth. Depth of an empty tree is 0.",
   "examples": [
-    {"input": "[1, 2, 3, None, None, 4, 5]", "output": "3"},
-    {"input": "[]", "output": "0"}
+    {
+      "input": "[1, 2, 3, None, None, 4, 5]",
+      "output": "3"
+    },
+    {
+      "input": "[]",
+      "output": "0"
+    }
   ],
-  "constraints": ["0 <= number of nodes <= 200"],
+  "constraints": [
+    "0 <= number of nodes <= 200"
+  ],
   "starter_code": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    queue = [root]\n    i = 1\n    while queue and i < len(values):\n        node = queue.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef max_depth(values):\n    root = build(values)\n    # TODO: return depth of root\n    return 0\n",
   "function_name": "max_depth",
   "visual": "tree",
   "brute_force_code": "def max_depth(values):\n    if not values or values[0] is None:\n        return 0\n    def paths(i):\n        if i >= len(values) or values[i] is None:\n            return [0]\n        return [1 + max(paths(2 * i + 1) + paths(2 * i + 2))]\n    return paths(0)[0]\n",
-  "demo_input": [1, 2, 3, null, null, 4, 5],
+  "demo_input": [
+    1,
+    2,
+    3,
+    null,
+    null,
+    4,
+    5
+  ],
   "predict_steps": [
     {
       "prompt": "For a null node, what depth should recursion return?",
       "answer": "0",
-      "accepted_answers": ["0", "zero"],
+      "accepted_answers": [
+        "0",
+        "zero"
+      ],
       "hint": "Empty subtree contributes no depth."
     },
     {
       "prompt": "Depth at a node is 1 plus what?",
       "answer": "max(left depth, right depth)",
-      "accepted_answers": ["max of left and right", "max(left, right)", "1 + max(left, right)"],
+      "accepted_answers": [
+        "max of left and right",
+        "max(left, right)",
+        "1 + max(left, right)"
+      ],
       "hint": "Take the deeper child."
     }
   ],
   "hidden_tests": [
-    {"args": [[1, 2, 3, null, null, 4, 5]], "expected": 3},
-    {"args": [[]], "expected": 0},
-    {"args": [[1]], "expected": 1},
-    {"args": [[1, 2]], "expected": 2}
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          null,
+          null,
+          4,
+          5
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        []
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          1,
+          null,
+          2
+        ]
+      ],
+      "expected": 2
+    }
   ],
-  "edge_cases": [[], [1], [1, null, 2]],
-  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    queue = [root]\n    i = 1\n    while queue and i < len(values):\n        node = queue.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef max_depth(values):\n    def depth(node):\n        if not node:\n            return 0\n        return 1 + max(depth(node.left), depth(node.right))\n    return depth(build(values))\n"
+  "edge_cases": [
+    [],
+    [
+      1
+    ],
+    [
+      1,
+      null,
+      2
+    ]
+  ],
+  "reference_solution": "class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef build(values):\n    if not values or values[0] is None:\n        return None\n    root = TreeNode(values[0])\n    queue = [root]\n    i = 1\n    while queue and i < len(values):\n        node = queue.pop(0)\n        if i < len(values) and values[i] is not None:\n            node.left = TreeNode(values[i])\n            queue.append(node.left)\n        i += 1\n        if i < len(values) and values[i] is not None:\n            node.right = TreeNode(values[i])\n            queue.append(node.right)\n        i += 1\n    return root\n\ndef max_depth(values):\n    def depth(node):\n        if not node:\n            return 0\n        return 1 + max(depth(node.left), depth(node.right))\n    return depth(build(values))\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
 }

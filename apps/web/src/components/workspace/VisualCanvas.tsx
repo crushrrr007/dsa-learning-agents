@@ -195,6 +195,99 @@ function layoutGraph(focus: Record<string, unknown>): { nodes: Node[]; edges: Ed
   return { nodes, edges };
 }
 
+function cellKey(r: number, c: number): string {
+  return `${r},${c}`;
+}
+
+function parseSeenCells(seen: unknown): Set<string> {
+  const out = new Set<string>();
+  if (!Array.isArray(seen)) return out;
+  for (const item of seen) {
+    if (Array.isArray(item) && item.length >= 2) {
+      out.add(cellKey(Number(item[0]), Number(item[1])));
+    } else if (typeof item === "string") {
+      const m = item.match(/(-?\d+)\s*,\s*(-?\d+)/);
+      if (m) out.add(cellKey(Number(m[1]), Number(m[2])));
+    }
+  }
+  return out;
+}
+
+function layoutGrid(focus: Record<string, unknown>): { nodes: Node[]; edges: Edge[] } {
+  const grid = Array.isArray(focus.grid) ? (focus.grid as unknown[][]) : [];
+  const nodes: Node[] = [];
+  const edges: Edge[] = [];
+  if (!grid.length) {
+    return {
+      nodes: [
+        {
+          id: "empty-grid",
+          position: { x: 40, y: 80 },
+          data: { label: "Run code to stream grid frames" },
+          style: {
+            padding: 14,
+            borderRadius: 10,
+            border: "1px dashed #14201c44",
+            background: "#fff",
+            width: 280,
+          },
+        },
+      ],
+      edges,
+    };
+  }
+  const rowPtr = pointerIndex(focus, "r") ?? pointerIndex(focus, "i");
+  const colPtr = pointerIndex(focus, "c") ?? pointerIndex(focus, "j");
+  const visited = parseSeenCells(focus.seen);
+  const cellW = 48;
+  const cellH = 48;
+  const gap = 6;
+  for (let r = 0; r < grid.length; r++) {
+    const row = Array.isArray(grid[r]) ? grid[r] : [grid[r]];
+    for (let c = 0; c < row.length; c++) {
+      const isCurrent = rowPtr === r && colPtr === c;
+      const isVisited = visited.has(cellKey(r, c));
+      nodes.push({
+        id: `g-${r}-${c}`,
+        position: { x: 24 + c * (cellW + gap), y: 40 + r * (cellH + gap) },
+        data: { label: String(row[c]) },
+        style: {
+          width: cellW,
+          height: cellH,
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 700,
+          fontSize: 13,
+          border: `2px solid ${isCurrent ? "#9a3412" : isVisited ? "#0b6e5f" : "#14201c22"}`,
+          background: isCurrent ? "#fff7ed" : isVisited ? "#0b6e5f18" : "#fff",
+        },
+      });
+    }
+  }
+  if (rowPtr != null && colPtr != null) {
+    nodes.push({
+      id: "rc-label",
+      position: { x: 24 + colPtr * (cellW + gap), y: 8 },
+      data: { label: `(${rowPtr},${colPtr})` },
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: "#9a3412",
+        border: "none",
+        background: "transparent",
+        width: cellW,
+        textAlign: "center",
+      },
+    });
+  }
+  return { nodes, edges };
+}
+
+/** Supported visual modes: array | window | linkedlist | tree | graph | dp | grid */
+export const VISUAL_MODES = ["array", "window", "linkedlist", "tree", "graph", "dp", "grid"] as const;
+
 export function VisualCanvas({ visual, event, fallbackSequence }: Props) {
   const stickySequence = useRef<unknown[]>([]);
   const focus = useMemo(() => (event?.focus || {}) as Record<string, unknown>, [event]);
@@ -221,6 +314,9 @@ export function VisualCanvas({ visual, event, fallbackSequence }: Props) {
     pointerIndex(focus, "v");
 
   const built = useMemo(() => {
+    if (visual === "grid" || focus.grid) {
+      return layoutGrid(focus);
+    }
     if (visual === "tree" || focus.tree) {
       const vals = Array.isArray(focus.tree) ? (focus.tree as unknown[]) : sequence;
       return layoutTree(vals);

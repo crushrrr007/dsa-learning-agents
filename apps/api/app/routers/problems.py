@@ -59,6 +59,8 @@ async def problems(
                     difficulty=p["difficulty"],
                     pattern=p["pattern"],
                     pattern_id=p.get("pattern_id") or "",
+                    sources=list(p.get("sources") or []),
+                    variant=bool(p.get("variant", False)),
                     stage=stage,
                     mastered=bool(row.mastered),
                     plan_badge=badges.get(p["id"]),
@@ -73,6 +75,8 @@ async def problems(
                     difficulty=p["difficulty"],
                     pattern=p["pattern"],
                     pattern_id=p.get("pattern_id") or "",
+                    sources=list(p.get("sources") or []),
+                    variant=bool(p.get("variant", False)),
                     plan_badge=badges.get(p["id"]),
                 )
             )

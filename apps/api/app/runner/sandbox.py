@@ -86,6 +86,8 @@ def focus_from_locals(loc):
         "v",
         "dist",
         "n",
+        "r",
+        "c",
     ):
         if key in loc:
             focus[key] = safe_repr(loc[key])
@@ -100,6 +102,24 @@ def focus_from_locals(loc):
                     focus["dp"] = val[:40]
             elif hasattr(val, "val"):
                 focus["list_head"] = safe_repr(val)
+    # Stack / queue / heap → sequence for linear canvas
+    for key in ("stack", "queue", "heap"):
+        if key in loc and "sequence" not in focus:
+            val = loc[key]
+            try:
+                focus["sequence"] = list(val)[:40]
+            except Exception:
+                focus["sequence"] = safe_repr(val)
+            break
+    # 2D grid matrix
+    if "grid" in loc and isinstance(loc["grid"], list):
+        rows = []
+        for row in loc["grid"][:40]:
+            if isinstance(row, (list, tuple)):
+                rows.append(list(row)[:40])
+            else:
+                rows.append(row)
+        focus["grid"] = rows
     # Binary tree node snapshot
     for key in ("root", "node"):
         if key in loc and hasattr(loc[key], "val"):
@@ -110,15 +130,17 @@ def focus_from_locals(loc):
         focus["graph"] = {str(k): list(v)[:12] for k, v in list(loc["g"].items())[:20]}
     if "edges" in loc and isinstance(loc["edges"], list):
         focus["edges"] = loc["edges"][:30]
-    if "seen" in loc:
-        try:
-            focus["seen"] = sorted(list(loc["seen"]))[:40]
-        except Exception:
-            focus["seen"] = safe_repr(loc["seen"])
+    for key in ("seen", "visited"):
+        if key in loc:
+            try:
+                focus["seen"] = sorted(list(loc[key]))[:40]
+            except Exception:
+                focus["seen"] = safe_repr(loc[key])
+            break
     # Also surface sequence from common alias names used in demos
     if "sequence" not in focus:
         for key, val in loc.items():
-            if key in {"g", "seen", "q", "queue"}:
+            if key in {"g", "seen", "visited", "q", "queue", "grid", "stack", "heap"}:
                 continue
             if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool, type(None))) for x in val[:8]):
                 focus["sequence"] = val[:40]

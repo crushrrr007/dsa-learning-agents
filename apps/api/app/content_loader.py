@@ -106,7 +106,7 @@ def list_patterns() -> tuple[dict[str, Any], ...]:
 
 def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
     """Strip solutions and hidden tests before sending to the browser."""
-    return {
+    out: dict[str, Any] = {
         "id": problem["id"],
         "title": problem["title"],
         "topic": problem["topic"],
@@ -123,7 +123,10 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
             {"prompt": s["prompt"], "hint": s.get("hint", "")}
             for s in problem.get("predict_steps", [])
         ],
+        "sources": list(problem.get("sources") or []),
+        "variant": bool(problem.get("variant", False)),
     }
+    return out
 
 
 def load_notes(topic: str) -> str:

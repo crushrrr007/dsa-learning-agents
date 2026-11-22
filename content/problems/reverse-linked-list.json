@@ -6,15 +6,28 @@
   "pattern": "Pointer rewiring",
   "statement": "You are given a linked list as a Python list of values. Implement `reverse_list(values)` that conceptually reverses the list order and returns the reversed values. Internally think in terms of prev/curr/next pointers.",
   "examples": [
-    {"input": "[1, 2, 3, 4]", "output": "[4, 3, 2, 1]"},
-    {"input": "[1]", "output": "[1]"}
+    {
+      "input": "[1, 2, 3, 4]",
+      "output": "[4, 3, 2, 1]"
+    },
+    {
+      "input": "[1]",
+      "output": "[1]"
+    }
   ],
-  "constraints": ["0 <= len(values) <= 500"],
+  "constraints": [
+    "0 <= len(values) <= 500"
+  ],
   "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef reverse_list(values):\n    head = build(values)\n    # Reverse the linked list starting at head, then return values\n    prev = None\n    curr = head\n    # TODO: rewire pointers\n    return to_list(curr)\n",
   "function_name": "reverse_list",
   "visual": "linkedlist",
   "brute_force_code": "def reverse_list(values):\n    # Slow mental model: copy into a stack then rebuild\n    stack = []\n    for v in values:\n        stack.append(v)\n    out = []\n    while stack:\n        out.append(stack.pop())\n    return out\n",
-  "demo_input": [1, 2, 3, 4],
+  "demo_input": [
+    1,
+    2,
+    3,
+    4
+  ],
   "predict_steps": [
     {
       "prompt": "Before rewiring curr.next, what must you save?",
@@ -28,28 +41,111 @@
     }
   ],
   "hidden_tests": [
-    {"args": [[1, 2, 3, 4]], "expected": [4, 3, 2, 1]},
-    {"args": [[]], "expected": []},
-    {"args": [[1]], "expected": [1]},
-    {"args": [[1, 2]], "expected": [2, 1]}
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": [
+        4,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "args": [
+        []
+      ],
+      "expected": []
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": [
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": [
+        2,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": [
+        3,
+        2,
+        1
+      ]
+    }
   ],
-  "edge_cases": [[], [1], [1, 2]],
+  "edge_cases": [
+    [],
+    [
+      1
+    ],
+    [
+      1,
+      2
+    ]
+  ],
   "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef reverse_list(values):\n    head = build(values)\n    prev = None\n    curr = head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    return to_list(prev)\n",
   "learn_quiz": [
     {
       "question": "Why save `nxt = curr.next` first?",
-      "choices": ["To sort values", "So you do not lose the rest of the list", "To count nodes", "To detect cycles"],
+      "choices": [
+        "To sort values",
+        "So you do not lose the rest of the list",
+        "To count nodes",
+        "To detect cycles"
+      ],
       "answer_index": 1
     },
     {
       "question": "At the end, which pointer is the new head?",
-      "choices": ["curr", "prev", "nxt", "dummy"],
+      "choices": [
+        "curr",
+        "prev",
+        "nxt",
+        "dummy"
+      ],
       "answer_index": 1
     },
     {
       "question": "Empty list should return?",
-      "choices": ["[0]", "None as list [None]", "[]", "[1]"],
+      "choices": [
+        "[0]",
+        "None as list [None]",
+        "[]",
+        "[1]"
+      ],
       "answer_index": 2
     }
+  ],
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
   ]
 }

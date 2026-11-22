@@ -6,29 +6,127 @@
   "pattern": "Opposite ends",
   "statement": "Given heights of vertical lines at indices 0..n-1, return the maximum water area formed by two lines: area = min(height[i], height[j]) * (j - i).",
   "examples": [
-    {"input": "[1,8,6,2,5,4,8,3,7]", "output": "49"},
-    {"input": "[1,1]", "output": "1"}
+    {
+      "input": "[1,8,6,2,5,4,8,3,7]",
+      "output": "49"
+    },
+    {
+      "input": "[1,1]",
+      "output": "1"
+    }
   ],
-  "constraints": ["2 <= len(height) <= 1000"],
+  "constraints": [
+    "2 <= len(height) <= 1000"
+  ],
   "starter_code": "def max_area(height):\n    # TODO: two pointers from both ends\n    return 0\n",
   "function_name": "max_area",
   "visual": "array",
   "brute_force_code": "def max_area(height):\n    best = 0\n    n = len(height)\n    for i in range(n):\n        for j in range(i + 1, n):\n            best = max(best, min(height[i], height[j]) * (j - i))\n    return best\n",
-  "demo_input": [1, 8, 6, 2, 5, 4, 8, 3, 7],
+  "demo_input": [
+    1,
+    8,
+    6,
+    2,
+    5,
+    4,
+    8,
+    3,
+    7
+  ],
   "predict_steps": [
     {
       "prompt": "If height[left] < height[right], which pointer should move?",
       "answer": "left",
-      "accepted_answers": ["left", "increase left", "left += 1"],
+      "accepted_answers": [
+        "left",
+        "increase left",
+        "left += 1"
+      ],
       "hint": "The shorter side limits the area."
     }
   ],
   "hidden_tests": [
-    {"args": [[1, 8, 6, 2, 5, 4, 8, 3, 7]], "expected": 49},
-    {"args": [[1, 1]], "expected": 1},
-    {"args": [[4, 3, 2, 1, 4]], "expected": 16},
-    {"args": [[1, 2, 1]], "expected": 2}
+    {
+      "args": [
+        [
+          1,
+          8,
+          6,
+          2,
+          5,
+          4,
+          8,
+          3,
+          7
+        ]
+      ],
+      "expected": 49
+    },
+    {
+      "args": [
+        [
+          1,
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          4,
+          3,
+          2,
+          1,
+          4
+        ]
+      ],
+      "expected": 16
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          1
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          2,
+          3,
+          4,
+          5,
+          18,
+          17,
+          6
+        ]
+      ],
+      "expected": 17
+    }
   ],
-  "edge_cases": [[1, 1], [2, 1], [1, 2, 1]],
-  "reference_solution": "def max_area(height):\n    left, right = 0, len(height) - 1\n    best = 0\n    while left < right:\n        best = max(best, min(height[left], height[right]) * (right - left))\n        if height[left] < height[right]:\n            left += 1\n        else:\n            right -= 1\n    return best\n"
+  "edge_cases": [
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      1,
+      2,
+      1
+    ]
+  ],
+  "reference_solution": "def max_area(height):\n    left, right = 0, len(height) - 1\n    best = 0\n    while left < right:\n        best = max(best, min(height[left], height[right]) * (right - left))\n        if height[left] < height[right]:\n            left += 1\n        else:\n            right -= 1\n    return best\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
 }
