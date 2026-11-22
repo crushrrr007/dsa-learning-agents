@@ -1,0 +1,192 @@
+{
+  "id": "remove-nth-node-from-end",
+  "title": "Remove Nth Node From End of List",
+  "topic": "linked-lists",
+  "difficulty": "medium",
+  "pattern": "Fast and slow pointers",
+  "statement": "You are given a linked list as a Python list `values` and a positive integer `n`. Remove the n-th node counting from the end (1-based) and return the resulting values as a Python list. `n` is always valid for the given list.",
+  "examples": [
+    {
+      "input": "values=[1,2,3,4,5], n=2",
+      "output": "[1, 2, 3, 5]"
+    },
+    {
+      "input": "values=[1], n=1",
+      "output": "[]"
+    },
+    {
+      "input": "values=[1,2], n=1",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(values) <= 50",
+    "1 <= n <= len(values)"
+  ],
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef remove_nth_from_end(values, n):\n    head = build(values)\n    dummy = ListNode(0, head)\n    # Gap of n between fast and slow, then drop slow.next\n    fast = dummy\n    slow = dummy\n    # TODO: advance fast by n+1, walk together, rewire\n    return to_list(dummy.next)\n",
+  "function_name": "remove_nth_from_end",
+  "visual": "linkedlist",
+  "brute_force_code": "def remove_nth_from_end(values, n):\n    out = list(values)\n    out.pop(len(out) - n)\n    return out\n",
+  "demo_input": {
+    "values": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "n": 2
+  },
+  "predict_steps": [
+    {
+      "prompt": "With a dummy before [1,2,3,4,5] and n=2, after fast moves n+1 steps from dummy, which value does fast sit on?",
+      "answer": "3",
+      "accepted_answers": [
+        "3",
+        "node 3"
+      ],
+      "hint": "dummy -> 1 -> 2 -> 3 is three hops (n+1)."
+    },
+    {
+      "prompt": "When fast reaches the end, slow sits just before the node to delete. Which node is deleted for n=2?",
+      "answer": "4",
+      "accepted_answers": [
+        "4",
+        "node 4"
+      ],
+      "hint": "Second from the end."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        2
+      ],
+      "expected": [
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        1
+      ],
+      "expected": []
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ],
+        1
+      ],
+      "expected": [
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ],
+        2
+      ],
+      "expected": [
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ],
+        3
+      ],
+      "expected": [
+        2,
+        3
+      ]
+    },
+    {
+      "args": [
+        [
+          7,
+          7,
+          7,
+          7
+        ],
+        2
+      ],
+      "expected": [
+        7,
+        7,
+        7
+      ]
+    },
+    {
+      "args": [
+        [
+          9,
+          8,
+          7,
+          6,
+          5,
+          4
+        ],
+        6
+      ],
+      "expected": [
+        8,
+        7,
+        6,
+        5,
+        4
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ],
+      1
+    ],
+    [
+      [
+        1,
+        2
+      ],
+      1
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ],
+      2
+    ]
+  ],
+  "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef remove_nth_from_end(values, n):\n    head = build(values)\n    dummy = ListNode(0, head)\n    fast = dummy\n    slow = dummy\n    for _ in range(n + 1):\n        fast = fast.next\n    while fast:\n        fast = fast.next\n        slow = slow.next\n    slow.next = slow.next.next\n    return to_list(dummy.next)\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

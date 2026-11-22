@@ -1,0 +1,212 @@
+{
+  "id": "add-two-numbers",
+  "title": "Add Two Numbers",
+  "topic": "linked-lists",
+  "difficulty": "medium",
+  "pattern": "Pointer rewiring",
+  "statement": "Two non-negative integers are stored as linked lists of digits in reverse order (least-significant digit first), given as Python lists `l1` and `l2`. Add the numbers and return the sum as a digit list in the same reversed order. Leading zeros in the result are not kept except for the number 0 itself.",
+  "examples": [
+    {
+      "input": "l1=[2,4,3], l2=[5,6,4]",
+      "output": "[7, 0, 8]"
+    },
+    {
+      "input": "l1=[0], l2=[0]",
+      "output": "[0]"
+    },
+    {
+      "input": "l1=[9,9,9], l2=[1]",
+      "output": "[0, 0, 0, 1]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(l1), len(l2) <= 40",
+    "Each digit is 0..9",
+    "No leading zeros except for 0"
+  ],
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef add_two_numbers(l1, l2):\n    head1 = build(l1)\n    head2 = build(l2)\n    dummy = ListNode()\n    curr = dummy\n    carry = 0\n    # TODO: walk both lists adding digits + carry\n    return to_list(dummy.next)\n",
+  "function_name": "add_two_numbers",
+  "visual": "linkedlist",
+  "brute_force_code": "def add_two_numbers(l1, l2):\n    def to_int(digits):\n        total = 0\n        place = 1\n        for d in digits:\n            total += d * place\n            place *= 10\n        return total\n    s = to_int(l1) + to_int(l2)\n    if s == 0:\n        return [0]\n    out = []\n    while s:\n        out.append(s % 10)\n        s //= 10\n    return out\n",
+  "demo_input": {
+    "l1": [
+      2,
+      4,
+      3
+    ],
+    "l2": [
+      5,
+      6,
+      4
+    ]
+  },
+  "predict_steps": [
+    {
+      "prompt": "Adding 2+5 with carry 0 yields digit 7 and what carry?",
+      "answer": "0",
+      "accepted_answers": [
+        "0",
+        "zero"
+      ],
+      "hint": "7 < 10."
+    },
+    {
+      "prompt": "Next digits 4+6 produce sum 10. What digit is written and what carry follows?",
+      "answer": "digit 0, carry 1",
+      "accepted_answers": [
+        "0 and 1",
+        "digit 0 carry 1",
+        "0,1"
+      ],
+      "hint": "Write sum % 10, carry sum // 10."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          2,
+          4,
+          3
+        ],
+        [
+          5,
+          6,
+          4
+        ]
+      ],
+      "expected": [
+        7,
+        0,
+        8
+      ]
+    },
+    {
+      "args": [
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ],
+      "expected": [
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          9,
+          9,
+          9
+        ],
+        [
+          1
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          9,
+          9
+        ],
+        [
+          9
+        ]
+      ],
+      "expected": [
+        8,
+        0,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          8
+        ],
+        [
+          0
+        ]
+      ],
+      "expected": [
+        1,
+        8
+      ]
+    },
+    {
+      "args": [
+        [
+          5
+        ],
+        [
+          5
+        ]
+      ],
+      "expected": [
+        0,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        0
+      ],
+      [
+        0
+      ]
+    ],
+    [
+      [
+        1
+      ],
+      [
+        9
+      ]
+    ],
+    [
+      [
+        9,
+        9
+      ],
+      [
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef add_two_numbers(l1, l2):\n    head1 = build(l1)\n    head2 = build(l2)\n    dummy = ListNode()\n    curr = dummy\n    carry = 0\n    while head1 or head2 or carry:\n        v1 = head1.val if head1 else 0\n        v2 = head2.val if head2 else 0\n        total = v1 + v2 + carry\n        carry = total // 10\n        curr.next = ListNode(total % 10)\n        curr = curr.next\n        if head1:\n            head1 = head1.next\n        if head2:\n            head2 = head2.next\n    return to_list(dummy.next)\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

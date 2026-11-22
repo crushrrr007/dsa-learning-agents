@@ -1,0 +1,209 @@
+{
+  "id": "merge-two-sorted-lists",
+  "title": "Merge Two Sorted Lists",
+  "topic": "linked-lists",
+  "difficulty": "easy",
+  "pattern": "Pointer rewiring",
+  "statement": "You are given two sorted linked lists as Python lists `list1` and `list2` (non-decreasing). Merge them into one sorted list and return the merged values as a Python list. Internally build nodes, walk with pointers, then convert back with `to_list`.",
+  "examples": [
+    {
+      "input": "list1=[1,2,4], list2=[1,3,4]",
+      "output": "[1, 1, 2, 3, 4, 4]"
+    },
+    {
+      "input": "list1=[], list2=[]",
+      "output": "[]"
+    },
+    {
+      "input": "list1=[], list2=[0]",
+      "output": "[0]"
+    }
+  ],
+  "constraints": [
+    "0 <= len(list1), len(list2) <= 50",
+    "Both lists are sorted non-decreasing"
+  ],
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef merge_two_lists(list1, list2):\n    head1 = build(list1)\n    head2 = build(list2)\n    # Merge into one sorted chain starting from a dummy\n    dummy = ListNode()\n    curr = dummy\n    # TODO: advance the smaller head each step\n    return to_list(dummy.next)\n",
+  "function_name": "merge_two_lists",
+  "visual": "linkedlist",
+  "brute_force_code": "def merge_two_lists(list1, list2):\n    return sorted(list1 + list2)\n",
+  "demo_input": {
+    "list1": [
+      1,
+      2,
+      4
+    ],
+    "list2": [
+      1,
+      3,
+      4
+    ]
+  },
+  "predict_steps": [
+    {
+      "prompt": "Start with list1 at 1 and list2 at 1. Which node do you attach first (either is fine for equal values\u2014what does the reference prefer)?",
+      "answer": "list1's 1",
+      "accepted_answers": [
+        "list1",
+        "list1's 1",
+        "head1",
+        "the first list"
+      ],
+      "hint": "When values are equal, take from list1."
+    },
+    {
+      "prompt": "After attaching both 1s, which heads remain?",
+      "answer": "2 and 3",
+      "accepted_answers": [
+        "2 and 3",
+        "list1=2 list2=3",
+        "2, 3"
+      ],
+      "hint": "list1 advanced to 2, list2 to 3."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          4
+        ],
+        [
+          1,
+          3,
+          4
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    {
+      "args": [
+        [],
+        []
+      ],
+      "expected": []
+    },
+    {
+      "args": [
+        [],
+        [
+          0
+        ]
+      ],
+      "expected": [
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          5
+        ],
+        []
+      ],
+      "expected": [
+        5
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          -2,
+          0,
+          3
+        ],
+        [
+          -1,
+          4
+        ]
+      ],
+      "expected": [
+        -2,
+        -1,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          3,
+          5,
+          7
+        ],
+        [
+          2,
+          4,
+          6
+        ]
+      ],
+      "expected": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [],
+      []
+    ],
+    [
+      [
+        1
+      ],
+      [
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ],
+      []
+    ]
+  ],
+  "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef merge_two_lists(list1, list2):\n    head1 = build(list1)\n    head2 = build(list2)\n    dummy = ListNode()\n    curr = dummy\n    while head1 and head2:\n        if head1.val <= head2.val:\n            curr.next = head1\n            head1 = head1.next\n        else:\n            curr.next = head2\n            head2 = head2.next\n        curr = curr.next\n    curr.next = head1 if head1 else head2\n    return to_list(dummy.next)\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

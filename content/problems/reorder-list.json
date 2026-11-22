@@ -1,0 +1,191 @@
+{
+  "id": "reorder-list",
+  "title": "Reorder List",
+  "topic": "linked-lists",
+  "difficulty": "medium",
+  "pattern": "Pointer rewiring",
+  "statement": "You are given a linked list as a Python list `values`. Reorder it to the sequence first, last, second, second-last, and so on. Return the reordered values as a Python list. Internally you may find the midpoint, reverse the second half, then weave the two halves.",
+  "examples": [
+    {
+      "input": "[1,2,3,4]",
+      "output": "[1, 4, 2, 3]"
+    },
+    {
+      "input": "[1,2,3,4,5]",
+      "output": "[1, 5, 2, 4, 3]"
+    },
+    {
+      "input": "[1]",
+      "output": "[1]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(values) <= 50"
+  ],
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef reorder_list(values):\n    head = build(values)\n    if not head or not head.next:\n        return to_list(head)\n    # Find mid with slow/fast, reverse second half, weave\n    slow = head\n    fast = head\n    # TODO\n    return to_list(head)\n",
+  "function_name": "reorder_list",
+  "visual": "linkedlist",
+  "brute_force_code": "def reorder_list(values):\n    arr = list(values)\n    out = []\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        if left == right:\n            out.append(arr[left])\n        else:\n            out.append(arr[left])\n            out.append(arr[right])\n        left += 1\n        right -= 1\n    return out\n",
+  "demo_input": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "predict_steps": [
+    {
+      "prompt": "For [1,2,3,4], after finding the midpoint, what values are in the second half before reversing?",
+      "answer": "[3, 4]",
+      "accepted_answers": [
+        "[3,4]",
+        "3 4",
+        "3,4"
+      ],
+      "hint": "Split after the first half [1,2]."
+    },
+    {
+      "prompt": "After reversing the second half to [4,3], what is the first weave step?",
+      "answer": "1 then 4",
+      "accepted_answers": [
+        "1 then 4",
+        "1,4",
+        "link 1 to 4"
+      ],
+      "hint": "Alternate taking from first half and reversed second half."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": [
+        1,
+        4,
+        2,
+        3
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": [
+        1,
+        5,
+        2,
+        4,
+        3
+      ]
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": [
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": [
+        1,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": [
+        1,
+        3,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          9,
+          9,
+          1,
+          1
+        ]
+      ],
+      "expected": [
+        9,
+        1,
+        9,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": [
+        0,
+        5,
+        1,
+        4,
+        2,
+        3
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        3,
+        4
+      ]
+    ]
+  ],
+  "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef reorder_list(values):\n    head = build(values)\n    if not head or not head.next:\n        return to_list(head)\n    slow = head\n    fast = head\n    while fast.next and fast.next.next:\n        slow = slow.next\n        fast = fast.next.next\n    second = slow.next\n    slow.next = None\n    prev = None\n    curr = second\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    first = head\n    second = prev\n    while second:\n        n1 = first.next\n        n2 = second.next\n        first.next = second\n        second.next = n1\n        first = n1\n        second = n2\n    return to_list(head)\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

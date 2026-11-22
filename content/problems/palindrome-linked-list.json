@@ -1,0 +1,155 @@
+{
+  "id": "palindrome-linked-list",
+  "title": "Palindrome Linked List",
+  "topic": "linked-lists",
+  "difficulty": "easy",
+  "pattern": "Fast and slow pointers",
+  "statement": "You are given a linked list as a Python list `values`. Return `true` if the sequence of node values reads the same forward and backward, otherwise `false`. Prefer an approach that finds the midpoint with slow/fast pointers, reverses the second half, and compares.",
+  "examples": [
+    {
+      "input": "[1,2,2,1]",
+      "output": "true"
+    },
+    {
+      "input": "[1,2]",
+      "output": "false"
+    },
+    {
+      "input": "[1]",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= len(values) <= 50"
+  ],
+  "starter_code": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef is_palindrome_list(values):\n    head = build(values)\n    # Find mid with slow/fast, reverse second half, compare\n    slow = head\n    fast = head\n    # TODO\n    return False\n",
+  "function_name": "is_palindrome_list",
+  "visual": "linkedlist",
+  "brute_force_code": "def is_palindrome_list(values):\n    return list(values) == list(reversed(values))\n",
+  "demo_input": [
+    1,
+    2,
+    2,
+    1
+  ],
+  "predict_steps": [
+    {
+      "prompt": "On [1,2,2,1], when fast reaches the end, where is slow?",
+      "answer": "the second 2 (start of second half)",
+      "accepted_answers": [
+        "second 2",
+        "index 2",
+        "start of second half",
+        "the third node"
+      ],
+      "hint": "Midpoint for even length sits at the start of the right half."
+    },
+    {
+      "prompt": "After reversing the second half to [1,2], what is the first value compared on the left half?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "Left half still starts at the original head."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          2,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          2,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          7,
+          7,
+          7,
+          7
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "expected": false
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "class ListNode:\n    def __init__(self, val=0, next=None):\n        self.val = val\n        self.next = next\n\ndef build(values):\n    dummy = ListNode()\n    cur = dummy\n    for v in values:\n        cur.next = ListNode(v)\n        cur = cur.next\n    return dummy.next\n\ndef to_list(head):\n    out = []\n    while head:\n        out.append(head.val)\n        head = head.next\n    return out\n\ndef is_palindrome_list(values):\n    head = build(values)\n    if not head or not head.next:\n        return True\n    slow = head\n    fast = head\n    while fast and fast.next:\n        slow = slow.next\n        fast = fast.next.next\n    prev = None\n    curr = slow\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev = curr\n        curr = nxt\n    left = head\n    right = prev\n    while right:\n        if left.val != right.val:\n            return False\n        left = left.next\n        right = right.next\n    return True\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}
