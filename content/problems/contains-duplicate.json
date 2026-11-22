@@ -143,5 +143,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does a set check for duplicates in linear time?",
+      "expected_points": [
+        "O(n) scan",
+        "membership test is amortized O(1)",
+        "space O(n) for the set"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens on an empty list or a list of length one?",
+      "expected_points": [
+        "no duplicates possible",
+        "return false",
+        "loop never finds a clash"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does seeing a value already in the set prove a duplicate immediately?",
+      "expected_points": [
+        "set stores values already visited",
+        "second insert attempt means repeat",
+        "no need to finish the array"
+      ],
+      "min_points": 2
+    }
   ]
 }

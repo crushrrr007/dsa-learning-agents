@@ -161,5 +161,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is a simple O(n^2) DP for LIS length?",
+      "expected_points": [
+        "dp[i]=max over j<i with nums[j]<nums[i]",
+        "plus one",
+        "answer max dp"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is LIS length for a strictly decreasing array?",
+      "expected_points": [
+        "1",
+        "no ascent",
+        "each dp[i]=1"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why only extend from a strictly smaller previous value?",
+      "expected_points": [
+        "strictly increasing required",
+        "equal values blocked",
+        "subsequence order preserved"
+      ],
+      "min_points": 2
+    }
   ]
 }

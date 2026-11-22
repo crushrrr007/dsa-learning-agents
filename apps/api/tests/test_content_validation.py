@@ -34,6 +34,7 @@ REQUIRED_FIELDS = (
     "hidden_tests",
     "edge_cases",
     "reference_solution",
+    "viva",
 )
 
 ALLOWED_SOURCES = {"blind75", "neetcode150", "grind75"}
@@ -207,15 +208,41 @@ def test_problem_content_file(path: Path):
             f"(args={args!r})"
         )
 
-    # public_problem must not leak solutions / hidden tests
+    viva = problem.get("viva")
+    assert isinstance(viva, list), f"{pid}: viva must be a list"
+    assert 2 <= len(viva) <= 3, f"{pid}: viva needs 2-3 items, got {len(viva)}"
+    for vi, item in enumerate(viva):
+        assert isinstance(item, dict), f"{pid} viva[{vi}] must be an object"
+        assert isinstance(item.get("question"), str) and item["question"].strip(), (
+            f"{pid} viva[{vi}]: question required"
+        )
+        points = item.get("expected_points")
+        assert isinstance(points, list) and len(points) >= 1, (
+            f"{pid} viva[{vi}]: expected_points must be a non-empty list"
+        )
+        assert all(isinstance(p, str) and p.strip() for p in points), (
+            f"{pid} viva[{vi}]: expected_points must be non-empty strings"
+        )
+        min_pts = item.get("min_points")
+        assert isinstance(min_pts, int) and 1 <= min_pts <= len(points), (
+            f"{pid} viva[{vi}]: min_points must be int in 1..len(expected_points)"
+        )
+
+    # public_problem must not leak solutions / hidden tests / viva rubric
     pub = public_problem(problem)
     blob = json.dumps(pub)
     assert "reference_solution" not in blob
     assert "hidden_tests" not in blob
     assert "brute_force_code" not in blob
     assert "edge_cases" not in blob
+    assert "expected_points" not in blob
+    assert "min_points" not in blob
     assert pub.get("sources", []) == list(problem.get("sources") or [])
     assert pub.get("variant", False) == bool(problem.get("variant", False))
+    assert len(pub.get("viva") or []) == len(viva)
+    for pub_item, raw_item in zip(pub["viva"], viva, strict=True):
+        assert list(pub_item.keys()) == ["question"]
+        assert pub_item["question"] == raw_item["question"]
 
     # demo_input normalizes to the declared arity
     demo_args = normalize_demo_args(problem)

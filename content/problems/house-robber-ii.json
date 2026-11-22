@@ -152,5 +152,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do you handle the circular constraint with two linear robber passes?",
+      "expected_points": [
+        "rob range [0..n-2]",
+        "rob range [1..n-1]",
+        "take the max"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What about n = 1?",
+      "expected_points": [
+        "only one house",
+        "return that value",
+        "ranges collapse"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why can the first and last houses not both be robbed?",
+      "expected_points": [
+        "they are adjacent in a circle",
+        "two passes exclude one end each",
+        "covers both options"
+      ],
+      "min_points": 2
+    }
   ]
 }

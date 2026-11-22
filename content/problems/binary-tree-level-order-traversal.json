@@ -216,5 +216,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is BFS level order O(n)?",
+      "expected_points": [
+        "each node enqueued once",
+        "queue by levels",
+        "output size n"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What does an empty tree return?",
+      "expected_points": [
+        "empty list",
+        "no levels",
+        "queue never starts"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why snapshot the queue size at the start of a level?",
+      "expected_points": [
+        "know how many nodes belong to this level",
+        "children go to next level",
+        "clean grouping"
+      ],
+      "min_points": 2
+    }
   ]
 }

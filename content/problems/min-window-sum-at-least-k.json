@@ -128,5 +128,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does shrinking a variable window find the shortest subarray with sum \u2265 k?",
+      "expected_points": [
+        "expand right to grow sum",
+        "shrink left while sum still \u2265 k",
+        "track min length"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What do you return when no subarray reaches k?",
+      "expected_points": [
+        "0 or sentinel per statement",
+        "never update the minimum",
+        "full scan still fails"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why can you shrink from the left greedily once the sum is large enough?",
+      "expected_points": [
+        "removing left only decreases sum",
+        "shorter window is better",
+        "stop when sum would fall below k"
+      ],
+      "min_points": 2
+    }
   ]
 }

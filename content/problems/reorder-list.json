@@ -187,5 +187,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Outline the O(n) reorder: middle, reverse, merge.",
+      "expected_points": [
+        "find mid",
+        "reverse second half",
+        "interleave nodes"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens on lists of length 0, 1, or 2?",
+      "expected_points": [
+        "already ordered",
+        "little or no merge work",
+        "mid finding handles shorts"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why split before reversing the second half?",
+      "expected_points": [
+        "avoid cycles",
+        "first half ends with null",
+        "clean interleave"
+      ],
+      "min_points": 2
+    }
   ]
 }

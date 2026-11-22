@@ -134,5 +134,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do you compare two trees in linear time?",
+      "expected_points": [
+        "recurse on pairs of nodes",
+        "values and structure",
+        "O(n)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "When are two null roots considered the same?",
+      "expected_points": [
+        "both empty",
+        "true",
+        "structure matches"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does a null vs non-null mismatch fail immediately?",
+      "expected_points": [
+        "shapes differ",
+        "no need to compare values",
+        "short-circuit false"
+      ],
+      "min_points": 2
+    }
   ]
 }

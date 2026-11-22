@@ -131,5 +131,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is the minimum window covering all of t typically O(|s| + |t|) with counts?",
+      "expected_points": [
+        "expand until need satisfied",
+        "shrink while still covering",
+        "each pointer moves once"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if t has characters that never appear in s?",
+      "expected_points": [
+        "impossible",
+        "return empty string",
+        "need counter never hits zero"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why track how many distinct requirements are currently satisfied?",
+      "expected_points": [
+        "know when window is valid",
+        "increment when a count hits its target",
+        "decrement when shrinking breaks a target"
+      ],
+      "min_points": 2
+    }
   ]
 }

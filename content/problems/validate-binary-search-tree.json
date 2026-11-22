@@ -166,5 +166,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do bounds (low, high) validate a BST in O(n)?",
+      "expected_points": [
+        "each node in (low, high)",
+        "left gets high=node",
+        "right gets low=node"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What fails if you only compare a node to its direct children?",
+      "expected_points": [
+        "deeper violation possible",
+        "need ancestor bounds",
+        "classic counterexample"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why are the allowed ranges open at the node\u2019s value?",
+      "expected_points": [
+        "BST forbids duplicates or strict inequality",
+        "left must be < node",
+        "right must be > node"
+      ],
+      "min_points": 2
+    }
   ]
 }

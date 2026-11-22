@@ -125,6 +125,8 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
         ],
         "sources": list(problem.get("sources") or []),
         "variant": bool(problem.get("variant", False)),
+        # Questions only — never expose expected_points / min_points.
+        "viva": [{"question": str(item.get("question") or "")} for item in (problem.get("viva") or [])],
     }
     return out
 

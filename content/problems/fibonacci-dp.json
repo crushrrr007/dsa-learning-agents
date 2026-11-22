@@ -75,5 +75,34 @@
   "sources": [
     "neetcode150"
   ],
-  "variant": true
+  "variant": true,
+  "viva": [
+    {
+      "question": "How does bottom-up Fibonacci avoid the exponential recursion tree?",
+      "expected_points": [
+        "store prior two values",
+        "each n computed once",
+        "O(n) time O(1) space possible"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What are F(0) and F(1)?",
+      "expected_points": [
+        "0 and 1",
+        "base cases",
+        "start the loop"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is F(n) = F(n-1) + F(n-2) enough?",
+      "expected_points": [
+        "definition of Fibonacci",
+        "overlapping subproblems reused",
+        "no missing branches"
+      ],
+      "min_points": 2
+    }
+  ]
 }

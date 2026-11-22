@@ -205,5 +205,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is merging two sorted lists linear in their combined length?",
+      "expected_points": [
+        "one pass with two pointers",
+        "always take the smaller head",
+        "O(1) extra besides output links"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if one list is empty?",
+      "expected_points": [
+        "answer is the other list",
+        "dummy next points to remaining",
+        "no comparisons needed"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why attach the remainder of the non-exhausted list at the end?",
+      "expected_points": [
+        "already sorted",
+        "all its values are \u2265 last chosen",
+        "no further interleaving"
+      ],
+      "min_points": 2
+    }
   ]
 }

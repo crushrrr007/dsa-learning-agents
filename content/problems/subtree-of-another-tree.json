@@ -195,5 +195,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is a typical cost to test whether subRoot appears inside root?",
+      "expected_points": [
+        "walk root",
+        "same-tree checks at candidates",
+        "O(n m) worst case"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if subRoot is null or root is null?",
+      "expected_points": [
+        "null subtree often true",
+        "null root only if subRoot null",
+        "follow statement"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must values and structure both match for a subtree?",
+      "expected_points": [
+        "same-tree on the aligned roots",
+        "extra child breaks it",
+        "isomorphism of that fragment"
+      ],
+      "min_points": 2
+    }
   ]
 }

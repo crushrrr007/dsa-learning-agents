@@ -196,5 +196,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the typical time cost of fixing one value and scanning with two pointers?",
+      "expected_points": [
+        "O(n^2)",
+        "outer loop times linear two-pointer",
+        "sorting O(n log n) upfront"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "How do you avoid duplicate triplets in the output?",
+      "expected_points": [
+        "skip equal values after a pick",
+        "canonical sorted triples",
+        "dedupe on each pointer move"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why advance the left pointer when the sum is too small?",
+      "expected_points": [
+        "array sorted",
+        "larger left value increases sum",
+        "right moves when sum too big"
+      ],
+      "min_points": 2
+    }
   ]
 }

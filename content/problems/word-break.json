@@ -154,5 +154,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What does a True at dp[i] mean in word break?",
+      "expected_points": [
+        "prefix s[:i] can be segmented",
+        "dict word ending at i",
+        "O(n^2) typical"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What about an empty string?",
+      "expected_points": [
+        "dp[0]=True",
+        "vacuous segmentation",
+        "base for later"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why check every j < i with dp[j] and s[j:i] in the dict?",
+      "expected_points": [
+        "split after a good prefix",
+        "word completes the gap",
+        "OR over splits"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -204,5 +204,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is multi-source BFS natural for rotting oranges?",
+      "expected_points": [
+        "all initial rotten in the queue",
+        "minutes = layers",
+        "fresh count tracks remaining"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if a fresh orange is sealed away from any rotten one?",
+      "expected_points": [
+        "impossible",
+        "return -1",
+        "fresh remain after BFS"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why process the queue level by level?",
+      "expected_points": [
+        "one minute per layer",
+        "simultaneous rot",
+        "distance from nearest rotten"
+      ],
+      "min_points": 2
+    }
   ]
 }

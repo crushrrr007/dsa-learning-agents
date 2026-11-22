@@ -159,5 +159,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do you find the minimum in a rotated sorted array in O(log n)?",
+      "expected_points": [
+        "compare mid to right",
+        "go toward the unsorted half",
+        "left/right converge"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the array was never rotated?",
+      "expected_points": [
+        "already sorted",
+        "nums[left] is min",
+        "mid < right always"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does nums[mid] > nums[right] mean the min is to the right of mid?",
+      "expected_points": [
+        "rotation cut on the right",
+        "left side is large sorted run",
+        "discard mid and left"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -208,5 +208,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is adding digit-by-digit with a carry O(max(m, n))?",
+      "expected_points": [
+        "one pass over both lists",
+        "carry is 0 or 1 mostly",
+        "output length at most max+1"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the final carry is still 1 after both lists end?",
+      "expected_points": [
+        "append an extra node",
+        "value 1",
+        "do not drop the carry"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why process least-significant digits first as given?",
+      "expected_points": [
+        "lists already store reverse order",
+        "carry flows to the next more significant digit",
+        "matches paper addition"
+      ],
+      "min_points": 2
+    }
   ]
 }

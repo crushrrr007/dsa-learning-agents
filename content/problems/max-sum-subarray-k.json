@@ -159,5 +159,34 @@
   "sources": [
     "neetcode150"
   ],
-  "variant": true
+  "variant": true,
+  "viva": [
+    {
+      "question": "Why is a fixed window of size k O(n) instead of resuming each window from scratch?",
+      "expected_points": [
+        "slide by removing left and adding right",
+        "O(n) total",
+        "each element enters and leaves once"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if n < k?",
+      "expected_points": [
+        "no valid window",
+        "cannot form size k",
+        "handle as empty/invalid per statement"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does subtracting the leaving element keep the sum correct?",
+      "expected_points": [
+        "window membership changes by one",
+        "old left no longer counted",
+        "new right is included"
+      ],
+      "min_points": 2
+    }
+  ]
 }

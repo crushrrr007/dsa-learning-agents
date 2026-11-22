@@ -172,5 +172,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why fill the output from the right with two pointers on a sorted (possibly negative) array?",
+      "expected_points": [
+        "largest square is at an end",
+        "compare abs of left and right",
+        "O(n) merge into result"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Where do zeros go in the squared output?",
+      "expected_points": [
+        "near the front",
+        "zero square is smallest",
+        "pointers meet around zero"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why can a negative left value beat a positive right value for the next largest square?",
+      "expected_points": [
+        "square depends on magnitude",
+        "more negative means larger square",
+        "compare absolute values"
+      ],
+      "min_points": 2
+    }
   ]
 }

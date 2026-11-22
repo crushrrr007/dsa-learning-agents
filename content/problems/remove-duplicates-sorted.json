@@ -142,5 +142,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is the same-direction write pointer O(n) on a sorted array?",
+      "expected_points": [
+        "each index visited once",
+        "write unique values forward",
+        "O(1) extra memory"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the result length when every element is identical?",
+      "expected_points": [
+        "length 1",
+        "only first value kept",
+        "write pointer barely moves"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does sorting make comparing to the previous unique value enough?",
+      "expected_points": [
+        "duplicates sit adjacent",
+        "unsorted would need a set",
+        "next different value is the next unique"
+      ],
+      "min_points": 2
+    }
   ]
 }

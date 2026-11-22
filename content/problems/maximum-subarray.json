@@ -149,5 +149,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time cost of Kadane versus trying every subarray?",
+      "expected_points": [
+        "Kadane O(n)",
+        "brute O(n^2)",
+        "one running best ending here"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must the subarray be nonempty, and what do you return for an all-negative array?",
+      "expected_points": [
+        "at least one element",
+        "largest single element if all negative",
+        "cannot take empty sum"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "When do you reset the running sum instead of extending it?",
+      "expected_points": [
+        "when extending hurts",
+        "start fresh at current index",
+        "track global max each step"
+      ],
+      "min_points": 2
+    }
   ]
 }

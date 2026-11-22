@@ -144,5 +144,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do fast and slow pointers detect a cycle in O(n) time and O(1) space?",
+      "expected_points": [
+        "slow one step fast two",
+        "meet \u21d2 cycle",
+        "no extra set of nodes"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens on an empty list or a single node without a self-loop?",
+      "expected_points": [
+        "no cycle",
+        "fast becomes null",
+        "return false"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must they eventually meet if a cycle exists?",
+      "expected_points": [
+        "fast closes the gap inside the loop",
+        "relative speed one",
+        "cannot skip forever"
+      ],
+      "min_points": 2
+    }
   ]
 }

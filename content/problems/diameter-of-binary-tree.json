@@ -153,5 +153,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why can diameter be found in one DFS that returns heights?",
+      "expected_points": [
+        "path through node = left height + right height",
+        "track global max",
+        "O(n)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the diameter of a single-node tree?",
+      "expected_points": [
+        "0",
+        "no edges",
+        "heights zero"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is the longest path not always through the root?",
+      "expected_points": [
+        "deepest path may sit in a subtree",
+        "update global at every node",
+        "root-only would miss it"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -141,5 +141,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why does fast advancing twice as fast land slow on the middle?",
+      "expected_points": [
+        "fast reaches end when slow at mid",
+        "O(n) time",
+        "O(1) space"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What middle do you pick for an even-length list?",
+      "expected_points": [
+        "follow the problem\u2019s convention",
+        "often the second middle",
+        "fast null check chooses it"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is no length counter required?",
+      "expected_points": [
+        "two pointers encode the ratio",
+        "single pass enough",
+        "length unknown upfront"
+      ],
+      "min_points": 2
+    }
   ]
 }

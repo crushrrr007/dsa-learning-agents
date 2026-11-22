@@ -158,5 +158,34 @@
   "reference_solution": "def find_max_average(nums, k):\n    left = 0\n    window_sum = sum(nums[:k])\n    best = window_sum\n    for right in range(k, len(nums)):\n        window_sum += nums[right] - nums[left]\n        left += 1\n        if window_sum > best:\n            best = window_sum\n    return best / k\n",
   "sources": [
     "neetcode150"
+  ],
+  "viva": [
+    {
+      "question": "How do you find the maximum average of a length-k window in linear time?",
+      "expected_points": [
+        "track window sum",
+        "average = sum/k",
+        "slide across the array"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What edge case appears when k equals the array length?",
+      "expected_points": [
+        "only one window",
+        "answer is the full average",
+        "loop barely slides"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why maximizing the sum is enough to maximize the average for fixed k?",
+      "expected_points": [
+        "k constant",
+        "sum and average share the same argmax",
+        "no need to compare averages separately"
+      ],
+      "min_points": 2
+    }
   ]
 }

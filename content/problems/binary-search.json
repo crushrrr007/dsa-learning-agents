@@ -170,5 +170,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is classic binary search O(log n) on a sorted array?",
+      "expected_points": [
+        "halve the range each step",
+        "mid comparison",
+        "left/right move"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What do you return when the target is absent?",
+      "expected_points": [
+        "-1",
+        "range becomes empty",
+        "left > right"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must the array be sorted for this discard to be safe?",
+      "expected_points": [
+        "order decides which half can hold target",
+        "unsorted breaks the invariant",
+        "mid comparison meaningless otherwise"
+      ],
+      "min_points": 2
+    }
   ]
 }

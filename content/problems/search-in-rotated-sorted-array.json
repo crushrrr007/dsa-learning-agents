@@ -171,5 +171,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do you search a target in a rotated sorted array in O(log n)?",
+      "expected_points": [
+        "identify sorted half",
+        "see if target lies inside",
+        "discard the other half"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the target is missing?",
+      "expected_points": [
+        "-1",
+        "range empties",
+        "never equal mid"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is one of the two halves always sorted after rotation?",
+      "expected_points": [
+        "single pivot cut",
+        "mid falls in a monotone side",
+        "enables binary decision"
+      ],
+      "min_points": 2
+    }
   ]
 }

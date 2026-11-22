@@ -120,5 +120,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What does dp[i][j] mean for LCS of two prefixes?",
+      "expected_points": [
+        "LCS length of text1[:i] and text2[:j]",
+        "O(m n) fill",
+        "match \u2192 +1 diagonal else max"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is LCS length when one string is empty?",
+      "expected_points": [
+        "0",
+        "first row/col zeros",
+        "nothing to match"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why do equal characters take the diagonal + 1?",
+      "expected_points": [
+        "extend a common subsequence",
+        "use that match",
+        "otherwise skip a char via max"
+      ],
+      "min_points": 2
+    }
   ]
 }

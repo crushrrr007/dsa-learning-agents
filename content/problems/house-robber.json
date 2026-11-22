@@ -113,5 +113,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why does House Robber use a choose/skip DP in linear time?",
+      "expected_points": [
+        "dp[i]=max(dp[i-1], dp[i-2]+nums[i])",
+        "O(n)",
+        "cannot take adjacent"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the array has one house?",
+      "expected_points": [
+        "take that value",
+        "base case",
+        "no adjacency issue"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is skipping the previous house sometimes better?",
+      "expected_points": [
+        "taking i-1 blocks i",
+        "max of skip vs take",
+        "local choice builds global opt"
+      ],
+      "min_points": 2
+    }
   ]
 }

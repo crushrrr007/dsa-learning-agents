@@ -76,5 +76,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is climbing stairs a linear DP instead of exponential recursion?",
+      "expected_points": [
+        "dp[i]=dp[i-1]+dp[i-2]",
+        "each i once",
+        "O(n) time"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What are the base answers for 1 and 2 steps?",
+      "expected_points": [
+        "1 way for 1",
+        "2 ways for 2",
+        "seed the recurrence"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does the recurrence add the previous two states?",
+      "expected_points": [
+        "last step size 1 or 2",
+        "disjoint cases",
+        "cover all paths"
+      ],
+      "min_points": 2
+    }
   ]
 }

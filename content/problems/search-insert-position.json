@@ -160,5 +160,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does binary search also find the insertion index?",
+      "expected_points": [
+        "same left/right loop",
+        "final left is insert point",
+        "O(log n)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Where do you insert a value smaller than all elements?",
+      "expected_points": [
+        "index 0",
+        "left stays 0",
+        "all mids go right"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is left the correct insertion index when the target is missing?",
+      "expected_points": [
+        "first index with value >= target",
+        "invariants on the bounds",
+        "keeps sorted order"
+      ],
+      "min_points": 2
+    }
   ]
 }

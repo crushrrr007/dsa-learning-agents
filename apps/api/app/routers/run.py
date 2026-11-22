@@ -20,6 +20,7 @@ from app.runner.problem_args import (
 )
 from app.runner.sandbox import run_student_code
 from app.runner.trace_check import answer_supported_by_trace, run_reference_trace
+from app.runner.viva_grade import grade_problem_viva
 from app.schemas import (
     PredictRequest,
     PredictResponse,
@@ -29,6 +30,8 @@ from app.schemas import (
     TestRequest,
     TestResponse,
     TraceEvent,
+    VivaQuestionResult,
+    VivaResponse,
     VivaSubmit,
 )
 
@@ -254,7 +257,16 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
         )
 
     passed_all = bool(grading) and all(grading)
-    viva = generate_viva(body.code, problem["title"]) if passed_all else []
+    viva: list[dict[str, str]] = []
+    if passed_all:
+        authored = problem.get("viva") or []
+        if authored:
+            viva = [
+                {"id": f"q{i}", "prompt": str(item.get("question") or "")}
+                for i, item in enumerate(authored)
+            ]
+        else:
+            viva = generate_viva(body.code, problem["title"])
     if passed_all:
         row = await set_stage(db, body.session_id, body.problem_id, problem["topic"], 4)
         stage = row.stage
@@ -278,20 +290,40 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
     )
 
 
-@router.post("/viva")
-async def submit_viva(body: VivaSubmit, db: AsyncSession = Depends(get_db)):
+@router.post("/viva", response_model=VivaResponse)
+async def submit_viva(body: VivaSubmit, db: AsyncSession = Depends(get_db)) -> VivaResponse:
     try:
         problem = get_problem(body.problem_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Problem not found") from exc
-    # Accept any thoughtful non-empty answers for lab demo
-    ok = len(body.answers) >= 2 and all(len(a.strip()) >= 8 for a in body.answers[:2])
-    if not ok:
-        return {"passed": False, "detail": "Answer both viva questions with at least a short sentence each."}
+
+    viva_spec = problem.get("viva") or []
+    if len(viva_spec) < 2:
+        raise HTTPException(status_code=500, detail="Problem is missing viva rubrics")
+
+    graded = await grade_problem_viva(problem, body.answers)
+    results = [VivaQuestionResult(**row) for row in graded]
+    passed = bool(results) and all(r.passed for r in results)
+    if not passed:
+        await record_attempt(db, body.session_id, body.problem_id, 4, False, "viva")
+        return VivaResponse(
+            passed=False,
+            mastered=False,
+            stage=4,
+            detail="Some viva answers need more work — retry the failed questions.",
+            results=results,
+        )
+
     row = await mark_mastered(db, body.session_id, body.problem_id, problem["topic"])
     await record_attempt(db, body.session_id, body.problem_id, 4, True, "viva")
     try:
         await record_mastered_kg(db, body.session_id, body.problem_id)
     except Exception:
         pass
-    return {"passed": True, "mastered": True, "stage": row.stage}
+    return VivaResponse(
+        passed=True,
+        mastered=True,
+        stage=row.stage,
+        detail=None,
+        results=results,
+    )

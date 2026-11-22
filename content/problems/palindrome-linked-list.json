@@ -151,5 +151,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How can you check a palindrome list in O(n) time and O(1) extra space?",
+      "expected_points": [
+        "find middle",
+        "reverse second half",
+        "compare halves"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What about a one-node or two-node list?",
+      "expected_points": [
+        "one node true",
+        "two nodes compare equality",
+        "middle finding still works"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why reverse only the second half?",
+      "expected_points": [
+        "compare forward vs reversed tail",
+        "first half stays intact",
+        "values must mirror"
+      ],
+      "min_points": 2
+    }
   ]
 }

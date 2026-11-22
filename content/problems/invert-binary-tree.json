@@ -125,5 +125,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is inverting a binary tree O(n)?",
+      "expected_points": [
+        "swap every node\u2019s children",
+        "each node once",
+        "recursion or BFS"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens at a null node?",
+      "expected_points": [
+        "return null",
+        "base case",
+        "nothing to swap"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why swap left and right before or after recursing still works?",
+      "expected_points": [
+        "all nodes eventually swapped",
+        "structure mirrored",
+        "order of subtree invert commuting"
+      ],
+      "min_points": 2
+    }
   ]
 }

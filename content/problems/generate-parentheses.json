@@ -123,5 +123,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What constrains adding '(' vs ')' while generating n pairs?",
+      "expected_points": [
+        "open < n to add '('",
+        "close < open to add ')'",
+        "build only valid prefixes"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why return the strings in lexicographic order?",
+      "expected_points": [
+        "statement requires sorted",
+        "canonical grading",
+        "sort at the end if needed"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why never allow more closers than openers in a prefix?",
+      "expected_points": [
+        "would be invalid",
+        "balance invariant",
+        "stack view of openers"
+      ],
+      "min_points": 2
+    }
   ]
 }

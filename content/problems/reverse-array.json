@@ -155,5 +155,34 @@
       ],
       "answer_index": 2
     }
+  ],
+  "viva": [
+    {
+      "question": "What is the time and space cost of swapping from both ends?",
+      "expected_points": [
+        "O(n) time",
+        "O(1) extra space",
+        "about n/2 swaps"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens on an empty list or a single-element list?",
+      "expected_points": [
+        "already reversed",
+        "loop does not run",
+        "return same object"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why stop when left meets or passes right?",
+      "expected_points": [
+        "middle already placed",
+        "further swaps undo work",
+        "two pointers cross"
+      ],
+      "min_points": 2
+    }
   ]
 }

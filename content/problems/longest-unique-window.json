@@ -105,5 +105,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does a variable window find the longest substring without repeats in O(n)?",
+      "expected_points": [
+        "expand right",
+        "shrink left on duplicate",
+        "each index moves at most once"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the answer for an empty string or all unique characters?",
+      "expected_points": [
+        "empty \u2192 0",
+        "all unique \u2192 full length",
+        "window never shrinks if unique"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why move left past the previous index of a repeated character?",
+      "expected_points": [
+        "restores uniqueness",
+        "discard the old occurrence",
+        "invariant: window has distinct chars"
+      ],
+      "min_points": 2
+    }
   ]
 }

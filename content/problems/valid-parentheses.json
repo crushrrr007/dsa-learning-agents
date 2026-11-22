@@ -102,5 +102,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why does a stack validate brackets in O(n)?",
+      "expected_points": [
+        "push openers",
+        "pop on matching closer",
+        "empty at end"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What fails on a single closing bracket or an unclosed opener?",
+      "expected_points": [
+        "stack empty on closer",
+        "leftover openers",
+        "return false"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must the popped opener match the closer\u2019s type?",
+      "expected_points": [
+        "ordering nested correctly",
+        "wrong type means mismatch",
+        "LIFO remembers latest opener"
+      ],
+      "min_points": 2
+    }
   ]
 }

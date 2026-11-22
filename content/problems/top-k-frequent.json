@@ -182,5 +182,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How can you get the k most frequent values faster than sorting the whole array?",
+      "expected_points": [
+        "count frequencies in O(n)",
+        "bucket or heap by count",
+        "avoid full O(n log n) value sort when possible"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens when several values share the same frequency?",
+      "expected_points": [
+        "canonical tie-break by sorting value",
+        "still return exactly k",
+        "stable ordering rule in the statement"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does a frequency map let you decide which values belong in the answer?",
+      "expected_points": [
+        "map value\u2192count",
+        "select the k largest counts",
+        "ignore rare keys"
+      ],
+      "min_points": 2
+    }
   ]
 }

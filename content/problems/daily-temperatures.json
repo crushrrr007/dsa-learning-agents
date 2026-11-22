@@ -188,5 +188,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does a monotonic stack compute next warmer days in O(n)?",
+      "expected_points": [
+        "store indices decreasing by temp",
+        "pop when warmer found",
+        "difference of indices"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What answer do you store when no warmer day exists?",
+      "expected_points": [
+        "0",
+        "index left on stack",
+        "end of array"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why keep the stack decreasing in temperature?",
+      "expected_points": [
+        "first warmer is the next greater",
+        "discard colder days that can never be answers",
+        "amortized one pop each"
+      ],
+      "min_points": 2
+    }
   ]
 }

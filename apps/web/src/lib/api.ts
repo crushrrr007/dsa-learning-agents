@@ -131,8 +131,16 @@ export type ProblemDetail = ProblemSummary & {
   function_name: string;
   visual: string;
   predict_steps: { prompt: string; hint?: string }[];
+  viva?: { question: string }[];
   last_code: string;
   pattern_id?: string;
+};
+
+export type VivaQuestionResult = {
+  index: number;
+  passed: boolean;
+  matched_points_count: number;
+  feedback: string;
 };
 
 export type TraceEvent = {
@@ -318,7 +326,13 @@ export async function runTests(problemId: string, code: string) {
 }
 
 export async function submitViva(problemId: string, answers: string[]) {
-  return request<{ passed: boolean; mastered?: boolean; detail?: string; stage?: number }>(`/viva`, {
+  return request<{
+    passed: boolean;
+    mastered?: boolean;
+    detail?: string;
+    stage?: number;
+    results?: VivaQuestionResult[];
+  }>(`/viva`, {
     method: "POST",
     body: JSON.stringify({ session_id: getSessionId(), problem_id: problemId, answers }),
   });

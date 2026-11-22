@@ -109,5 +109,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What recurrence counts decode ways for a digit string?",
+      "expected_points": [
+        "single digit 1-9",
+        "two-digit 10-26",
+        "dp[i] sum of valid priors"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does a leading zero make the whole string invalid?",
+      "expected_points": [
+        "no mapping for 0 alone",
+        "cannot start a code",
+        "dp stays 0"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "When can you use two digits ending at i?",
+      "expected_points": [
+        "value between 10 and 26",
+        "previous prefix nonzero ways",
+        "add dp[i-2]"
+      ],
+      "min_points": 2
+    }
   ]
 }

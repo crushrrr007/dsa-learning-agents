@@ -62,6 +62,7 @@ class ProblemDetail(BaseModel):
     predict_steps: list[dict[str, Any]]
     sources: list[str] = Field(default_factory=list)
     variant: bool = False
+    viva: list[dict[str, Any]] = Field(default_factory=list)
     stage: int = 0
     mastered: bool = False
     last_code: str = ""
@@ -199,6 +200,21 @@ class VivaSubmit(BaseModel):
     session_id: str
     problem_id: str
     answers: list[str]
+
+
+class VivaQuestionResult(BaseModel):
+    index: int
+    passed: bool
+    matched_points_count: int = 0
+    feedback: str = ""
+
+
+class VivaResponse(BaseModel):
+    passed: bool
+    mastered: bool = False
+    stage: int = 0
+    detail: str | None = None
+    results: list[VivaQuestionResult] = Field(default_factory=list)
 
 
 class AgentChatRequest(BaseModel):

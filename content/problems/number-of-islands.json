@@ -220,5 +220,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is DFS/BFS flood-fill O(m n) on the grid?",
+      "expected_points": [
+        "each cell visited once",
+        "mark land as seen",
+        "islands counted at new lands"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What does an all-water grid return?",
+      "expected_points": [
+        "0 islands",
+        "never start a flood",
+        "no '1' cells"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why mark a cell visited when you start flooding it?",
+      "expected_points": [
+        "avoid recounting",
+        "prevent revisiting neighbors",
+        "connects the component"
+      ],
+      "min_points": 2
+    }
   ]
 }

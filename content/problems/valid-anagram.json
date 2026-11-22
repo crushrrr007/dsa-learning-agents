@@ -114,5 +114,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is counting characters O(n) rather than sorting both strings?",
+      "expected_points": [
+        "one pass over each string",
+        "sort would be O(n log n)",
+        "fixed alphabet still linear"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What edge case makes two strings unequal before you finish counting?",
+      "expected_points": [
+        "different lengths",
+        "cannot be anagrams",
+        "early false"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must every character frequency match, not just the set of letters?",
+      "expected_points": [
+        "extra repeats break anagrams",
+        "counts must be identical",
+        "presence alone is not enough"
+      ],
+      "min_points": 2
+    }
   ]
 }

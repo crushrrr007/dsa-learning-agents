@@ -153,5 +153,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How can you detect height-balance in one O(n) DFS?",
+      "expected_points": [
+        "return height or -1 sentinel",
+        "check |left-right| <= 1",
+        "bubble failure up"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Is a single-node tree balanced?",
+      "expected_points": [
+        "yes",
+        "height 1 or 0 convention consistent",
+        "no children skew"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why abort early when a subtree returns unbalanced?",
+      "expected_points": [
+        "whole tree fails",
+        "no need for further height",
+        "propagate sentinel"
+      ],
+      "min_points": 2
+    }
   ]
 }

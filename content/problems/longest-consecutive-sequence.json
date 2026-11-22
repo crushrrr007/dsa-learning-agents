@@ -147,5 +147,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How do you get longer than sorting when finding consecutive runs?",
+      "expected_points": [
+        "hash set of values",
+        "only start a run at a missing left neighbor",
+        "O(n) expected"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens with duplicates in nums?",
+      "expected_points": [
+        "set removes duplicates",
+        "length counts distinct values",
+        "repeats do not extend a run"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why only expand a streak when num-1 is absent?",
+      "expected_points": [
+        "ensures each run starts once",
+        "avoids recounting middles",
+        "amortized linear work"
+      ],
+      "min_points": 2
+    }
   ]
 }

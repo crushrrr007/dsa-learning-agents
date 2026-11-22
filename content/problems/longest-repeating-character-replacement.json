@@ -122,5 +122,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the cost of the variable window that tracks the richest character count?",
+      "expected_points": [
+        "O(n) with a count map",
+        "window valid when length - maxf <= k",
+        "left advances when invalid"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if k is 0?",
+      "expected_points": [
+        "no changes allowed",
+        "longest run of identical chars",
+        "shrink on any mismatch"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is length - max_frequency the number of replacements needed?",
+      "expected_points": [
+        "keep the most common char",
+        "others must change",
+        "k budgets those changes"
+      ],
+      "min_points": 2
+    }
   ]
 }

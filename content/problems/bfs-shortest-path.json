@@ -163,5 +163,34 @@
   "sources": [
     "neetcode150"
   ],
-  "variant": true
+  "variant": true,
+  "viva": [
+    {
+      "question": "Why does BFS give the shortest path length in an unweighted graph?",
+      "expected_points": [
+        "explore by distance layers",
+        "first time reached is minimal hops",
+        "queue order"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the destination is unreachable?",
+      "expected_points": [
+        "return -1 or sentinel",
+        "queue empties",
+        "never dequeued target"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why mark visited when enqueuing rather than when dequeuing?",
+      "expected_points": [
+        "avoid duplicate queue entries",
+        "first enqueue is shortest",
+        "keeps BFS efficient"
+      ],
+      "min_points": 2
+    }
+  ]
 }

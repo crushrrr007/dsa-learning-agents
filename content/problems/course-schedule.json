@@ -205,5 +205,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does topological sort detect whether all courses can be finished?",
+      "expected_points": [
+        "Kahn or DFS cycle detect",
+        "indegrees / visiting state",
+        "cycle \u21d2 false"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What about a graph with no edges?",
+      "expected_points": [
+        "all courses ok",
+        "any order",
+        "return true"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does a remaining node with indegree > 0 after Kahn mean failure?",
+      "expected_points": [
+        "cycle holds references",
+        "cannot take that course",
+        "topo incomplete"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -177,5 +177,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why does inorder traversal of a BST yield sorted values?",
+      "expected_points": [
+        "left root right",
+        "BST invariant",
+        "kth in sorted order"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if k = 1?",
+      "expected_points": [
+        "leftmost node",
+        "minimum",
+        "inorder first visit"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why can you stop once you have visited k nodes?",
+      "expected_points": [
+        "further nodes are larger",
+        "early exit",
+        "no full traversal required"
+      ],
+      "min_points": 2
+    }
   ]
 }

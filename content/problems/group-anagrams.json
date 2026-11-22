@@ -193,5 +193,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the cost of grouping n words of length k with sorted signatures?",
+      "expected_points": [
+        "O(n k log k) if sort each word",
+        "hash map of signature\u2192group",
+        "output rebuild is O(n)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "How do you keep the required canonical order of groups and words?",
+      "expected_points": [
+        "sort letters inside each word for the key",
+        "sort strings inside each group",
+        "sort groups by first member"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why do two different words share a bucket when their sorted forms match?",
+      "expected_points": [
+        "anagrams share letter multiset",
+        "sorted key identical",
+        "map collects them together"
+      ],
+      "min_points": 2
+    }
   ]
 }

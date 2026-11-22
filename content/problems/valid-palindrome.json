@@ -130,5 +130,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why can two pointers check a palindrome in linear time?",
+      "expected_points": [
+        "one left and one right",
+        "each character visited once",
+        "O(1) extra space"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens when the string length is 0 or 1?",
+      "expected_points": [
+        "vacuously true",
+        "pointers meet immediately",
+        "return true"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why do you move inward only after a matching pair?",
+      "expected_points": [
+        "mismatch means false",
+        "matched ends shrink the range",
+        "invariant: outer checked"
+      ],
+      "min_points": 2
+    }
   ]
 }

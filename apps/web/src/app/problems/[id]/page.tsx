@@ -16,6 +16,7 @@ import {
   type ProblemDetail,
   type RunResponse,
   type TraceEvent,
+  type VivaQuestionResult,
 } from "@/lib/api";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -61,6 +62,7 @@ export default function ProblemWorkspacePage() {
   >([]);
   const [viva, setViva] = useState<{ id: string; prompt: string }[]>([]);
   const [vivaAnswers, setVivaAnswers] = useState<string[]>(["", ""]);
+  const [vivaResults, setVivaResults] = useState<VivaQuestionResult[]>([]);
   const [busy, setBusy] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftTab>("description");
   const [agentsOpen, setAgentsOpen] = useState(false);
@@ -170,6 +172,7 @@ export default function ProblemWorkspacePage() {
       if (res.passed_all) {
         setViva(res.viva);
         setVivaAnswers(res.viva.map(() => ""));
+        setVivaResults([]);
         setLeftTab("path");
       }
       setRun((prev) => ({
@@ -197,6 +200,7 @@ export default function ProblemWorkspacePage() {
     setBusy(true);
     try {
       const res = await submitViva(problem.id, vivaAnswers);
+      setVivaResults(res.results || []);
       setTestMsg(res.passed ? "Mastered — viva accepted." : res.detail || "Viva incomplete");
       if (res.passed) setStage(4);
     } catch (e) {
@@ -354,21 +358,40 @@ export default function ProblemWorkspacePage() {
                   <div className="rounded-lg border border-[var(--line)] p-3">
                     <h3 className="font-semibold">4 · Viva</h3>
                     <div className="mt-3 space-y-3">
-                      {viva.map((q, i) => (
-                        <div key={q.id}>
-                          <p className="text-sm font-medium">{q.prompt}</p>
-                          <textarea
-                            value={vivaAnswers[i] || ""}
-                            onChange={(e) =>
-                              setVivaAnswers((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))
-                            }
-                            className="mt-2 w-full rounded-md border border-[var(--line)] bg-white p-2 text-sm"
-                            rows={3}
-                          />
-                        </div>
-                      ))}
-                      <Button size="sm" onClick={onViva} disabled={busy}>
-                        Submit viva
+                      {viva.map((q, i) => {
+                        const result = vivaResults.find((r) => r.index === i);
+                        const locked = Boolean(result?.passed);
+                        return (
+                          <div key={q.id}>
+                            <p className="text-sm font-medium">{q.prompt}</p>
+                            <textarea
+                              value={vivaAnswers[i] || ""}
+                              onChange={(e) =>
+                                setVivaAnswers((prev) => prev.map((v, idx) => (idx === i ? e.target.value : v)))
+                              }
+                              className="mt-2 w-full rounded-md border border-[var(--line)] bg-white p-2 text-sm disabled:bg-emerald-50"
+                              rows={3}
+                              disabled={locked || busy}
+                              readOnly={locked}
+                            />
+                            {result && (
+                              <p
+                                className={`mt-1 text-xs ${
+                                  result.passed ? "text-emerald-700" : "text-rose-700"
+                                }`}
+                              >
+                                {result.passed ? "Passed" : "Retry this one"} — {result.feedback}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                      <Button
+                        size="sm"
+                        onClick={onViva}
+                        disabled={busy || (vivaResults.length > 0 && vivaResults.every((r) => r.passed))}
+                      >
+                        {vivaResults.some((r) => !r.passed) ? "Retry failed questions" : "Submit viva"}
                       </Button>
                     </div>
                   </div>

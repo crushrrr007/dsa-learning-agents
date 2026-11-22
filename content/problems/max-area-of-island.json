@@ -222,5 +222,34 @@
   "reference_solution": "def max_area_of_island(grid):\n    if not grid:\n        return 0\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    visited = set()\n    def dfs(r, c):\n        if r < 0 or c < 0 or r >= rows or c >= cols:\n            return 0\n        if grid[r][c] != 1 or (r, c) in visited:\n            return 0\n        visited.add((r, c))\n        return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1)\n    best = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1 and (r, c) not in visited:\n                best = max(best, dfs(r, c))\n    return best\n",
   "sources": [
     "neetcode150"
+  ],
+  "viva": [
+    {
+      "question": "How do you compute the largest island area in O(m n)?",
+      "expected_points": [
+        "flood each unvisited land",
+        "count cells per component",
+        "track max"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the area when there is no land?",
+      "expected_points": [
+        "0",
+        "max stays 0",
+        "no floods start"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why add 1 for the current cell plus recursive neighbor areas?",
+      "expected_points": [
+        "cell is land",
+        "neighbors extend the island",
+        "disjoint cells counted once via visited"
+      ],
+      "min_points": 2
+    }
   ]
 }

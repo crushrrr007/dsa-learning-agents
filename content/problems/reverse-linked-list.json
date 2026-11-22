@@ -147,5 +147,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time and space cost of iteratively reversing a linked list?",
+      "expected_points": [
+        "O(n) time",
+        "O(1) extra pointers",
+        "each next rewired once"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What are the head and next of an empty list or a one-node list after reverse?",
+      "expected_points": [
+        "empty stays empty",
+        "single node remains head",
+        "loop body skipped"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must you save curr.next before rewiring curr.next to prev?",
+      "expected_points": [
+        "otherwise lose the rest of the list",
+        "prev becomes new predecessor",
+        "advance curr to saved next"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -145,5 +145,34 @@
   "sources": [
     "neetcode150"
   ],
-  "variant": true
+  "variant": true,
+  "viva": [
+    {
+      "question": "How do you count connected components in O(n + m)?",
+      "expected_points": [
+        "DFS/BFS from unvisited nodes",
+        "each start is a component",
+        "mark visited"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the count for n nodes and no edges?",
+      "expected_points": [
+        "n components",
+        "each node alone",
+        "loop starts n times"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why not start a new DFS from an already visited node?",
+      "expected_points": [
+        "already counted",
+        "would double-count",
+        "belongs to prior component"
+      ],
+      "min_points": 2
+    }
+  ]
 }

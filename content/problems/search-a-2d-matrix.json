@@ -228,5 +228,34 @@
   "sources": [
     "blind75",
     "neetcode150"
+  ],
+  "viva": [
+    {
+      "question": "How do you binary-search a row-major sorted matrix in O(log(m n))?",
+      "expected_points": [
+        "treat as 1D index",
+        "mid \u2192 row=mid//cols col=mid%cols",
+        "compare to target"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the matrix has a single cell?",
+      "expected_points": [
+        "one comparison",
+        "return equality",
+        "left=right=0"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is flattening valid here?",
+      "expected_points": [
+        "rows sorted and row starts increase",
+        "global sorted order",
+        "1D binary search applies"
+      ],
+      "min_points": 2
+    }
   ]
 }

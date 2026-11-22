@@ -152,5 +152,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What does dp[x] represent in coin change, and what is the time cost?",
+      "expected_points": [
+        "fewest coins for amount x",
+        "O(amount * coins)",
+        "min over coin transitions"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What do you return when amount cannot be formed?",
+      "expected_points": [
+        "-1",
+        "dp stays at infinity sentinel",
+        "unreachable state"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does trying each coin from a reachable x preserve optimality?",
+      "expected_points": [
+        "optimal substructure",
+        "min of candidates",
+        "unlimited coin use"
+      ],
+      "min_points": 2
+    }
   ]
 }

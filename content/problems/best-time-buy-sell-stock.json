@@ -150,5 +150,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does one forward scan find the best buy/sell pair in O(n)?",
+      "expected_points": [
+        "track minimum price so far",
+        "profit = price - min",
+        "update best profit"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What do you return when prices only fall?",
+      "expected_points": [
+        "profit zero",
+        "never sell at a loss",
+        "no positive difference"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is remembering the lowest price behind you enough to judge today's sell?",
+      "expected_points": [
+        "best buy is the min so far",
+        "future days handled later",
+        "single pass sufficient"
+      ],
+      "min_points": 2
+    }
   ]
 }

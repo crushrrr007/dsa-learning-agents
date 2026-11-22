@@ -157,5 +157,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How can two pointers trap water in O(n) time and O(1) extra space?",
+      "expected_points": [
+        "track left_max and right_max",
+        "fill from the side with smaller max",
+        "single pass"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What happens on a strictly increasing height array?",
+      "expected_points": [
+        "no water trapped",
+        "left_max always grows",
+        "nothing bounded on the right yet"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does water at i equal max_so_far - height[i] on the bounded side?",
+      "expected_points": [
+        "water level set by the lower bounding max",
+        "bar itself displaces that much",
+        "cannot exceed the opposite bound"
+      ],
+      "min_points": 2
+    }
   ]
 }

@@ -188,5 +188,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "How does a lead pointer n steps ahead remove the nth-from-end in one pass?",
+      "expected_points": [
+        "gap of n between pointers",
+        "when lead hits end, drop follower\u2019s next",
+        "O(n) time"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if n equals the length of the list?",
+      "expected_points": [
+        "remove the head",
+        "dummy node helps",
+        "new head is old second"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does the gap of n place follower just before the victim?",
+      "expected_points": [
+        "lead at null means follower at predecessor",
+        "rewire next",
+        "victim unlinked"
+      ],
+      "min_points": 2
+    }
   ]
 }

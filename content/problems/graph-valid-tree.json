@@ -221,5 +221,34 @@
   "reference_solution": "from collections import defaultdict\n\ndef valid_tree(n, edges):\n    if len(edges) != n - 1:\n        return False\n    g = defaultdict(list)\n    for a, b in edges:\n        g[a].append(b)\n        g[b].append(a)\n    seen = set()\n    def dfs(u, parent):\n        seen.add(u)\n        for v in g[u]:\n            if v == parent:\n                continue\n            if v in seen:\n                return False\n            if not dfs(v, u):\n                return False\n        return True\n    return dfs(0, -1) and len(seen) == n\n",
   "sources": [
     "neetcode150"
+  ],
+  "viva": [
+    {
+      "question": "What two properties make an undirected graph a tree?",
+      "expected_points": [
+        "connected",
+        "n-1 edges or acyclic",
+        "exactly one way between nodes"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if edges > n-1?",
+      "expected_points": [
+        "cycle exists",
+        "not a tree",
+        "reject"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does Union-Find failing a unite prove a cycle?",
+      "expected_points": [
+        "endpoints already same component",
+        "extra edge",
+        "breaks tree"
+      ],
+      "min_points": 2
+    }
   ]
 }

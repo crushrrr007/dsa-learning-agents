@@ -169,5 +169,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is RPN evaluation with a stack O(n) in the tokens?",
+      "expected_points": [
+        "push numbers",
+        "pop two on operator",
+        "one pass"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "How does division truncate toward zero here?",
+      "expected_points": [
+        "int(a/b) in Python 3 via trunc",
+        "not floor for negatives",
+        "match the statement"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is the right operand popped before the left?",
+      "expected_points": [
+        "stack LIFO",
+        "expression order",
+        "a op b needs a then b"
+      ],
+      "min_points": 2
+    }
   ]
 }

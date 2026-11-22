@@ -183,5 +183,34 @@
   "sources": [
     "neetcode150"
   ],
-  "variant": true
+  "variant": true,
+  "viva": [
+    {
+      "question": "How do opposite ends find a target sum in O(n) on a sorted array?",
+      "expected_points": [
+        "left smallest right largest",
+        "move left if sum too small",
+        "move right if sum too large"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why must you not reuse the same index?",
+      "expected_points": [
+        "i < j required",
+        "one element cannot pair with itself",
+        "pointers start at different ends"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does sorting let you discard half the possibilities each move?",
+      "expected_points": [
+        "monotonic sums",
+        "increasing left raises sum",
+        "decreasing right lowers sum"
+      ],
+      "min_points": 2
+    }
+  ]
 }

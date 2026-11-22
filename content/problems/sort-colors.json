@@ -181,5 +181,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time and space cost of the Dutch-national-flag three-way partition?",
+      "expected_points": [
+        "O(n) one pass",
+        "O(1) extra space",
+        "three pointers low mid high"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the array contains only 2s?",
+      "expected_points": [
+        "high shrinks to the start",
+        "mid never swaps a 0 or 1",
+        "still sorted"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why swap 0s to the left and 2s to the right while scanning mid?",
+      "expected_points": [
+        "keeps 1s in the middle band",
+        "invariant on [0,low) and (high,end]",
+        "mid explores unknowns"
+      ],
+      "min_points": 2
+    }
   ]
 }

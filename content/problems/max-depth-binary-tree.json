@@ -117,5 +117,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time cost of a recursive max-depth walk?",
+      "expected_points": [
+        "visit each node once",
+        "O(n) time",
+        "stack O(h)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What is the depth of an empty tree?",
+      "expected_points": [
+        "0",
+        "null base case",
+        "no nodes"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why is depth 1 + max(left, right)?",
+      "expected_points": [
+        "edge down to a child",
+        "taller subtree wins",
+        "combine after recursion"
+      ],
+      "min_points": 2
+    }
   ]
 }

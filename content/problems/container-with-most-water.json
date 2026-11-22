@@ -128,5 +128,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "Why is the two-pointer area search O(n) instead of O(n^2) pairs?",
+      "expected_points": [
+        "start at both ends",
+        "move the shorter side",
+        "each index discarded once"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What area do you get when all heights are zero?",
+      "expected_points": [
+        "area zero",
+        "min height zero",
+        "no water"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why move the pointer at the shorter line rather than the taller one?",
+      "expected_points": [
+        "width shrinks either way",
+        "taller side cannot increase min height alone",
+        "short side is the bottleneck"
+      ],
+      "min_points": 2
+    }
   ]
 }

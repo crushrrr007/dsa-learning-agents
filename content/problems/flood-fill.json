@@ -308,5 +308,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time cost of flooding a connected same-color region?",
+      "expected_points": [
+        "O(m n) worst case",
+        "each cell at most once",
+        "DFS or BFS"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What if the starting cell already has the new color?",
+      "expected_points": [
+        "nothing to do",
+        "avoid infinite loop",
+        "return grid unchanged"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why only recolor 4-neighbors with the original color?",
+      "expected_points": [
+        "connectivity rule",
+        "different colors block the flood",
+        "keeps other regions intact"
+      ],
+      "min_points": 2
+    }
   ]
 }

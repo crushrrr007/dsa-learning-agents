@@ -175,5 +175,34 @@
     "blind75",
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time cost of your hash-map Two Sum versus checking every pair?",
+      "expected_points": [
+        "O(n) single pass with a hash map",
+        "brute pair check is O(n^2)",
+        "each lookup is amortized O(1)"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Which edge case breaks a naive scan that returns the first index twice?",
+      "expected_points": [
+        "cannot reuse the same index",
+        "need i < j",
+        "value may appear once only"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why store seen values as you scan instead of after the full pass?",
+      "expected_points": [
+        "complement may already be behind you",
+        "one pass finds both indices",
+        "map holds value\u2192index so far"
+      ],
+      "min_points": 2
+    }
   ]
 }

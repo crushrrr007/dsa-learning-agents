@@ -150,5 +150,34 @@
   "reference_solution": "def largest_rectangle(heights):\n    heights = list(heights) + [0]\n    stack = [-1]\n    best = 0\n    for i, h in enumerate(heights):\n        while stack[-1] != -1 and heights[stack[-1]] > h:\n            height = heights[stack.pop()]\n            width = i - stack[-1] - 1\n            best = max(best, height * width)\n        stack.append(i)\n    return best\n",
   "sources": [
     "neetcode150"
+  ],
+  "viva": [
+    {
+      "question": "How does a monotonic stack find the largest rectangle in O(n)?",
+      "expected_points": [
+        "increasing heights indices",
+        "pop when smaller bar arrives",
+        "width from new bounds"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "What about a single bar or all equal heights?",
+      "expected_points": [
+        "area = height * 1 or n",
+        "stack drains at end",
+        "sentinel zero helps"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why does a smaller bar to the right bound the width of taller bars?",
+      "expected_points": [
+        "cannot extend past a shorter neighbor",
+        "pop computes area",
+        "left bound is new stack top"
+      ],
+      "min_points": 2
+    }
   ]
 }

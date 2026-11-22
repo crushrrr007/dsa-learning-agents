@@ -160,5 +160,34 @@
   "sources": [
     "neetcode150",
     "grind75"
+  ],
+  "viva": [
+    {
+      "question": "What is the time and extra-space cost of the two-write-pointer scan?",
+      "expected_points": [
+        "O(n) time",
+        "O(1) extra space",
+        "single pass over arr"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "How do you keep the relative order of nonzero values?",
+      "expected_points": [
+        "write nonzeros from the left in order",
+        "fill remaining with zeros",
+        "stable among nonzeros"
+      ],
+      "min_points": 2
+    },
+    {
+      "question": "Why can you overwrite zeros early without losing information?",
+      "expected_points": [
+        "zeros are reconstructed at the end",
+        "only nonzero values must be preserved in order",
+        "write index trails read"
+      ],
+      "min_points": 2
+    }
   ]
 }
