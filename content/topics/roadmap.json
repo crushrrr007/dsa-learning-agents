@@ -1,17 +1,27 @@
 {
   "phase": 2,
-  "title": "Pointer Lab — Full DSA Path",
-  "description": "Phase I linear structures, then Phase II trees, graphs, and dynamic programming — always with real traces and teaching agents.",
+  "title": "Pointer Lab \u2014 Full DSA Path",
+  "description": "Linear structures, trees, graphs, DP, stacks, and binary search \u2014 always with real traces and teaching agents.",
   "phases": [
     {
       "id": 1,
-      "title": "Phase I — Linear Data Structures & Pointers",
-      "topic_slugs": ["arrays", "two-pointers", "sliding-window", "linked-lists"]
+      "title": "Phase I \u2014 Linear Data Structures & Pointers",
+      "topic_slugs": [
+        "arrays",
+        "two-pointers",
+        "sliding-window",
+        "linked-lists",
+        "stack"
+      ]
     },
     {
       "id": 2,
-      "title": "Phase II — Trees, Graphs & Dynamic Programming",
-      "topic_slugs": ["trees", "graphs", "dynamic-programming"]
+      "title": "Phase II \u2014 Trees, Graphs & Dynamic Programming",
+      "topic_slugs": [
+        "trees",
+        "graphs",
+        "dynamic-programming"
+      ]
     }
   ],
   "topics": [
@@ -70,6 +80,14 @@
       "phase": 2,
       "summary": "Define subproblems, fill a DP table bottom-up, and reuse overlapping answers.",
       "color": "#9a3412"
+    },
+    {
+      "slug": "stack",
+      "title": "Stack",
+      "order": 8,
+      "phase": 1,
+      "summary": "LIFO push/pop, matching brackets, and monotonic stacks for next-greater queries.",
+      "color": "#be185d"
     }
   ]
 }

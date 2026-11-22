@@ -1,0 +1,106 @@
+{
+  "id": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "topic": "stack",
+  "difficulty": "easy",
+  "pattern": "Stack",
+  "statement": "Given a string `s` containing only the characters '(', ')', '{', '}', '[' and ']', return `true` if every opener is closed by the same type in the correct order, otherwise `false`.",
+  "examples": [
+    {
+      "input": "s=\"()\"",
+      "output": "true"
+    },
+    {
+      "input": "s=\"()[]{}\"",
+      "output": "true"
+    },
+    {
+      "input": "s=\"(]\"",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "0 <= len(s) <= 100"
+  ],
+  "starter_code": "def is_valid(s):\n    stack = []\n    # Push openers; pop on matching closers\n    return False\n",
+  "function_name": "is_valid",
+  "visual": "array",
+  "brute_force_code": "def is_valid(s):\n    prev = None\n    while prev != s:\n        prev = s\n        s = s.replace('()', '').replace('[]', '').replace('{}', '')\n    return s == ''\n",
+  "demo_input": "()[]{}",
+  "predict_steps": [
+    {
+      "prompt": "Seeing '(' first, what do you push onto stack?",
+      "answer": "(",
+      "accepted_answers": [
+        "(",
+        "opener"
+      ],
+      "hint": "Openers go on the stack."
+    },
+    {
+      "prompt": "When you see ')' and the top is '(', what happens?",
+      "answer": "pop",
+      "accepted_answers": [
+        "pop",
+        "pop the opener",
+        "match and pop"
+      ],
+      "hint": "Matching closer consumes the top opener."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "()"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "()[]{}"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "(]"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "([)]"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "{[]}"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "("
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        ""
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    "",
+    "(",
+    "()"
+  ],
+  "reference_solution": "def is_valid(s):\n    stack = []\n    pairs = {')': '(', ']': '[', '}': '{'}\n    for ch in s:\n        if ch in '([{':\n            stack.append(ch)\n        else:\n            if not stack or stack[-1] != pairs[ch]:\n                return False\n            stack.pop()\n    return not stack\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

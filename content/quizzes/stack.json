@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What does LIFO mean for a stack?",
+    "choices": [
+      "Last in, first out",
+      "Longest in, fastest out",
+      "Left index, first only",
+      "Linear in, filtered out"
+    ],
+    "answer_index": 0
+  },
+  {
+    "question": "In bracket matching, when do you push?",
+    "choices": [
+      "On every closer",
+      "On an opener",
+      "Only at the end",
+      "Never"
+    ],
+    "answer_index": 1
+  },
+  {
+    "question": "A monotonic decreasing stack of indices is often used to find?",
+    "choices": [
+      "Random shuffle",
+      "Next greater element",
+      "Hash collisions",
+      "Tree depth only"
+    ],
+    "answer_index": 1
+  }
+]

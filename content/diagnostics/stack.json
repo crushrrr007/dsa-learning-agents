@@ -1,0 +1,57 @@
+{
+  "topic": "stack",
+  "title": "Stack \u2014 prerequisite check",
+  "prerequisites": [
+    "lists",
+    "loops"
+  ],
+  "questions": [
+    {
+      "id": "comfort",
+      "type": "scale",
+      "prompt": "How comfortable are you with LIFO push/pop on a list?",
+      "choices": [
+        "Never used it",
+        "Need a refresher",
+        "Comfortable",
+        "Very comfortable"
+      ]
+    },
+    {
+      "id": "lifo",
+      "type": "mcq",
+      "prompt": "After push(1), push(2), pop(), what remains on top?",
+      "choices": [
+        "1",
+        "2",
+        "empty",
+        "both"
+      ],
+      "answer_index": 0,
+      "skill": "lifo"
+    },
+    {
+      "id": "paren",
+      "type": "mcq",
+      "prompt": "Why does a stack help with bracket matching?",
+      "choices": [
+        "It sorts characters",
+        "It remembers the most recent unmatched opener",
+        "It counts vowels",
+        "It removes duplicates"
+      ],
+      "answer_index": 1,
+      "skill": "matching"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "prompt": "What do you want from Stack right now?",
+      "choices": [
+        "Start from absolute basics",
+        "Quick overview then practice",
+        "Jump to harder problems"
+      ]
+    }
+  ]
+}

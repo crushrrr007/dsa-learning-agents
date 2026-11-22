@@ -1,0 +1,154 @@
+{
+  "id": "largest-rectangle-in-histogram",
+  "title": "Largest Rectangle in Histogram",
+  "topic": "stack",
+  "difficulty": "hard",
+  "pattern": "Monotonic stack",
+  "statement": "Given bar heights in `heights` (each bar width is 1), return the area of the largest rectangle that can be formed in the histogram.",
+  "examples": [
+    {
+      "input": "heights=[2,1,5,6,2,3]",
+      "output": "10"
+    },
+    {
+      "input": "heights=[2,4]",
+      "output": "4"
+    },
+    {
+      "input": "heights=[1]",
+      "output": "1"
+    }
+  ],
+  "constraints": [
+    "1 <= len(heights) <= 40",
+    "0 <= heights[i] <= 100"
+  ],
+  "starter_code": "def largest_rectangle(heights):\n    stack = []\n    return 0\n",
+  "function_name": "largest_rectangle",
+  "visual": "array",
+  "brute_force_code": "def largest_rectangle(heights):\n    n = len(heights)\n    best = 0\n    for i in range(n):\n        m = heights[i]\n        for j in range(i, n):\n            m = min(m, heights[j])\n            best = max(best, m * (j - i + 1))\n    return best\n",
+  "demo_input": [
+    2,
+    1,
+    5,
+    6,
+    2,
+    3
+  ],
+  "predict_steps": [
+    {
+      "prompt": "Bars 5 and 6 form height 5 width 2. What area?",
+      "answer": "10",
+      "accepted_answers": [
+        "10"
+      ],
+      "hint": "5*2."
+    },
+    {
+      "prompt": "When a shorter bar arrives, what happens to taller indices on the stack?",
+      "answer": "pop and compute area",
+      "accepted_answers": [
+        "pop",
+        "pop and compute area"
+      ],
+      "hint": "Right boundary is known."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          2,
+          1,
+          5,
+          6,
+          2,
+          3
+        ]
+      ],
+      "expected": 10
+    },
+    {
+      "args": [
+        [
+          2,
+          4
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          0
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      ],
+      "expected": 9
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      ],
+      "expected": 9
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        0
+      ]
+    ],
+    [
+      [
+        2,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "def largest_rectangle(heights):\n    heights = list(heights) + [0]\n    stack = [-1]\n    best = 0\n    for i, h in enumerate(heights):\n        while stack[-1] != -1 and heights[stack[-1]] > h:\n            height = heights[stack.pop()]\n            width = i - stack[-1] - 1\n            best = max(best, height * width)\n        stack.append(i)\n    return best\n",
+  "sources": [
+    "neetcode150"
+  ]
+}

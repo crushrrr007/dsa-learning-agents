@@ -1,0 +1,192 @@
+{
+  "id": "daily-temperatures",
+  "title": "Daily Temperatures",
+  "topic": "stack",
+  "difficulty": "medium",
+  "pattern": "Monotonic stack",
+  "statement": "Given a list `temps` of daily temperatures, return a list `answer` where `answer[i]` is the number of days you must wait after day `i` to get a warmer temperature. If there is no future warmer day, put 0.",
+  "examples": [
+    {
+      "input": "temps=[73,74,75,71,69,72,76,73]",
+      "output": "[1, 1, 4, 2, 1, 1, 0, 0]"
+    },
+    {
+      "input": "temps=[30,40,50,60]",
+      "output": "[1, 1, 1, 0]"
+    },
+    {
+      "input": "temps=[30,60,90]",
+      "output": "[1, 1, 0]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(temps) <= 80"
+  ],
+  "starter_code": "def daily_temperatures(temps):\n    stack = []\n    answer = [0] * len(temps)\n    return answer\n",
+  "function_name": "daily_temperatures",
+  "visual": "array",
+  "brute_force_code": "def daily_temperatures(temps):\n    n = len(temps)\n    answer = [0] * n\n    for i in range(n):\n        for j in range(i + 1, n):\n            if temps[j] > temps[i]:\n                answer[i] = j - i\n                break\n    return answer\n",
+  "demo_input": [
+    73,
+    74,
+    75,
+    71,
+    69,
+    72,
+    76,
+    73
+  ],
+  "predict_steps": [
+    {
+      "prompt": "When 74 arrives after 73 at index 0, what do you write into answer[0]?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "One day later."
+    },
+    {
+      "prompt": "Indices still on the stack at the end get what answer value?",
+      "answer": "0",
+      "accepted_answers": [
+        "0"
+      ],
+      "hint": "No warmer day ahead."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          73,
+          74,
+          75,
+          71,
+          69,
+          72,
+          76,
+          73
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        4,
+        2,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          30,
+          40,
+          50,
+          60
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          30,
+          60,
+          90
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          90
+        ]
+      ],
+      "expected": [
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          50,
+          50,
+          50
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          80,
+          70,
+          60
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          70,
+          71,
+          70,
+          71
+        ]
+      ],
+      "expected": [
+        1,
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        90
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ],
+    [
+      [
+        3,
+        2,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "def daily_temperatures(temps):\n    n = len(temps)\n    answer = [0] * n\n    stack = []\n    for i, t in enumerate(temps):\n        while stack and temps[stack[-1]] < t:\n            j = stack.pop()\n            answer[j] = i - j\n        stack.append(i)\n    return answer\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

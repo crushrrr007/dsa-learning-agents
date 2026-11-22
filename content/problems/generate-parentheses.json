@@ -1,0 +1,127 @@
+{
+  "id": "generate-parentheses",
+  "title": "Generate Parentheses",
+  "topic": "stack",
+  "difficulty": "medium",
+  "pattern": "Stack",
+  "statement": "Given `n` pairs, generate all combinations of well-formed parentheses. Return them as a list of strings sorted lexicographically.",
+  "examples": [
+    {
+      "input": "n=3",
+      "output": "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]"
+    },
+    {
+      "input": "n=1",
+      "output": "[\"()\"]"
+    },
+    {
+      "input": "n=2",
+      "output": "[\"(())\",\"()()\"]"
+    }
+  ],
+  "constraints": [
+    "0 <= n <= 4"
+  ],
+  "starter_code": "def generate_parentheses(n):\n    stack = []\n    out = []\n    return out\n",
+  "function_name": "generate_parentheses",
+  "visual": "array",
+  "brute_force_code": "def generate_parentheses(n):\n    cur = [\"\"]\n    for _ in range(2 * n):\n        nxt = []\n        for s in cur:\n            opens = s.count(\"(\")\n            closes = s.count(\")\")\n            if opens < n:\n                nxt.append(s + \"(\")\n            if closes < opens:\n                nxt.append(s + \")\")\n        cur = nxt\n    return sorted(cur)\n",
+  "demo_input": 3,
+  "predict_steps": [
+    {
+      "prompt": "You may add ')' only when close_count is less than what?",
+      "answer": "open_count",
+      "accepted_answers": [
+        "open",
+        "open_count"
+      ],
+      "hint": "Never more closers than openers in a prefix."
+    },
+    {
+      "prompt": "For n=1, what is the only string returned?",
+      "answer": "()",
+      "accepted_answers": [
+        "()",
+        "\"()\""
+      ],
+      "hint": "One pair."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        0
+      ],
+      "expected": [
+        ""
+      ]
+    },
+    {
+      "args": [
+        1
+      ],
+      "expected": [
+        "()"
+      ]
+    },
+    {
+      "args": [
+        2
+      ],
+      "expected": [
+        "(())",
+        "()()"
+      ]
+    },
+    {
+      "args": [
+        3
+      ],
+      "expected": [
+        "((()))",
+        "(()())",
+        "(())()",
+        "()(())",
+        "()()()"
+      ]
+    },
+    {
+      "args": [
+        4
+      ],
+      "expected": [
+        "(((())))",
+        "((()()))",
+        "((())())",
+        "((()))()",
+        "(()(()))",
+        "(()()())",
+        "(()())()",
+        "(())(())",
+        "(())()()",
+        "()((()))",
+        "()(()())",
+        "()(())()",
+        "()()(())",
+        "()()()()"
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ]
+  ],
+  "reference_solution": "def generate_parentheses(n):\n    cur = [\"\"]\n    for _ in range(2 * n):\n        nxt = []\n        for s in cur:\n            opens = s.count(\"(\")\n            closes = s.count(\")\")\n            if opens < n:\n                nxt.append(s + \"(\")\n            if closes < opens:\n                nxt.append(s + \")\")\n        cur = nxt\n    return sorted(cur)\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

@@ -132,7 +132,7 @@ def test_content_files_exist():
     root = Path(__file__).resolve().parents[3] / "content"
     assert (root / "topics" / "roadmap.json").exists()
     assert len(list((root / "problems").glob("*.json"))) >= 16
-    assert len(list((root / "quizzes").glob("*.json"))) == 7
+    assert len(list((root / "quizzes").glob("*.json"))) >= 7
 
 
 def test_agents_status_and_stage_routing(client: TestClient):
