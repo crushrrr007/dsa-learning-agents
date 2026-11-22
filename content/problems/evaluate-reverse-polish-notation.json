@@ -172,29 +172,32 @@
   ],
   "viva": [
     {
-      "question": "Why is RPN evaluation with a stack O(n) in the tokens?",
+      "question": "Why is RPN evaluation with a stack linear in the number of tokens?",
       "expected_points": [
-        "push numbers",
-        "pop two on operator",
-        "one pass"
+        "each token is processed once",
+        "numbers are pushed and operators consume a constant number of operands",
+        "no token is revisited",
+        "stack operations stay amortized constant time"
       ],
       "min_points": 2
     },
     {
-      "question": "How does division truncate toward zero here?",
+      "question": "What breaks if division truncates the wrong direction for negatives?",
       "expected_points": [
-        "int(a/b) in Python 3 via trunc",
-        "not floor for negatives",
-        "match the statement"
+        "the problem requires truncation toward zero",
+        "floor division would give a different integer for negative quotients",
+        "tests with negative operands catch that mistake",
+        "casting the true ratio toward zero matches the statement"
       ],
       "min_points": 2
     },
     {
       "question": "Why is the right operand popped before the left?",
       "expected_points": [
-        "stack LIFO",
-        "expression order",
-        "a op b needs a then b"
+        "stack order is last-in first-out",
+        "the expression a op b needs a underneath b",
+        "popping twice yields b first then a",
+        "reversing that order would compute b op a instead"
       ],
       "min_points": 2
     }

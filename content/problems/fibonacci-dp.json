@@ -80,27 +80,30 @@
     {
       "question": "How does bottom-up Fibonacci avoid the exponential recursion tree?",
       "expected_points": [
-        "store prior two values",
-        "each n computed once",
-        "O(n) time O(1) space possible"
+        "each value depends only on the previous two stored answers",
+        "every index is computed once",
+        "time is linear and space can stay constant with two rolling variables",
+        "top-down recursion without memoization recomputes the same tails repeatedly"
       ],
       "min_points": 2
     },
     {
       "question": "What are F(0) and F(1)?",
       "expected_points": [
-        "0 and 1",
-        "base cases",
-        "start the loop"
+        "F(0) is zero and F(1) is one",
+        "those identities are the recurrence base cases",
+        "the loop starts after those seeds",
+        "different bases would generate a different sequence"
       ],
       "min_points": 2
     },
     {
-      "question": "Why is F(n) = F(n-1) + F(n-2) enough?",
+      "question": "Why is F(n) equal to F(n-1) plus F(n-2) enough?",
       "expected_points": [
-        "definition of Fibonacci",
-        "overlapping subproblems reused",
-        "no missing branches"
+        "that equality is the definition of Fibonacci",
+        "overlapping subproblems are exactly those two predecessors",
+        "no other branches are missing once the bases are set",
+        "bottom-up evaluation fills them in increasing order"
       ],
       "min_points": 2
     }

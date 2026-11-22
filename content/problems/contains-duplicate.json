@@ -146,29 +146,32 @@
   ],
   "viva": [
     {
-      "question": "How does a set check for duplicates in linear time?",
+      "question": "What is the time cost of detecting a duplicate with a hash set?",
       "expected_points": [
-        "O(n) scan",
-        "membership test is amortized O(1)",
-        "space O(n) for the set"
+        "one linear scan over the array is enough",
+        "each membership test is amortized constant time",
+        "extra space grows with the number of distinct values",
+        "you can stop at the first clash instead of finishing the array"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens on an empty list or a list of length one?",
+      "question": "What breaks for an empty list or a single-element list?",
       "expected_points": [
-        "no duplicates possible",
-        "return false",
-        "loop never finds a clash"
+        "no second occurrence can exist",
+        "the correct answer is false",
+        "the set never sees a collision",
+        "length under two is an immediate no-duplicate case"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does seeing a value already in the set prove a duplicate immediately?",
+      "question": "Why does finding a value already in the set prove a duplicate immediately?",
       "expected_points": [
-        "set stores values already visited",
-        "second insert attempt means repeat",
-        "no need to finish the array"
+        "the set stores every value already visited",
+        "a second sighting means the multiset is not unique",
+        "later elements cannot undo an earlier clash",
+        "the invariant is that the set equals the unique prefix so far"
       ],
       "min_points": 2
     }

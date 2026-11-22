@@ -122,27 +122,30 @@
     {
       "question": "What is the time cost of a recursive max-depth walk?",
       "expected_points": [
-        "visit each node once",
-        "O(n) time",
-        "stack O(h)"
+        "every node is visited once",
+        "work is linear in the number of nodes",
+        "call-stack depth tracks the height of the tree",
+        "each node combines left and right answers in constant time"
       ],
       "min_points": 2
     },
     {
       "question": "What is the depth of an empty tree?",
       "expected_points": [
-        "0",
-        "null base case",
-        "no nodes"
+        "a null root has depth zero",
+        "that null check is the recursion base case",
+        "no nodes means no edges downward",
+        "returning zero lets parents compute 1 plus child depth correctly"
       ],
       "min_points": 2
     },
     {
-      "question": "Why is depth 1 + max(left, right)?",
+      "question": "Why is depth equal to one plus the max of the child depths?",
       "expected_points": [
-        "edge down to a child",
-        "taller subtree wins",
-        "combine after recursion"
+        "the edge from the root to a child adds one level",
+        "the taller subtree determines the height",
+        "both subtrees are fully measured before the combination",
+        "the invariant is that a node's depth answer assumes correct child answers"
       ],
       "min_points": 2
     }

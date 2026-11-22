@@ -168,27 +168,30 @@
     {
       "question": "Why does BFS give the shortest path length in an unweighted graph?",
       "expected_points": [
-        "explore by distance layers",
-        "first time reached is minimal hops",
-        "queue order"
+        "nodes are explored by increasing distance layers",
+        "the first time a node is reached is via a minimum number of hops",
+        "the queue order enforces that layer discipline",
+        "weighted graphs would need a different algorithm"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the destination is unreachable?",
+      "question": "What breaks when the destination is unreachable?",
       "expected_points": [
-        "return -1 or sentinel",
-        "queue empties",
-        "never dequeued target"
+        "the queue empties without ever dequeuing the target",
+        "the algorithm returns the agreed sentinel such as -1",
+        "visited marks never include the destination",
+        "reporting a partial distance would invent a path"
       ],
       "min_points": 2
     },
     {
       "question": "Why mark visited when enqueuing rather than when dequeuing?",
       "expected_points": [
-        "avoid duplicate queue entries",
-        "first enqueue is shortest",
-        "keeps BFS efficient"
+        "the first enqueue already corresponds to a shortest path",
+        "later attempts would only create duplicate queue entries",
+        "marking early keeps BFS memory and time efficient",
+        "dequeuing-only marks allow many equal-length paths to pile up"
       ],
       "min_points": 2
     }

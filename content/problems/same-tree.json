@@ -137,29 +137,32 @@
   ],
   "viva": [
     {
-      "question": "How do you compare two trees in linear time?",
+      "question": "Why can you compare two trees in linear time?",
       "expected_points": [
-        "recurse on pairs of nodes",
-        "values and structure",
-        "O(n)"
+        "each corresponding pair of nodes is examined once",
+        "values and null structure are checked together",
+        "a mismatch can reject without walking the rest",
+        "total work is proportional to the smaller differing size, at most O(n)"
       ],
       "min_points": 2
     },
     {
       "question": "When are two null roots considered the same?",
       "expected_points": [
-        "both empty",
-        "true",
-        "structure matches"
+        "both empty trees have identical structure",
+        "the comparison returns true",
+        "null versus null is the successful base case",
+        "no values remain to disagree"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does a null vs non-null mismatch fail immediately?",
+      "question": "Why does a null versus non-null mismatch fail immediately?",
       "expected_points": [
-        "shapes differ",
-        "no need to compare values",
-        "short-circuit false"
+        "the shapes already differ",
+        "comparing values would be meaningless",
+        "short-circuiting avoids walking a nonexistent child",
+        "the trees cannot be equal once structure diverges"
       ],
       "min_points": 2
     }

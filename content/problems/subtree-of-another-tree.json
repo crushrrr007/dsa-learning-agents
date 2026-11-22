@@ -198,29 +198,32 @@
   ],
   "viva": [
     {
-      "question": "What is a typical cost to test whether subRoot appears inside root?",
+      "question": "What is a typical cost of testing whether subRoot appears inside root?",
       "expected_points": [
-        "walk root",
-        "same-tree checks at candidates",
-        "O(n m) worst case"
+        "you walk candidate nodes in root",
+        "each candidate may run a same-tree check against subRoot",
+        "worst-case time multiplies the sizes of the two trees",
+        "early mismatches prune many same-tree attempts"
       ],
       "min_points": 2
     },
     {
-      "question": "What if subRoot is null or root is null?",
+      "question": "What breaks when root is null but subRoot is not?",
       "expected_points": [
-        "null subtree often true",
-        "null root only if subRoot null",
-        "follow statement"
+        "an empty tree cannot contain a nonempty pattern",
+        "the answer is false in that case",
+        "a null subRoot is the usual vacuous true case if the statement allows it",
+        "you must follow the problem's null conventions exactly"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must values and structure both match for a subtree?",
+      "question": "Why must both values and structure match for a subtree?",
       "expected_points": [
-        "same-tree on the aligned roots",
-        "extra child breaks it",
-        "isomorphism of that fragment"
+        "a same-tree check on the aligned roots is required",
+        "an extra child in either fragment breaks the match",
+        "matching values alone ignores missing or extra branches",
+        "the fragment must be isomorphic to subRoot"
       ],
       "min_points": 2
     }

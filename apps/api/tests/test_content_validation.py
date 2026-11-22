@@ -217,8 +217,8 @@ def test_problem_content_file(path: Path):
             f"{pid} viva[{vi}]: question required"
         )
         points = item.get("expected_points")
-        assert isinstance(points, list) and len(points) >= 1, (
-            f"{pid} viva[{vi}]: expected_points must be a non-empty list"
+        assert isinstance(points, list) and 3 <= len(points) <= 4, (
+            f"{pid} viva[{vi}]: expected_points must have 3-4 items, got {len(points) if isinstance(points, list) else points}"
         )
         assert all(isinstance(p, str) and p.strip() for p in points), (
             f"{pid} viva[{vi}]: expected_points must be non-empty strings"

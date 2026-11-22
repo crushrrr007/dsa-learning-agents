@@ -126,29 +126,32 @@
   ],
   "viva": [
     {
-      "question": "What constrains adding '(' vs ')' while generating n pairs?",
+      "question": "What constrains adding '(' versus ')' while building n pairs?",
       "expected_points": [
-        "open < n to add '('",
-        "close < open to add ')'",
-        "build only valid prefixes"
+        "you may add an opener only while fewer than n are open",
+        "you may add a closer only while closers stay below openers",
+        "those rules keep every prefix balanced enough to finish",
+        "violating either rule produces a string that can never become valid"
       ],
       "min_points": 2
     },
     {
       "question": "Why return the strings in lexicographic order?",
       "expected_points": [
-        "statement requires sorted",
-        "canonical grading",
-        "sort at the end if needed"
+        "the statement demands a canonical sorted list",
+        "strict equality grading depends on that order",
+        "sorting at the end is enough if generation order differs",
+        "unsorted duplicates of the same set would look like a wrong answer"
       ],
       "min_points": 2
     },
     {
-      "question": "Why never allow more closers than openers in a prefix?",
+      "question": "Why never allow more closers than openers in any prefix?",
       "expected_points": [
-        "would be invalid",
-        "balance invariant",
-        "stack view of openers"
+        "that prefix would already be invalid parentheses",
+        "there would be no opener left on a stack view to match the closer",
+        "the balance invariant forbids a negative running count",
+        "later openers cannot repair an earlier deficit"
       ],
       "min_points": 2
     }

@@ -154,29 +154,32 @@
   ],
   "viva": [
     {
-      "question": "How can you check a palindrome list in O(n) time and O(1) extra space?",
+      "question": "How can you check a palindrome list in linear time and constant extra space?",
       "expected_points": [
-        "find middle",
-        "reverse second half",
-        "compare halves"
+        "finding the middle takes one linear pass",
+        "reversing the second half uses constant extra pointers",
+        "comparing the two halves is another linear pass",
+        "overall time is linear and heap space stays constant"
       ],
       "min_points": 2
     },
     {
-      "question": "What about a one-node or two-node list?",
+      "question": "What breaks for a one-node or two-node list if you assume a long second half?",
       "expected_points": [
-        "one node true",
-        "two nodes compare equality",
-        "middle finding still works"
+        "a one-node list is always a palindrome",
+        "a two-node list only compares the pair of values",
+        "middle finding still terminates correctly on short lists",
+        "reversing an empty or tiny second half is a no-op"
       ],
       "min_points": 2
     },
     {
-      "question": "Why reverse only the second half?",
+      "question": "Why reverse only the second half before comparing?",
       "expected_points": [
-        "compare forward vs reversed tail",
-        "first half stays intact",
-        "values must mirror"
+        "the first half stays in its original order for forward comparison",
+        "the reversed tail should mirror the first half on a palindrome",
+        "values must match pairwise from the outside in",
+        "reversing the whole list would lose the half-split alignment"
       ],
       "min_points": 2
     }

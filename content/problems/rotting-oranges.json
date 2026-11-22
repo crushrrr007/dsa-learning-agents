@@ -209,27 +209,30 @@
     {
       "question": "Why is multi-source BFS natural for rotting oranges?",
       "expected_points": [
-        "all initial rotten in the queue",
-        "minutes = layers",
-        "fresh count tracks remaining"
+        "every initially rotten orange starts in the queue together",
+        "each BFS layer corresponds to one simultaneous minute",
+        "fresh oranges are infected by adjacency in those layers",
+        "a remaining fresh count detects oranges that never rot"
       ],
       "min_points": 2
     },
     {
-      "question": "What if a fresh orange is sealed away from any rotten one?",
+      "question": "What breaks if a fresh orange is sealed away from every rotten one?",
       "expected_points": [
-        "impossible",
-        "return -1",
-        "fresh remain after BFS"
+        "BFS cannot reach that orange",
+        "fresh oranges remain after the queue drains",
+        "the answer is the impossibility sentinel such as -1",
+        "minutes alone cannot fix disconnected freshness"
       ],
       "min_points": 2
     },
     {
       "question": "Why process the queue level by level?",
       "expected_points": [
-        "one minute per layer",
-        "simultaneous rot",
-        "distance from nearest rotten"
+        "one minute advances every currently rotting frontier together",
+        "layer distance equals minutes from the nearest initial rotten orange",
+        "mixing layers would desynchronize the clock",
+        "the invariant is that all oranges in a layer share the same infection time"
       ],
       "min_points": 2
     }

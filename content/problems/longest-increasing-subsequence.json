@@ -164,29 +164,32 @@
   ],
   "viva": [
     {
-      "question": "What is a simple O(n^2) DP for LIS length?",
+      "question": "What is a simple quadratic DP for the LIS length?",
       "expected_points": [
-        "dp[i]=max over j<i with nums[j]<nums[i]",
-        "plus one",
-        "answer max dp"
+        "dp[i] is the best increasing length ending at index i",
+        "each i looks back at earlier j with a smaller value",
+        "the answer is the maximum among all dp[i]",
+        "total pairs (j, i) make the time quadratic"
       ],
       "min_points": 2
     },
     {
-      "question": "What is LIS length for a strictly decreasing array?",
+      "question": "What is the LIS length of a strictly decreasing array?",
       "expected_points": [
-        "1",
-        "no ascent",
-        "each dp[i]=1"
+        "no ascent exists so every dp[i] stays one",
+        "the overall answer is one",
+        "singletons are still valid increasing subsequences",
+        "any attempt to extend fails the strict less-than test"
       ],
       "min_points": 2
     },
     {
       "question": "Why only extend from a strictly smaller previous value?",
       "expected_points": [
-        "strictly increasing required",
-        "equal values blocked",
-        "subsequence order preserved"
+        "the subsequence must be strictly increasing",
+        "equal values are not allowed to extend",
+        "order of indices is already enforced by j less than i",
+        "using a larger previous value would break increase"
       ],
       "min_points": 2
     }

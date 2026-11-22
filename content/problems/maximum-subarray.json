@@ -154,27 +154,30 @@
     {
       "question": "What is the time cost of Kadane versus trying every subarray?",
       "expected_points": [
-        "Kadane O(n)",
-        "brute O(n^2)",
-        "one running best ending here"
+        "Kadane finishes in linear time",
+        "enumerating every subarray is quadratic",
+        "each index updates a best sum ending here once",
+        "the global answer is tracked alongside the local best"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must the subarray be nonempty, and what do you return for an all-negative array?",
+      "question": "What breaks if you allow an empty subarray on an all-negative input?",
       "expected_points": [
-        "at least one element",
-        "largest single element if all negative",
-        "cannot take empty sum"
+        "the statement requires a nonempty subarray",
+        "the answer is the largest single element when all values are negative",
+        "resetting to zero would invent an empty sum of zero",
+        "empty sums violate the at-least-one-element rule"
       ],
       "min_points": 2
     },
     {
-      "question": "When do you reset the running sum instead of extending it?",
+      "question": "Why reset the running sum instead of extending it when the running sum goes bad?",
       "expected_points": [
-        "when extending hurts",
-        "start fresh at current index",
-        "track global max each step"
+        "extending a negative prefix cannot help a future optimum",
+        "starting fresh at the current index restores a valid nonempty candidate",
+        "the global max still remembers earlier better segments",
+        "the invariant is best-ending-here versus best-anywhere"
       ],
       "min_points": 2
     }

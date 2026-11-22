@@ -125,29 +125,32 @@
   ],
   "viva": [
     {
-      "question": "What is the cost of the variable window that tracks the richest character count?",
+      "question": "What is the time cost of the variable window that tracks the richest character count?",
       "expected_points": [
-        "O(n) with a count map",
-        "window valid when length - maxf <= k",
-        "left advances when invalid"
+        "each pointer moves at most once across the string",
+        "count updates are constant time per character",
+        "a window is valid while length minus max frequency is at most k",
+        "overall time is linear in the string length"
       ],
       "min_points": 2
     },
     {
-      "question": "What if k is 0?",
+      "question": "What breaks when k is zero?",
       "expected_points": [
-        "no changes allowed",
-        "longest run of identical chars",
-        "shrink on any mismatch"
+        "no replacements are allowed",
+        "the window can only cover a run of identical characters",
+        "any mismatch forces the left pointer to shrink",
+        "the answer becomes the longest already-equal run"
       ],
       "min_points": 2
     },
     {
-      "question": "Why is length - max_frequency the number of replacements needed?",
+      "question": "Why is length minus max frequency the number of replacements needed?",
       "expected_points": [
-        "keep the most common char",
-        "others must change",
-        "k budgets those changes"
+        "you keep the most common character in the window for free",
+        "every other character must change to match it",
+        "k is exactly the budget for those changes",
+        "if that quantity exceeds k the window is no longer feasible"
       ],
       "min_points": 2
     }

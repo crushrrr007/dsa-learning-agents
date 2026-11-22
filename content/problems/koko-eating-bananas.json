@@ -163,27 +163,30 @@
     {
       "question": "Why binary-search the eating speed on a monotonic feasibility check?",
       "expected_points": [
-        "higher k always finishes by h if lower does",
-        "search min k",
-        "O(n log maxpile)"
+        "if speed mid finishes by hour h then every larger speed also finishes",
+        "you search for the minimum feasible speed",
+        "each feasibility check scans the piles in linear time",
+        "the number of candidate speeds is logarithmic in the maximum pile"
       ],
       "min_points": 2
     },
     {
-      "question": "What is the smallest possible k you should consider?",
+      "question": "What is the smallest speed you should consider?",
       "expected_points": [
-        "1",
-        "at least one banana per hour",
-        "left bound"
+        "speed one is the lower bound",
+        "Koko must eat at least one banana per hour",
+        "left starts at one rather than zero",
+        "zero would never finish a positive pile"
       ],
       "min_points": 2
     },
     {
-      "question": "Why can you discard speeds above a feasible mid?",
+      "question": "Why discard speeds above a feasible mid while searching for the minimum?",
       "expected_points": [
-        "looking for minimum",
-        "right = mid",
-        "still feasible region shrinks down"
+        "any larger speed is feasible but not minimal",
+        "moving right down to mid keeps the search inside feasible speeds",
+        "the goal is the leftmost feasible value",
+        "keeping higher speeds would only explore non-optimal answers"
       ],
       "min_points": 2
     }

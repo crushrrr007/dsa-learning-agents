@@ -201,27 +201,30 @@
     {
       "question": "What is the typical time cost of fixing one value and scanning with two pointers?",
       "expected_points": [
-        "O(n^2)",
-        "outer loop times linear two-pointer",
-        "sorting O(n log n) upfront"
+        "sorting costs n log n once",
+        "each outer choice pairs with a linear two-pointer scan",
+        "overall time is quadratic in the array length",
+        "hashing every pair would use more memory for the same order of time"
       ],
       "min_points": 2
     },
     {
-      "question": "How do you avoid duplicate triplets in the output?",
+      "question": "What breaks uniqueness if you do not skip equal values after a pick?",
       "expected_points": [
-        "skip equal values after a pick",
-        "canonical sorted triples",
-        "dedupe on each pointer move"
+        "duplicate values create identical triplets",
+        "canonical output sorts each triple and the list of triples",
+        "skipping runs of equals after accepting a triple removes repeats",
+        "strict grading treats duplicate triples as wrong"
       ],
       "min_points": 2
     },
     {
       "question": "Why advance the left pointer when the sum is too small?",
       "expected_points": [
-        "array sorted",
-        "larger left value increases sum",
-        "right moves when sum too big"
+        "the remaining slice is sorted",
+        "a larger left value increases the sum with the fixed right",
+        "shrinking right is reserved for sums that are too large",
+        "the two-pointer invariant keeps one candidate pair for the fixed head"
       ],
       "min_points": 2
     }

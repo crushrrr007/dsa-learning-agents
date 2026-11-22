@@ -144,29 +144,32 @@
   ],
   "viva": [
     {
-      "question": "Why does fast advancing twice as fast land slow on the middle?",
+      "question": "Why does advancing fast twice as fast land slow on the middle?",
       "expected_points": [
-        "fast reaches end when slow at mid",
-        "O(n) time",
-        "O(1) space"
+        "when fast reaches the end slow has taken half as many steps",
+        "the walk is still a single linear pass",
+        "extra memory stays constant",
+        "the 2:1 speed ratio encodes the midpoint without counting length"
       ],
       "min_points": 2
     },
     {
       "question": "What middle do you pick for an even-length list?",
       "expected_points": [
-        "follow the problem\u2019s convention",
-        "often the second middle",
-        "fast null check chooses it"
+        "follow the problem's stated convention for ties",
+        "the usual fast/slow pattern lands on the second middle",
+        "null checks on fast.next choose that landing spot",
+        "both middles are adjacent so the convention must be explicit"
       ],
       "min_points": 2
     },
     {
       "question": "Why is no length counter required?",
       "expected_points": [
-        "two pointers encode the ratio",
-        "single pass enough",
-        "length unknown upfront"
+        "the two speeds already encode the half-length ratio",
+        "a single pass discovers the middle without a prior length scan",
+        "unknown length is fine because termination is null-driven",
+        "counting first would need a second walk to the middle"
       ],
       "min_points": 2
     }

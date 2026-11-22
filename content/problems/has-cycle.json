@@ -147,29 +147,32 @@
   ],
   "viva": [
     {
-      "question": "How do fast and slow pointers detect a cycle in O(n) time and O(1) space?",
+      "question": "Why do fast and slow pointers detect a cycle in linear time and constant space?",
       "expected_points": [
-        "slow one step fast two",
-        "meet \u21d2 cycle",
-        "no extra set of nodes"
+        "slow moves one step while fast moves two",
+        "if a cycle exists they must eventually share a node",
+        "no auxiliary set of visited nodes is required",
+        "acyclic lists end when fast hits null in linear steps"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens on an empty list or a single node without a self-loop?",
+      "question": "What breaks on an empty list or a single node without a self-loop?",
       "expected_points": [
-        "no cycle",
-        "fast becomes null",
-        "return false"
+        "there is no cycle to find",
+        "fast becomes null before any meeting",
+        "the correct answer is false",
+        "a self-loop would be the only one-node cycle case"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must they eventually meet if a cycle exists?",
+      "question": "Why must the pointers meet if a cycle exists?",
       "expected_points": [
-        "fast closes the gap inside the loop",
-        "relative speed one",
-        "cannot skip forever"
+        "inside the loop fast closes the gap at relative speed one",
+        "the distance between them decreases modulo the cycle length",
+        "they cannot skip each other forever in a finite loop",
+        "meeting is equivalent to proving a back-edge was taken"
       ],
       "min_points": 2
     }

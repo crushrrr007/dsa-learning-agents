@@ -153,29 +153,32 @@
   ],
   "viva": [
     {
-      "question": "How does a monotonic stack find the largest rectangle in O(n)?",
+      "question": "Why does a monotonic stack find the largest rectangle in linear time?",
       "expected_points": [
-        "increasing heights indices",
-        "pop when smaller bar arrives",
-        "width from new bounds"
+        "each bar index is pushed once and popped at most once",
+        "a shorter bar to the right closes the width of taller waiting bars",
+        "area is computed when a bar is popped using the new left and right bounds",
+        "amortized work across all bars stays linear"
       ],
       "min_points": 2
     },
     {
-      "question": "What about a single bar or all equal heights?",
+      "question": "What is the largest rectangle for a single bar or for all equal heights?",
       "expected_points": [
-        "area = height * 1 or n",
-        "stack drains at end",
-        "sentinel zero helps"
+        "a single bar has area equal to its own height",
+        "n equal bars form a rectangle of height times n",
+        "draining the stack at the end with a zero sentinel forces those areas to be counted",
+        "forgetting the sentinel leaves the final increasing run unprocessed"
       ],
       "min_points": 2
     },
     {
       "question": "Why does a smaller bar to the right bound the width of taller bars?",
       "expected_points": [
-        "cannot extend past a shorter neighbor",
-        "pop computes area",
-        "left bound is new stack top"
+        "a rectangle of tall height cannot extend past a shorter neighbor",
+        "the popped bar's right boundary is the current index",
+        "its left boundary is the new stack top after the pop",
+        "those bounds are exactly where the height remains at least that bar's height"
       ],
       "min_points": 2
     }

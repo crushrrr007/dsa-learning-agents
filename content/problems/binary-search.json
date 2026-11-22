@@ -173,29 +173,32 @@
   ],
   "viva": [
     {
-      "question": "Why is classic binary search O(log n) on a sorted array?",
+      "question": "Why is classic binary search logarithmic on a sorted array?",
       "expected_points": [
-        "halve the range each step",
-        "mid comparison",
-        "left/right move"
+        "each comparison discards half of the remaining range",
+        "the mid index splits left and right into smaller halves",
+        "the number of steps grows with log of the array length",
+        "unsorted data would make those discards unsafe"
       ],
       "min_points": 2
     },
     {
       "question": "What do you return when the target is absent?",
       "expected_points": [
-        "-1",
-        "range becomes empty",
-        "left > right"
+        "the answer is -1",
+        "the search range becomes empty when left passes right",
+        "no mid ever equals the target",
+        "returning an insert index would solve a different problem"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must the array be sorted for this discard to be safe?",
+      "question": "Why must the array be sorted for discarding a half to be safe?",
       "expected_points": [
-        "order decides which half can hold target",
-        "unsorted breaks the invariant",
-        "mid comparison meaningless otherwise"
+        "order decides which side can still hold the target",
+        "a mid comparison is meaningless without monotonic order",
+        "the invariant is that the target lies in [left, right] if it exists",
+        "breaking sortedness can drop the target from both halves"
       ],
       "min_points": 2
     }

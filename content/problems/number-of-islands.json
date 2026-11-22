@@ -223,29 +223,32 @@
   ],
   "viva": [
     {
-      "question": "Why is DFS/BFS flood-fill O(m n) on the grid?",
+      "question": "Why is DFS or BFS flood-fill linear in the number of grid cells?",
       "expected_points": [
-        "each cell visited once",
-        "mark land as seen",
-        "islands counted at new lands"
+        "each cell is marked visited at most once",
+        "every edge to a neighbor is examined a constant number of times",
+        "islands are counted only when a new unvisited land cell starts a flood",
+        "water cells are skipped without expanding"
       ],
       "min_points": 2
     },
     {
-      "question": "What does an all-water grid return?",
+      "question": "What is the answer on an all-water grid?",
       "expected_points": [
-        "0 islands",
-        "never start a flood",
-        "no '1' cells"
+        "there are zero islands",
+        "no flood ever starts",
+        "no land cell with value one appears",
+        "the visited structure stays empty"
       ],
       "min_points": 2
     },
     {
       "question": "Why mark a cell visited when you start flooding it?",
       "expected_points": [
-        "avoid recounting",
-        "prevent revisiting neighbors",
-        "connects the component"
+        "otherwise the same land would be counted again",
+        "neighbor expansion must not revisit the cell",
+        "the component becomes a single connected region under that mark",
+        "deferred marking can explode into repeated searches"
       ],
       "min_points": 2
     }

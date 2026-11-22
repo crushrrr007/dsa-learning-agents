@@ -157,29 +157,32 @@
   ],
   "viva": [
     {
-      "question": "What does a True at dp[i] mean in word break?",
+      "question": "What does a True entry at dp[i] mean for word break?",
       "expected_points": [
-        "prefix s[:i] can be segmented",
-        "dict word ending at i",
-        "O(n^2) typical"
+        "the prefix s[:i] can be segmented into dictionary words",
+        "some dictionary word ends exactly at index i",
+        "later positions only extend prefixes that are already True",
+        "filling the table is typically quadratic in the string length"
       ],
       "min_points": 2
     },
     {
-      "question": "What about an empty string?",
+      "question": "What breaks for the empty prefix if dp[0] is left False?",
       "expected_points": [
-        "dp[0]=True",
-        "vacuous segmentation",
-        "base for later"
+        "the empty prefix is a vacuous successful segmentation",
+        "dp[0] must start True so the first word has a place to attach",
+        "a False base blocks every later transition",
+        "amount-style sentinels are the wrong tool here; a Boolean base is required"
       ],
       "min_points": 2
     },
     {
-      "question": "Why check every j < i with dp[j] and s[j:i] in the dict?",
+      "question": "Why check every j less than i with dp[j] true and s[j:i] in the dictionary?",
       "expected_points": [
-        "split after a good prefix",
-        "word completes the gap",
-        "OR over splits"
+        "a successful split needs a good prefix then a dictionary word",
+        "the word completes the gap from j to i",
+        "any one valid j is enough so the recurrence ORs over splits",
+        "skipping a feasible j would miss a legal segmentation"
       ],
       "min_points": 2
     }

@@ -211,29 +211,32 @@
   ],
   "viva": [
     {
-      "question": "Why is adding digit-by-digit with a carry O(max(m, n))?",
+      "question": "Why is digit-by-digit addition with a carry linear in the longer list?",
       "expected_points": [
-        "one pass over both lists",
-        "carry is 0 or 1 mostly",
-        "output length at most max+1"
+        "each step consumes one digit from each input when available",
+        "carry is a constant-size piece of state",
+        "output length is at most one more than the longer input",
+        "no digit is processed more than a constant number of times"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the final carry is still 1 after both lists end?",
+      "question": "What breaks if you drop a leftover carry after both lists end?",
       "expected_points": [
-        "append an extra node",
-        "value 1",
-        "do not drop the carry"
+        "a final carry of one needs an extra node",
+        "that node stores the most significant digit",
+        "omitting it undercounts the sum by a power of ten",
+        "the loop must continue while carry remains even if both lists are null"
       ],
       "min_points": 2
     },
     {
-      "question": "Why process least-significant digits first as given?",
+      "question": "Why process least-significant digits first as the lists are given?",
       "expected_points": [
-        "lists already store reverse order",
-        "carry flows to the next more significant digit",
-        "matches paper addition"
+        "the lists already store digits in reverse order",
+        "carry flows toward more significant places just like paper addition",
+        "aligning from the heads matches that reverse layout",
+        "starting from the opposite end would need length equalization first"
       ],
       "min_points": 2
     }

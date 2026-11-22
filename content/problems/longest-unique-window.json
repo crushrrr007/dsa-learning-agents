@@ -108,29 +108,32 @@
   ],
   "viva": [
     {
-      "question": "How does a variable window find the longest substring without repeats in O(n)?",
+      "question": "Why does a variable window find the longest substring without repeats in linear time?",
       "expected_points": [
-        "expand right",
-        "shrink left on duplicate",
-        "each index moves at most once"
+        "the right pointer expands across each character once",
+        "the left pointer only moves forward when a duplicate appears",
+        "each index advances at most once so work is linear",
+        "the window always stores a range of distinct characters"
       ],
       "min_points": 2
     },
     {
-      "question": "What is the answer for an empty string or all unique characters?",
+      "question": "What is the answer for an empty string or a string of all unique characters?",
       "expected_points": [
-        "empty \u2192 0",
-        "all unique \u2192 full length",
-        "window never shrinks if unique"
+        "an empty string has length zero",
+        "an all-unique string has length equal to the whole input",
+        "the window never shrinks if every character is new",
+        "those extremes still obey the distinct-character invariant"
       ],
       "min_points": 2
     },
     {
       "question": "Why move left past the previous index of a repeated character?",
       "expected_points": [
-        "restores uniqueness",
-        "discard the old occurrence",
-        "invariant: window has distinct chars"
+        "that restores uniqueness inside the window",
+        "the old occurrence can no longer collide with the new one",
+        "the invariant is that every character in the window appears once",
+        "leaving the old index inside would keep a duplicate"
       ],
       "min_points": 2
     }

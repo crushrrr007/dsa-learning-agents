@@ -160,29 +160,32 @@
   ],
   "viva": [
     {
-      "question": "How can two pointers trap water in O(n) time and O(1) extra space?",
+      "question": "What is the time and extra-space cost of trapping rain with two pointers?",
       "expected_points": [
-        "track left_max and right_max",
-        "fill from the side with smaller max",
-        "single pass"
+        "one linear pass over the elevation map is enough",
+        "extra memory stays constant beyond a few scalars",
+        "each index is charged water at most once",
+        "left_max and right_max update in constant time per step"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens on a strictly increasing height array?",
+      "question": "What breaks on a strictly increasing height array?",
       "expected_points": [
-        "no water trapped",
-        "left_max always grows",
-        "nothing bounded on the right yet"
+        "no right wall is ever shorter than the water level on the left",
+        "left_max grows with every step so nothing is enclosed yet",
+        "the trapped volume stays zero",
+        "water needs a lower bar bounded by taller walls on both sides"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does water at i equal max_so_far - height[i] on the bounded side?",
+      "question": "Why does water at index i equal the lower bounding max minus height[i]?",
       "expected_points": [
-        "water level set by the lower bounding max",
-        "bar itself displaces that much",
-        "cannot exceed the opposite bound"
+        "the water surface is limited by the smaller of the two side maxima",
+        "the bar itself displaces height[i] units of that column",
+        "the column cannot rise above the opposite bound either",
+        "the two-pointer rule always fills from the side whose max is currently smaller"
       ],
       "min_points": 2
     }

@@ -155,29 +155,32 @@
   ],
   "viva": [
     {
-      "question": "What does dp[x] represent in coin change, and what is the time cost?",
+      "question": "What does dp[x] represent and what is the time cost of filling it?",
       "expected_points": [
-        "fewest coins for amount x",
-        "O(amount * coins)",
-        "min over coin transitions"
+        "dp[x] is the fewest coins that make amount x",
+        "each amount tries every coin denomination",
+        "time is proportional to amount times the number of coins",
+        "unreachable amounts keep a large sentinel instead of a fake zero"
       ],
       "min_points": 2
     },
     {
-      "question": "What do you return when amount cannot be formed?",
+      "question": "What do you return when the amount cannot be formed?",
       "expected_points": [
-        "-1",
-        "dp stays at infinity sentinel",
-        "unreachable state"
+        "the answer is -1",
+        "the sentinel at dp[amount] was never improved",
+        "that means no combination of coins reaches the target",
+        "returning zero would confuse the valid zero-coin case for amount zero"
       ],
       "min_points": 2
     },
     {
       "question": "Why does trying each coin from a reachable x preserve optimality?",
       "expected_points": [
-        "optimal substructure",
-        "min of candidates",
-        "unlimited coin use"
+        "fewest coins has optimal substructure",
+        "the recurrence takes the minimum among valid previous states",
+        "unlimited supply means a coin can be reused through those transitions",
+        "any better solution would imply a better sub-solution for a smaller amount"
       ],
       "min_points": 2
     }

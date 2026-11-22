@@ -225,29 +225,32 @@
   ],
   "viva": [
     {
-      "question": "How do you compute the largest island area in O(m n)?",
+      "question": "How do you compute the largest island area in linear time over the grid?",
       "expected_points": [
-        "flood each unvisited land",
-        "count cells per component",
-        "track max"
+        "each land cell is flooded at most once",
+        "the flood returns the count of cells in that component",
+        "a global maximum tracks the best count",
+        "water cells contribute zero and are skipped"
       ],
       "min_points": 2
     },
     {
       "question": "What is the area when there is no land?",
       "expected_points": [
-        "0",
-        "max stays 0",
-        "no floods start"
+        "the maximum stays at zero",
+        "no flood starts from a land cell",
+        "the answer is zero",
+        "empty grids and all-water grids share that result"
       ],
       "min_points": 2
     },
     {
-      "question": "Why add 1 for the current cell plus recursive neighbor areas?",
+      "question": "Why add one for the current cell plus the recursive neighbor areas?",
       "expected_points": [
-        "cell is land",
-        "neighbors extend the island",
-        "disjoint cells counted once via visited"
+        "the current land cell belongs to the island",
+        "neighbors extend the same connected component",
+        "visited marks ensure each cell is counted once",
+        "the sum is exactly the component size"
       ],
       "min_points": 2
     }

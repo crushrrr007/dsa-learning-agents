@@ -191,29 +191,32 @@
   ],
   "viva": [
     {
-      "question": "How does a lead pointer n steps ahead remove the nth-from-end in one pass?",
+      "question": "Why does a lead pointer n steps ahead remove the nth-from-end in one pass?",
       "expected_points": [
-        "gap of n between pointers",
-        "when lead hits end, drop follower\u2019s next",
-        "O(n) time"
+        "the fixed gap of n means follower sits before the victim when lead hits null",
+        "rewiring follower.next drops the target node",
+        "total time stays linear in the list length",
+        "a dummy head keeps the predecessor well-defined even near the front"
       ],
       "min_points": 2
     },
     {
-      "question": "What if n equals the length of the list?",
+      "question": "What breaks when n equals the length of the list?",
       "expected_points": [
-        "remove the head",
-        "dummy node helps",
-        "new head is old second"
+        "the node to remove is the original head",
+        "the dummy's next becomes the new head",
+        "without a dummy you would need a special case for deleting head",
+        "the lead pointer reaches null after exactly n steps from dummy"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does the gap of n place follower just before the victim?",
+      "question": "Why does a gap of n place follower just before the victim?",
       "expected_points": [
-        "lead at null means follower at predecessor",
-        "rewire next",
-        "victim unlinked"
+        "lead at null means n nodes remain after follower",
+        "the next node after follower is therefore the nth from the end",
+        "unlinking that next removes the victim",
+        "the invariant is distance(lead, follower) equals n throughout"
       ],
       "min_points": 2
     }

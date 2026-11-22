@@ -128,29 +128,32 @@
   ],
   "viva": [
     {
-      "question": "Why is inverting a binary tree O(n)?",
+      "question": "Why is inverting a binary tree linear in the number of nodes?",
       "expected_points": [
-        "swap every node\u2019s children",
-        "each node once",
-        "recursion or BFS"
+        "every node swaps its two children once",
+        "each node is processed a constant number of times",
+        "recursion or BFS still touch the whole tree once",
+        "extra memory is only the traversal frontier or call stack"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens at a null node?",
+      "question": "What breaks at a null node if you try to swap children anyway?",
       "expected_points": [
-        "return null",
-        "base case",
-        "nothing to swap"
+        "null is the base case and returns immediately",
+        "there are no children to exchange",
+        "skipping the null check would dereference an empty node",
+        "parents already treat null as an empty subtree"
       ],
       "min_points": 2
     },
     {
-      "question": "Why swap left and right before or after recursing still works?",
+      "question": "Why does swapping before or after recursing still invert the whole tree?",
       "expected_points": [
-        "all nodes eventually swapped",
-        "structure mirrored",
-        "order of subtree invert commuting"
+        "every node eventually exchanges its children exactly once",
+        "subtree shapes are mirrored regardless of swap timing",
+        "the final structure is the mirror image of the original",
+        "order of subtree inversion commutes with the local swap"
       ],
       "min_points": 2
     }

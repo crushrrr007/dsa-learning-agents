@@ -184,29 +184,32 @@
   ],
   "viva": [
     {
-      "question": "What is the time and space cost of the Dutch-national-flag three-way partition?",
+      "question": "What is the time and space cost of the three-way Dutch-national-flag partition?",
       "expected_points": [
-        "O(n) one pass",
-        "O(1) extra space",
-        "three pointers low mid high"
+        "one linear pass classifies every element",
+        "extra memory stays constant",
+        "low, mid, and high pointers maintain three regions",
+        "each swap moves an element into its final band"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the array contains only 2s?",
+      "question": "What breaks if the array contains only 2s and you forget to shrink high?",
       "expected_points": [
-        "high shrinks to the start",
-        "mid never swaps a 0 or 1",
-        "still sorted"
+        "high must move left across every trailing 2",
+        "mid alone cannot finish the partition",
+        "the array is still sorted only if high drains those 2s",
+        "leaving high stuck leaves the invariant unfinished"
       ],
       "min_points": 2
     },
     {
-      "question": "Why swap 0s to the left and 2s to the right while scanning mid?",
+      "question": "Why swap 0s left and 2s right while mid scans unknowns?",
       "expected_points": [
-        "keeps 1s in the middle band",
-        "invariant on [0,low) and (high,end]",
-        "mid explores unknowns"
+        "the band before low is all zeros by invariant",
+        "the band after high is all twos by invariant",
+        "ones naturally collect in the middle as unknowns resolve",
+        "mid only advances through values that already belong in the middle band"
       ],
       "min_points": 2
     }

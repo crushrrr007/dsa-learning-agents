@@ -105,29 +105,32 @@
   ],
   "viva": [
     {
-      "question": "Why does a stack validate brackets in O(n)?",
+      "question": "Why does a stack validate brackets in linear time?",
       "expected_points": [
-        "push openers",
-        "pop on matching closer",
-        "empty at end"
+        "each character is pushed or matched at most once",
+        "extra memory grows with nesting depth rather than with repeated scans",
+        "a final empty stack means every opener found a closer",
+        "the whole string is processed in one forward pass"
       ],
       "min_points": 2
     },
     {
-      "question": "What fails on a single closing bracket or an unclosed opener?",
+      "question": "What breaks on a lone closer or an opener left unclosed?",
       "expected_points": [
-        "stack empty on closer",
-        "leftover openers",
-        "return false"
+        "a closer with an empty stack has no matching opener",
+        "openers left on the stack at the end never found closers",
+        "either case must return false",
+        "balance alone is not enough if types or order are wrong"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must the popped opener match the closer\u2019s type?",
+      "question": "Why must the popped opener match the closer's type?",
       "expected_points": [
-        "ordering nested correctly",
-        "wrong type means mismatch",
-        "LIFO remembers latest opener"
+        "nested brackets require last-in openers to close first",
+        "a type mismatch means the nesting order is wrong",
+        "the stack top is exactly the most recent unmatched opener",
+        "crossing pairs would pop a different type than the closer expects"
       ],
       "min_points": 2
     }

@@ -185,29 +185,32 @@
   ],
   "viva": [
     {
-      "question": "How can you get the k most frequent values faster than sorting the whole array?",
+      "question": "What is the time cost of finding the k most frequent values without sorting the whole array by value?",
       "expected_points": [
-        "count frequencies in O(n)",
-        "bucket or heap by count",
-        "avoid full O(n log n) value sort when possible"
+        "counting frequencies is linear in the array length",
+        "selecting by count can use buckets or a heap instead of a full value sort",
+        "a full sort of all values would cost n log n even when k is small",
+        "the hot path only needs the top k counts"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens when several values share the same frequency?",
+      "question": "What breaks if several values share the same frequency and you ignore the tie rule?",
       "expected_points": [
-        "canonical tie-break by sorting value",
-        "still return exactly k",
-        "stable ordering rule in the statement"
+        "the statement requires a canonical order on ties",
+        "equal counts are broken by sorting the values",
+        "you must still return exactly k results",
+        "unstable ties make strict equality grading fail"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does a frequency map let you decide which values belong in the answer?",
+      "question": "Why does a frequency map decide which values belong in the answer?",
       "expected_points": [
-        "map value\u2192count",
-        "select the k largest counts",
-        "ignore rare keys"
+        "it records how often each value appears",
+        "the answer is the k keys with the largest counts",
+        "rare keys fall below the cutoff and are dropped",
+        "without counts you cannot compare popularity"
       ],
       "min_points": 2
     }

@@ -152,27 +152,30 @@
     {
       "question": "What is the time and space cost of iteratively reversing a linked list?",
       "expected_points": [
-        "O(n) time",
-        "O(1) extra pointers",
-        "each next rewired once"
+        "each node is rewired a constant number of times",
+        "total time is linear in the number of nodes",
+        "only a few pointers of extra memory are used",
+        "the next reference of every node flips exactly once"
       ],
       "min_points": 2
     },
     {
-      "question": "What are the head and next of an empty list or a one-node list after reverse?",
+      "question": "What breaks on an empty list or a one-node list if you assume a longer chain?",
       "expected_points": [
-        "empty stays empty",
-        "single node remains head",
-        "loop body skipped"
+        "those inputs are already reversed",
+        "the loop body never runs when head is null or head.next is null",
+        "the head remains the same single node when length is one",
+        "saving next on a null node would crash"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must you save curr.next before rewiring curr.next to prev?",
+      "question": "Why must you save curr.next before pointing curr.next at prev?",
       "expected_points": [
-        "otherwise lose the rest of the list",
-        "prev becomes new predecessor",
-        "advance curr to saved next"
+        "rewiring without a save loses the remainder of the list",
+        "prev becomes the new predecessor of curr",
+        "curr then advances to the saved next",
+        "the invariant is that the prefix ending at prev is already reversed"
       ],
       "min_points": 2
     }

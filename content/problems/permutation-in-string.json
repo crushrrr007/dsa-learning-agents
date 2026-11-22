@@ -125,29 +125,32 @@
   ],
   "viva": [
     {
-      "question": "Why does a fixed window the size of s1 detect a permutation in s2 in linear time?",
+      "question": "Why does a fixed window the size of s1 detect a permutation inside s2 in linear time?",
       "expected_points": [
-        "window length = len(s1)",
-        "compare character counts",
-        "slide across s2"
+        "the window length equals len(s1) so multisets are comparable",
+        "sliding updates character counts in constant time per step",
+        "total work is linear in the length of s2",
+        "matching counts means the window is a rearrangement of s1"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens when s2 is shorter than s1?",
+      "question": "What breaks when s2 is shorter than s1?",
       "expected_points": [
-        "impossible",
-        "return false",
-        "no window fits"
+        "no window of the needed length fits",
+        "a permutation cannot appear",
+        "the correct answer is false",
+        "count comparison never gets a full window to test"
       ],
       "min_points": 2
     },
     {
-      "question": "Why matching frequency counts proves a permutation?",
+      "question": "Why do equal frequency counts prove a permutation?",
       "expected_points": [
-        "same multiset of characters",
+        "a permutation is exactly the same multiset of characters",
         "order inside the window does not matter",
-        "counts equal means rearrangement"
+        "any mismatched count rules the window out",
+        "the invariant is that satisfied need counters cover every character of s1"
       ],
       "min_points": 2
     }

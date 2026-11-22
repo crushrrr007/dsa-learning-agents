@@ -148,29 +148,32 @@
   "variant": true,
   "viva": [
     {
-      "question": "How do you count connected components in O(n + m)?",
+      "question": "How do you count connected components in linear time in n and m?",
       "expected_points": [
-        "DFS/BFS from unvisited nodes",
-        "each start is a component",
-        "mark visited"
+        "DFS or BFS from each unvisited node starts a new component",
+        "every node and edge is processed a constant number of times",
+        "visited marks prevent recounting the same component",
+        "the number of successful starts equals the component count"
       ],
       "min_points": 2
     },
     {
       "question": "What is the count for n nodes and no edges?",
       "expected_points": [
-        "n components",
-        "each node alone",
-        "loop starts n times"
+        "each node is its own component",
+        "the answer equals n",
+        "every search starts and immediately stops",
+        "connectivity never merges any pair"
       ],
       "min_points": 2
     },
     {
-      "question": "Why not start a new DFS from an already visited node?",
+      "question": "Why must you refuse to start a DFS from an already visited node?",
       "expected_points": [
-        "already counted",
-        "would double-count",
-        "belongs to prior component"
+        "that node already belongs to a counted component",
+        "restarting would double-count the same component",
+        "visited marks are the partition into components",
+        "only an unvisited node can seed a new component"
       ],
       "min_points": 2
     }

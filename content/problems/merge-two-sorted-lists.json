@@ -210,27 +210,30 @@
     {
       "question": "Why is merging two sorted lists linear in their combined length?",
       "expected_points": [
-        "one pass with two pointers",
-        "always take the smaller head",
-        "O(1) extra besides output links"
+        "each step consumes one node from one of the lists",
+        "every node is attached exactly once",
+        "no nested scanning of already-merged prefixes is needed",
+        "extra memory beyond output links stays constant with a dummy head"
       ],
       "min_points": 2
     },
     {
-      "question": "What if one list is empty?",
+      "question": "What breaks if one list is empty and you still try to compare heads?",
       "expected_points": [
-        "answer is the other list",
-        "dummy next points to remaining",
-        "no comparisons needed"
+        "the answer is simply the other list",
+        "the dummy next should point at the remaining chain",
+        "comparing against a null head is unnecessary",
+        "the sorted order of the nonempty list is already final"
       ],
       "min_points": 2
     },
     {
       "question": "Why attach the remainder of the non-exhausted list at the end?",
       "expected_points": [
-        "already sorted",
-        "all its values are \u2265 last chosen",
-        "no further interleaving"
+        "that remainder is already sorted",
+        "all of its values are at least as large as the last chosen node",
+        "further interleaving cannot improve order",
+        "one splice finishes the merge"
       ],
       "min_points": 2
     }

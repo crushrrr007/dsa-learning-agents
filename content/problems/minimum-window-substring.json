@@ -134,29 +134,32 @@
   ],
   "viva": [
     {
-      "question": "Why is the minimum window covering all of t typically O(|s| + |t|) with counts?",
+      "question": "Why is the minimum window covering t typically linear in |s| plus |t|?",
       "expected_points": [
-        "expand until need satisfied",
-        "shrink while still covering",
-        "each pointer moves once"
+        "each pointer traverses s at most once",
+        "need counts for t are built in linear time in |t|",
+        "expanding continues until every requirement is satisfied",
+        "shrinking then seeks the shortest still-valid window"
       ],
       "min_points": 2
     },
     {
-      "question": "What if t has characters that never appear in s?",
+      "question": "What breaks if t contains a character that never appears in s?",
       "expected_points": [
-        "impossible",
-        "return empty string",
-        "need counter never hits zero"
+        "the need counter for that character never reaches zero",
+        "no covering window exists",
+        "the answer is the empty string",
+        "expanding to the end cannot invent missing characters"
       ],
       "min_points": 2
     },
     {
       "question": "Why track how many distinct requirements are currently satisfied?",
       "expected_points": [
-        "know when window is valid",
-        "increment when a count hits its target",
-        "decrement when shrinking breaks a target"
+        "that counter tells you when the window becomes valid",
+        "it increments when a character count hits its target",
+        "it decrements when shrinking breaks a target",
+        "without it you would rescan the whole need map every step"
       ],
       "min_points": 2
     }

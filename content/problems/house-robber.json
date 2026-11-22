@@ -116,29 +116,32 @@
   ],
   "viva": [
     {
-      "question": "Why does House Robber use a choose/skip DP in linear time?",
+      "question": "Why does House Robber use a choose-or-skip DP in linear time?",
       "expected_points": [
-        "dp[i]=max(dp[i-1], dp[i-2]+nums[i])",
-        "O(n)",
-        "cannot take adjacent"
+        "each house decides between skipping or taking with the best before the previous house",
+        "adjacent houses cannot both be taken",
+        "each index is processed once so time is linear",
+        "the recurrence stores the best total up to that house"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the array has one house?",
+      "question": "What breaks on a one-house array if you still look two steps back?",
       "expected_points": [
-        "take that value",
-        "base case",
-        "no adjacency issue"
+        "the only choice is to take that house",
+        "there is no adjacency conflict yet",
+        "base cases must cover length one before the main loop",
+        "reading dp[i-2] blindly would go out of range"
       ],
       "min_points": 2
     },
     {
       "question": "Why is skipping the previous house sometimes better?",
       "expected_points": [
-        "taking i-1 blocks i",
-        "max of skip vs take",
-        "local choice builds global opt"
+        "taking house i-1 blocks taking house i",
+        "the recurrence keeps the max of skip versus take",
+        "a smaller previous take can unlock a larger current take",
+        "local choices accumulate into the global optimum via optimal substructure"
       ],
       "min_points": 2
     }

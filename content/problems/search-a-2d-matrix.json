@@ -231,29 +231,32 @@
   ],
   "viva": [
     {
-      "question": "How do you binary-search a row-major sorted matrix in O(log(m n))?",
+      "question": "Why can you binary-search a row-major sorted matrix in logarithmic time in m times n?",
       "expected_points": [
-        "treat as 1D index",
-        "mid \u2192 row=mid//cols col=mid%cols",
-        "compare to target"
+        "the matrix flattens to one sorted sequence of length m*n",
+        "mid maps to row mid//cols and column mid%cols",
+        "each comparison halves that virtual range",
+        "the sorted row-and-column layout makes flattening valid"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the matrix has a single cell?",
+      "question": "What breaks on a one-cell matrix?",
       "expected_points": [
-        "one comparison",
-        "return equality",
-        "left=right=0"
+        "left and right both start at zero",
+        "a single comparison decides equality",
+        "the algorithm still returns true or false correctly",
+        "empty ranges never appear unless the target mismatches"
       ],
       "min_points": 2
     },
     {
-      "question": "Why is flattening valid here?",
+      "question": "Why is treating the matrix as one sorted sequence valid here?",
       "expected_points": [
-        "rows sorted and row starts increase",
-        "global sorted order",
-        "1D binary search applies"
+        "each row is sorted ascending",
+        "the first entry of a row is greater than the last entry of the previous row",
+        "those two facts give a global sorted order",
+        "without the row-start gap the flat index order could jump backwards"
       ],
       "min_points": 2
     }

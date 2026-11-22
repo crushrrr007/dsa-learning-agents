@@ -169,29 +169,32 @@
   ],
   "viva": [
     {
-      "question": "How do bounds (low, high) validate a BST in O(n)?",
+      "question": "Why do bounds (low, high) validate a BST in linear time?",
       "expected_points": [
-        "each node in (low, high)",
-        "left gets high=node",
-        "right gets low=node"
+        "each node must lie strictly inside its allowed open interval",
+        "the left child inherits a tighter high bound equal to the node",
+        "the right child inherits a tighter low bound equal to the node",
+        "every node is checked once so time is linear"
       ],
       "min_points": 2
     },
     {
-      "question": "What fails if you only compare a node to its direct children?",
+      "question": "What breaks if you only compare a node to its direct children?",
       "expected_points": [
-        "deeper violation possible",
-        "need ancestor bounds",
-        "classic counterexample"
+        "a deep descendant can violate an ancestor bound",
+        "classic counterexamples pass local checks but fail global BST order",
+        "ancestor ranges must travel down the recursion",
+        "direct-child checks are necessary but not sufficient"
       ],
       "min_points": 2
     },
     {
-      "question": "Why are the allowed ranges open at the node\u2019s value?",
+      "question": "Why are the allowed ranges open at the node's value?",
       "expected_points": [
-        "BST forbids duplicates or strict inequality",
-        "left must be < node",
-        "right must be > node"
+        "left values must stay strictly less than the node",
+        "right values must stay strictly greater than the node",
+        "duplicates are forbidden under the usual strict BST rule",
+        "closed ranges would accept equal keys that the tree rejects"
       ],
       "min_points": 2
     }

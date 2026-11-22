@@ -79,29 +79,32 @@
   ],
   "viva": [
     {
-      "question": "Why is climbing stairs a linear DP instead of exponential recursion?",
+      "question": "Why is climbing stairs a linear DP instead of an exponential recursion tree?",
       "expected_points": [
-        "dp[i]=dp[i-1]+dp[i-2]",
-        "each i once",
-        "O(n) time"
+        "each step i is computed once from the prior two answers",
+        "overlapping subproblems are reused instead of recomputed",
+        "total time is linear in the number of stairs",
+        "naive recursion rebranches into the same smaller heights many times"
       ],
       "min_points": 2
     },
     {
-      "question": "What are the base answers for 1 and 2 steps?",
+      "question": "What are the base answers for one and two stairs?",
       "expected_points": [
-        "1 way for 1",
-        "2 ways for 2",
-        "seed the recurrence"
+        "one stair has exactly one way",
+        "two stairs have exactly two ways",
+        "those seeds start the recurrence",
+        "without them the relation has nothing to build on"
       ],
       "min_points": 2
     },
     {
       "question": "Why does the recurrence add the previous two states?",
       "expected_points": [
-        "last step size 1 or 2",
-        "disjoint cases",
-        "cover all paths"
+        "the final move is either a single step or a double step",
+        "those cases partition all legal paths",
+        "paths ending in a single step come from i-1",
+        "paths ending in a double step come from i-2"
       ],
       "min_points": 2
     }

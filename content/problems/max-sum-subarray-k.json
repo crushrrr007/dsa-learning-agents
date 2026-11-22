@@ -162,29 +162,32 @@
   "variant": true,
   "viva": [
     {
-      "question": "Why is a fixed window of size k O(n) instead of resuming each window from scratch?",
+      "question": "Why is a fixed window of size k linear instead of rebuilding each window sum?",
       "expected_points": [
-        "slide by removing left and adding right",
-        "O(n) total",
-        "each element enters and leaves once"
+        "sliding removes the leaving element and adds the entering one",
+        "each element enters and leaves the window at most once",
+        "total work stays linear in the array length",
+        "restarting the sum from scratch each time would be quadratic"
       ],
       "min_points": 2
     },
     {
-      "question": "What if n < k?",
+      "question": "What breaks when n is smaller than k?",
       "expected_points": [
-        "no valid window",
-        "cannot form size k",
-        "handle as empty/invalid per statement"
+        "no window of length k exists",
+        "the algorithm must treat that as invalid or empty per the statement",
+        "blindly indexing k steps ahead would go out of range",
+        "the first full window cannot be formed"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does subtracting the leaving element keep the sum correct?",
+      "question": "Why does subtracting the leaving element keep the running sum correct?",
       "expected_points": [
-        "window membership changes by one",
-        "old left no longer counted",
-        "new right is included"
+        "window membership changes by exactly one index on each slide",
+        "the old left value is no longer inside the window",
+        "the new right value is the only addition",
+        "the invariant is that the running sum equals the current window contents"
       ],
       "min_points": 2
     }

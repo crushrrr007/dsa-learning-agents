@@ -190,29 +190,32 @@
   ],
   "viva": [
     {
-      "question": "Outline the O(n) reorder: middle, reverse, merge.",
+      "question": "Why does the middle-reverse-merge pipeline reorder a list in linear time?",
       "expected_points": [
-        "find mid",
-        "reverse second half",
-        "interleave nodes"
+        "finding the middle is one linear pass",
+        "reversing the second half is linear in that half",
+        "interleaving the two halves touches each node once",
+        "overall work stays linear in the list length"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens on lists of length 0, 1, or 2?",
+      "question": "What breaks on lists of length 0, 1, or 2 if you still split aggressively?",
       "expected_points": [
-        "already ordered",
-        "little or no merge work",
-        "mid finding handles shorts"
+        "those lengths are already in the required order",
+        "middle finding yields an empty or trivial second half",
+        "the merge step becomes a no-op",
+        "forcing a bad split can create cycles on tiny lists"
       ],
       "min_points": 2
     },
     {
-      "question": "Why split before reversing the second half?",
+      "question": "Why cut the list before reversing the second half?",
       "expected_points": [
-        "avoid cycles",
-        "first half ends with null",
-        "clean interleave"
+        "leaving the halves connected can create a cycle while reversing",
+        "the first half must end with null for a clean interleave",
+        "the second half becomes an independent chain to reverse",
+        "the invariant after the cut is two acyclic lists ready to zip"
       ],
       "min_points": 2
     }

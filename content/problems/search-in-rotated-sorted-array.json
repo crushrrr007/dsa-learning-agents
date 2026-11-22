@@ -174,29 +174,32 @@
   ],
   "viva": [
     {
-      "question": "How do you search a target in a rotated sorted array in O(log n)?",
+      "question": "Why can you search a target in a rotated sorted array in logarithmic time?",
       "expected_points": [
-        "identify sorted half",
-        "see if target lies inside",
-        "discard the other half"
+        "one of the two halves around mid is always sorted",
+        "if the target lies inside the sorted half you discard the other half",
+        "otherwise you discard the sorted half and keep the rotated side",
+        "each test halves the remaining range"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the target is missing?",
+      "question": "What do you return when the target is missing?",
       "expected_points": [
-        "-1",
-        "range empties",
-        "never equal mid"
+        "the answer is -1",
+        "the range empties without ever equaling mid",
+        "both halves are eventually discarded",
+        "returning an insert index would be a different problem"
       ],
       "min_points": 2
     },
     {
-      "question": "Why is one of the two halves always sorted after rotation?",
+      "question": "Why is one of the two halves always sorted after a single rotation?",
       "expected_points": [
-        "single pivot cut",
-        "mid falls in a monotone side",
-        "enables binary decision"
+        "a single pivot cut leaves one contiguous ascending segment on each probe",
+        "mid falls into one of those monotone sides",
+        "that side can be tested with ordinary sorted-range membership",
+        "the binary decision relies on that guaranteed sorted half"
       ],
       "min_points": 2
     }

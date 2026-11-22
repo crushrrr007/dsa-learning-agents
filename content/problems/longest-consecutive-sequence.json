@@ -150,29 +150,32 @@
   ],
   "viva": [
     {
-      "question": "How do you get longer than sorting when finding consecutive runs?",
+      "question": "Why can a hash set beat sorting when measuring the longest consecutive run?",
       "expected_points": [
-        "hash set of values",
-        "only start a run at a missing left neighbor",
-        "O(n) expected"
+        "membership tests are amortized constant time",
+        "you only start a run at a value whose predecessor is missing",
+        "expected total work is linear in the number of distinct values",
+        "sorting would pay an n log n tax just to walk adjacent numbers"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens with duplicates in nums?",
+      "question": "What breaks if duplicates remain in the working set?",
       "expected_points": [
-        "set removes duplicates",
-        "length counts distinct values",
-        "repeats do not extend a run"
+        "a set collapses duplicates so length counts distinct values",
+        "repeats must not inflate a consecutive run",
+        "starting a run twice on the same value would overcount work",
+        "the statement cares about values, not index multiplicity"
       ],
       "min_points": 2
     },
     {
-      "question": "Why only expand a streak when num-1 is absent?",
+      "question": "Why expand a streak only when num-1 is absent?",
       "expected_points": [
-        "ensures each run starts once",
-        "avoids recounting middles",
-        "amortized linear work"
+        "that condition marks the unique start of a consecutive run",
+        "middle values are skipped so each run is counted once",
+        "amortized work stays linear because each value expands at most once",
+        "starting inside a run would recount the same chain"
       ],
       "min_points": 2
     }

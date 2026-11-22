@@ -226,27 +226,30 @@
     {
       "question": "What two properties make an undirected graph a tree?",
       "expected_points": [
-        "connected",
-        "n-1 edges or acyclic",
-        "exactly one way between nodes"
+        "the graph must be connected",
+        "it must contain exactly n-1 edges or equivalently be acyclic",
+        "there is exactly one simple path between any pair of nodes",
+        "either missing connectivity or an extra edge breaks the tree"
       ],
       "min_points": 2
     },
     {
-      "question": "What if edges > n-1?",
+      "question": "What breaks when the edge count exceeds n-1?",
       "expected_points": [
-        "cycle exists",
-        "not a tree",
-        "reject"
+        "an undirected graph on n nodes with more edges must contain a cycle",
+        "that structure cannot be a tree",
+        "Union-Find or DFS will eventually see a redundant edge",
+        "rejecting early on the edge count is valid"
       ],
       "min_points": 2
     },
     {
       "question": "Why does Union-Find failing a unite prove a cycle?",
       "expected_points": [
-        "endpoints already same component",
-        "extra edge",
-        "breaks tree"
+        "the endpoints already belong to the same component",
+        "adding the edge would close a loop",
+        "trees never reconnect nodes that are already linked",
+        "successful unites grow a forest until one component remains"
       ],
       "min_points": 2
     }

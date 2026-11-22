@@ -163,29 +163,32 @@
   ],
   "viva": [
     {
-      "question": "How does binary search also find the insertion index?",
+      "question": "How does binary search also find the insertion index in logarithmic time?",
       "expected_points": [
-        "same left/right loop",
-        "final left is insert point",
-        "O(log n)"
+        "the same left and right loop halves the range",
+        "when the target is missing the final left is the insert point",
+        "each step still discards half the indices",
+        "the answer remains the first index with value at least the target"
       ],
       "min_points": 2
     },
     {
-      "question": "Where do you insert a value smaller than all elements?",
+      "question": "Where do you insert a value smaller than every element?",
       "expected_points": [
-        "index 0",
-        "left stays 0",
-        "all mids go right"
+        "the insert index is zero",
+        "every mid comparison moves right leftward until left stays at zero",
+        "the sorted order puts the new value at the front",
+        "returning a positive index would skip smaller positions incorrectly"
       ],
       "min_points": 2
     },
     {
       "question": "Why is left the correct insertion index when the target is missing?",
       "expected_points": [
-        "first index with value >= target",
-        "invariants on the bounds",
-        "keeps sorted order"
+        "the loop invariant keeps every index before left smaller than the target",
+        "every index after right is at least the target",
+        "when the range empties left is the first viable slot",
+        "that slot preserves sorted order after insertion"
       ],
       "min_points": 2
     }

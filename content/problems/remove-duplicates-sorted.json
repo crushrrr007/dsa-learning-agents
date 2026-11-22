@@ -145,29 +145,32 @@
   ],
   "viva": [
     {
-      "question": "Why is the same-direction write pointer O(n) on a sorted array?",
+      "question": "Why is the same-direction write pointer linear on a sorted array?",
       "expected_points": [
-        "each index visited once",
-        "write unique values forward",
-        "O(1) extra memory"
+        "each index is examined once",
+        "unique values are written forward in place",
+        "extra memory stays constant",
+        "sorting already clustered duplicates together"
       ],
       "min_points": 2
     },
     {
-      "question": "What is the result length when every element is identical?",
+      "question": "What is the resulting length when every element is identical?",
       "expected_points": [
-        "length 1",
-        "only first value kept",
-        "write pointer barely moves"
+        "only one unique value remains",
+        "the write pointer barely advances",
+        "the returned length is one",
+        "further equals are skipped by the adjacent comparison"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does sorting make comparing to the previous unique value enough?",
+      "question": "Why is comparing to the previous unique value enough after sorting?",
       "expected_points": [
-        "duplicates sit adjacent",
-        "unsorted would need a set",
-        "next different value is the next unique"
+        "duplicates sit next to each other",
+        "the next different value is the next unique",
+        "an unsorted array would need a set instead",
+        "the invariant is that the prefix before the write pointer is unique and sorted"
       ],
       "min_points": 2
     }

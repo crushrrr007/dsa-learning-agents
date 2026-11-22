@@ -186,29 +186,32 @@
   "variant": true,
   "viva": [
     {
-      "question": "How do opposite ends find a target sum in O(n) on a sorted array?",
+      "question": "Why do opposite ends find a target sum in linear time on a sorted array?",
       "expected_points": [
-        "left smallest right largest",
-        "move left if sum too small",
-        "move right if sum too large"
+        "left starts at the smallest value and right at the largest",
+        "each move discards one index forever",
+        "total steps are linear because pointers only advance inward",
+        "sorting supplies the monotonicity that makes discards safe"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must you not reuse the same index?",
+      "question": "What breaks if both pointers land on the same index?",
       "expected_points": [
-        "i < j required",
-        "one element cannot pair with itself",
-        "pointers start at different ends"
+        "the answer must use two distinct indices",
+        "pointers begin at opposite ends so they start apart",
+        "i must stay strictly less than j",
+        "a single element cannot form the pair alone"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does sorting let you discard half the possibilities each move?",
+      "question": "Why does moving left when the sum is too small preserve correctness?",
       "expected_points": [
-        "monotonic sums",
-        "increasing left raises sum",
-        "decreasing right lowers sum"
+        "the array is sorted ascending",
+        "increasing the left value is the only way to raise the sum with the current right",
+        "every discarded left value was too small with this right and every smaller right",
+        "symmetric reasoning applies when shrinking right for a sum that is too large"
       ],
       "min_points": 2
     }

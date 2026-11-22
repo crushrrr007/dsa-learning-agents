@@ -155,29 +155,32 @@
   ],
   "viva": [
     {
-      "question": "How do you handle the circular constraint with two linear robber passes?",
+      "question": "Why do two linear robber passes handle the circular constraint?",
       "expected_points": [
-        "rob range [0..n-2]",
-        "rob range [1..n-1]",
-        "take the max"
+        "the first and last houses are adjacent on the circle",
+        "one pass forbids the last house and another forbids the first",
+        "the answer is the better of those two linear problems",
+        "each pass is still linear time"
       ],
       "min_points": 2
     },
     {
-      "question": "What about n = 1?",
+      "question": "What breaks when n equals one if you still run both open ranges?",
       "expected_points": [
-        "only one house",
-        "return that value",
-        "ranges collapse"
+        "the only house is the answer by itself",
+        "the two ranges would otherwise drop that house incorrectly",
+        "a dedicated base case returns its value",
+        "circular adjacency is meaningless with a single house"
       ],
       "min_points": 2
     },
     {
       "question": "Why can the first and last houses not both be robbed?",
       "expected_points": [
-        "they are adjacent in a circle",
-        "two passes exclude one end each",
-        "covers both options"
+        "they share an edge on the circle",
+        "taking both would violate the no-adjacent rule",
+        "the two passes each exclude one endpoint so both options are covered",
+        "any feasible plan lands in exactly one of those two cases"
       ],
       "min_points": 2
     }

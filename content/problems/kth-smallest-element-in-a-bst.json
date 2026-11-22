@@ -182,27 +182,30 @@
     {
       "question": "Why does inorder traversal of a BST yield sorted values?",
       "expected_points": [
-        "left root right",
-        "BST invariant",
-        "kth in sorted order"
+        "left subtree, node, then right subtree respects BST order",
+        "every left value is smaller than the node",
+        "every right value is larger than the node",
+        "the visit order is exactly sorted ascending"
       ],
       "min_points": 2
     },
     {
-      "question": "What if k = 1?",
+      "question": "What is the kth smallest when k equals one?",
       "expected_points": [
-        "leftmost node",
-        "minimum",
-        "inorder first visit"
+        "it is the leftmost node",
+        "that node is the minimum of the BST",
+        "inorder visits it first",
+        "no smaller value exists anywhere in the tree"
       ],
       "min_points": 2
     },
     {
-      "question": "Why can you stop once you have visited k nodes?",
+      "question": "Why can you stop once k nodes have been visited in order?",
       "expected_points": [
-        "further nodes are larger",
-        "early exit",
-        "no full traversal required"
+        "further inorder nodes are strictly larger",
+        "the kth visit is exactly the answer",
+        "early exit avoids walking the rest of the tree",
+        "continuing cannot produce a smaller candidate"
       ],
       "min_points": 2
     }

@@ -191,29 +191,32 @@
   ],
   "viva": [
     {
-      "question": "How does a monotonic stack compute next warmer days in O(n)?",
+      "question": "Why does a monotonic stack compute next warmer days in linear time?",
       "expected_points": [
-        "store indices decreasing by temp",
-        "pop when warmer found",
-        "difference of indices"
+        "each index is pushed once and popped at most once",
+        "a warmer day resolves every colder index waiting on the stack",
+        "the answer for an index is the distance to the day that popped it",
+        "amortized work across the whole array stays linear"
       ],
       "min_points": 2
     },
     {
       "question": "What answer do you store when no warmer day exists?",
       "expected_points": [
-        "0",
-        "index left on stack",
-        "end of array"
+        "the distance is zero",
+        "those indices remain on the stack until the end",
+        "nothing ever pops them with a warmer temperature",
+        "the problem defines zero as the no-warmer sentinel"
       ],
       "min_points": 2
     },
     {
-      "question": "Why keep the stack decreasing in temperature?",
+      "question": "Why keep temperatures on the stack in decreasing order?",
       "expected_points": [
-        "first warmer is the next greater",
-        "discard colder days that can never be answers",
-        "amortized one pop each"
+        "the first warmer day is the next greater element to the right",
+        "a colder day buried under a warmer one can never be the answer for anyone above",
+        "popping maintains the decreasing invariant after each insertion",
+        "that invariant makes the next warmer unique and easy to find"
       ],
       "min_points": 2
     }

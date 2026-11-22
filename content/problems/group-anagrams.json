@@ -196,29 +196,32 @@
   ],
   "viva": [
     {
-      "question": "What is the cost of grouping n words of length k with sorted signatures?",
+      "question": "What is the time cost of grouping n words of length k with sorted signatures?",
       "expected_points": [
-        "O(n k log k) if sort each word",
-        "hash map of signature\u2192group",
-        "output rebuild is O(n)"
+        "sorting each word costs about k log k",
+        "overall work is roughly n times k log k",
+        "the map from signature to group is amortized constant per insert",
+        "rebuilding the output is linear in the number of words"
       ],
       "min_points": 2
     },
     {
-      "question": "How do you keep the required canonical order of groups and words?",
+      "question": "What breaks the required canonical order if you skip sorting inside groups?",
       "expected_points": [
-        "sort letters inside each word for the key",
-        "sort strings inside each group",
-        "sort groups by first member"
+        "strings inside a group must be sorted lexicographically",
+        "groups themselves are ordered by their first member",
+        "unsorted buckets make equal answers look different under strict grading",
+        "the signature sort only equates anagrams; it does not order the group"
       ],
       "min_points": 2
     },
     {
-      "question": "Why do two different words share a bucket when their sorted forms match?",
+      "question": "Why do two different words land in the same bucket when their sorted forms match?",
       "expected_points": [
-        "anagrams share letter multiset",
-        "sorted key identical",
-        "map collects them together"
+        "anagrams share the same letter multiset",
+        "the sorted key is a canonical fingerprint of that multiset",
+        "the map collects every word with that fingerprint together",
+        "different surface spellings do not change the multiset"
       ],
       "min_points": 2
     }

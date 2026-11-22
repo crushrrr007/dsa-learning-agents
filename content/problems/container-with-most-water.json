@@ -131,29 +131,32 @@
   ],
   "viva": [
     {
-      "question": "Why is the two-pointer area search O(n) instead of O(n^2) pairs?",
+      "question": "Why is the two-pointer area search linear instead of checking every pair?",
       "expected_points": [
-        "start at both ends",
-        "move the shorter side",
-        "each index discarded once"
+        "pointers start at both ends and only move inward",
+        "each index is discarded at most once",
+        "total steps stay linear in the number of lines",
+        "a nested pair loop would be quadratic"
       ],
       "min_points": 2
     },
     {
-      "question": "What area do you get when all heights are zero?",
+      "question": "What is the area when every height is zero?",
       "expected_points": [
-        "area zero",
-        "min height zero",
-        "no water"
+        "the min height is always zero",
+        "every candidate area collapses to zero",
+        "the answer is zero",
+        "width alone cannot store water without height"
       ],
       "min_points": 2
     },
     {
       "question": "Why move the pointer at the shorter line rather than the taller one?",
       "expected_points": [
-        "width shrinks either way",
-        "taller side cannot increase min height alone",
-        "short side is the bottleneck"
+        "width shrinks either way so you need a taller min height to improve",
+        "the short side is the bottleneck for the current pair",
+        "moving the taller side cannot raise the min height by itself",
+        "discarding the short side is the only move that might raise the limiting height"
       ],
       "min_points": 2
     }

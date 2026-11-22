@@ -172,29 +172,32 @@
   ],
   "viva": [
     {
-      "question": "Why is a prefix/suffix product scan O(n) time and how do you avoid division?",
+      "question": "Why is a prefix and suffix product scan linear time without using division?",
       "expected_points": [
-        "left products then right products",
-        "two linear passes",
-        "no division by nums[i]"
+        "left products and right products each take one linear pass",
+        "multiplying the two sides excludes nums[i] without dividing",
+        "division fails when zeros appear",
+        "extra memory can stay linear or constant with careful overwrites"
       ],
       "min_points": 2
     },
     {
-      "question": "What breaks if you try to divide the total product by nums[i] when a zero appears?",
+      "question": "What breaks if you divide the total product by nums[i] when a zero is present?",
       "expected_points": [
-        "division by zero",
-        "multiple zeros make every entry zero",
-        "prefix/suffix still works with zeros"
+        "division by zero is undefined",
+        "two zeros force every output entry to zero",
+        "prefix and suffix products still behave correctly with zeros",
+        "a single zero makes every other index zero via the opposite side product"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does out[i] equal (product of left side) times (product of right side)?",
+      "question": "Why does out[i] equal the product of everything left of i times everything right of i?",
       "expected_points": [
-        "excludes nums[i]",
-        "left prefix ends at i-1",
-        "right suffix starts at i+1"
+        "that product excludes nums[i] by construction",
+        "the left prefix ends at i-1",
+        "the right suffix starts at i+1",
+        "the empty product on either end is one"
       ],
       "min_points": 2
     }

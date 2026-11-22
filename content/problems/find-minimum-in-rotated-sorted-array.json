@@ -162,29 +162,32 @@
   ],
   "viva": [
     {
-      "question": "How do you find the minimum in a rotated sorted array in O(log n)?",
+      "question": "Why can you find the minimum in a rotated sorted array in logarithmic time?",
       "expected_points": [
-        "compare mid to right",
-        "go toward the unsorted half",
-        "left/right converge"
+        "comparing mid to the right end reveals which half is unsorted",
+        "the minimum lives in the unsorted half",
+        "each step halves the remaining index range",
+        "distinct values keep the comparisons unambiguous"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the array was never rotated?",
+      "question": "What breaks if the array was never rotated and you still force a rightward move?",
       "expected_points": [
-        "already sorted",
-        "nums[left] is min",
-        "mid < right always"
+        "an unrotated array is already sorted",
+        "nums[left] is the minimum",
+        "mid is never greater than right so the search shrinks rightward correctly",
+        "jumping left to mid+1 would skip the true minimum at the front"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does nums[mid] > nums[right] mean the min is to the right of mid?",
+      "question": "Why does nums[mid] greater than nums[right] mean the minimum is to the right of mid?",
       "expected_points": [
-        "rotation cut on the right",
-        "left side is large sorted run",
-        "discard mid and left"
+        "the rotation cut lies in the right segment",
+        "the left segment through mid is an increasing run of large values",
+        "discarding mid and everything left of it is safe",
+        "the minimum cannot sit in that ascending left run"
       ],
       "min_points": 2
     }

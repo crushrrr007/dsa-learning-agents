@@ -175,29 +175,32 @@
   ],
   "viva": [
     {
-      "question": "Why fill the output from the right with two pointers on a sorted (possibly negative) array?",
+      "question": "Why fill the output from the right while comparing absolute values at both ends?",
       "expected_points": [
-        "largest square is at an end",
-        "compare abs of left and right",
-        "O(n) merge into result"
+        "the largest square always sits at one of the two ends of a sorted array",
+        "comparing absolute values picks that larger square in constant time",
+        "writing from the right places squares in nondecreasing order",
+        "each index is consumed once so the merge is linear"
       ],
       "min_points": 2
     },
     {
-      "question": "Where do zeros go in the squared output?",
+      "question": "Where do zeros belong in the squared output?",
       "expected_points": [
-        "near the front",
-        "zero square is smallest",
-        "pointers meet around zero"
+        "zero squares are the smallest values",
+        "they land near the front of the nondecreasing result",
+        "pointers meet around zero after larger magnitudes are placed",
+        "skipping zeros would leave holes in the sorted order"
       ],
       "min_points": 2
     },
     {
       "question": "Why can a negative left value beat a positive right value for the next largest square?",
       "expected_points": [
-        "square depends on magnitude",
-        "more negative means larger square",
-        "compare absolute values"
+        "a square depends on magnitude rather than sign",
+        "a more negative value has a larger absolute value",
+        "comparing absolute values keeps the merge correct",
+        "sorting by value alone would miss that the left end can dominate"
       ],
       "min_points": 2
     }

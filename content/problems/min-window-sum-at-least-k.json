@@ -131,29 +131,32 @@
   ],
   "viva": [
     {
-      "question": "How does shrinking a variable window find the shortest subarray with sum \u2265 k?",
+      "question": "Why can a shrinking variable window find the shortest subarray with sum at least k in linear time?",
       "expected_points": [
-        "expand right to grow sum",
-        "shrink left while sum still \u2265 k",
-        "track min length"
+        "the right pointer expands until the sum is large enough",
+        "the left pointer then shrinks while the sum stays at least k",
+        "each index moves forward at most once",
+        "the minimum length among valid windows is the answer"
       ],
       "min_points": 2
     },
     {
-      "question": "What do you return when no subarray reaches k?",
+      "question": "What breaks when no subarray reaches sum k?",
       "expected_points": [
-        "0 or sentinel per statement",
-        "never update the minimum",
-        "full scan still fails"
+        "the minimum length is never updated from its sentinel",
+        "the correct return follows the problem's empty-case rule",
+        "a full scan still fails to satisfy the threshold",
+        "reporting a partial window would invent a false positive"
       ],
       "min_points": 2
     },
     {
-      "question": "Why can you shrink from the left greedily once the sum is large enough?",
+      "question": "Why is shrinking from the left safe once the sum is large enough?",
       "expected_points": [
-        "removing left only decreases sum",
-        "shorter window is better",
-        "stop when sum would fall below k"
+        "removing a left value only decreases the sum",
+        "a shorter window is better for the minimum-length goal",
+        "you stop shrinking when another removal would fall below k",
+        "the invariant is that the current window is a minimal valid end at right"
       ],
       "min_points": 2
     }

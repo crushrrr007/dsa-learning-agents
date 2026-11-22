@@ -165,27 +165,30 @@
     {
       "question": "What is the time and extra-space cost of the two-write-pointer scan?",
       "expected_points": [
-        "O(n) time",
-        "O(1) extra space",
-        "single pass over arr"
+        "each index is visited a constant number of times",
+        "extra memory stays constant beyond the input array",
+        "nonzeros are written forward in a single pass",
+        "the trailing zero fill is also linear"
       ],
       "min_points": 2
     },
     {
-      "question": "How do you keep the relative order of nonzero values?",
+      "question": "What breaks if you swap zeros forward without preserving nonzero order?",
       "expected_points": [
-        "write nonzeros from the left in order",
-        "fill remaining with zeros",
-        "stable among nonzeros"
+        "relative order among nonzeros must stay stable",
+        "a write pointer that copies nonzeros in order keeps that stability",
+        "filling the suffix with zeros does not reorder earlier nonzeros",
+        "unstable partitions would fail order-sensitive tests"
       ],
       "min_points": 2
     },
     {
-      "question": "Why can you overwrite zeros early without losing information?",
+      "question": "Why can early zeros be overwritten safely?",
       "expected_points": [
-        "zeros are reconstructed at the end",
-        "only nonzero values must be preserved in order",
-        "write index trails read"
+        "zeros are reconstructed when the suffix is filled",
+        "only nonzero values must be preserved in their relative order",
+        "the write index trails the read index over the kept values",
+        "information about zero positions is intentionally discarded"
       ],
       "min_points": 2
     }

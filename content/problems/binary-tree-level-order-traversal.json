@@ -219,29 +219,32 @@
   ],
   "viva": [
     {
-      "question": "Why is BFS level order O(n)?",
+      "question": "Why is BFS level order linear in the number of nodes?",
       "expected_points": [
-        "each node enqueued once",
-        "queue by levels",
-        "output size n"
+        "each node is enqueued and dequeued once",
+        "work per node is constant aside from listing children",
+        "the output size is exactly the number of nodes",
+        "queue operations stay amortized constant time"
       ],
       "min_points": 2
     },
     {
       "question": "What does an empty tree return?",
       "expected_points": [
-        "empty list",
-        "no levels",
-        "queue never starts"
+        "the result is an empty list of levels",
+        "the queue never starts",
+        "there are no nodes to group",
+        "returning [[]] would invent a phantom level"
       ],
       "min_points": 2
     },
     {
       "question": "Why snapshot the queue size at the start of a level?",
       "expected_points": [
-        "know how many nodes belong to this level",
-        "children go to next level",
-        "clean grouping"
+        "that size is exactly how many nodes belong to the current level",
+        "children enqueued during the level belong to the next level",
+        "the snapshot keeps level grouping clean",
+        "without it later children would mix into the current batch"
       ],
       "min_points": 2
     }

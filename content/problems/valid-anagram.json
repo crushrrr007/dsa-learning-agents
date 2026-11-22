@@ -117,29 +117,32 @@
   ],
   "viva": [
     {
-      "question": "Why is counting characters O(n) rather than sorting both strings?",
+      "question": "Why is counting characters linear time rather than sorting both strings?",
       "expected_points": [
-        "one pass over each string",
-        "sort would be O(n log n)",
-        "fixed alphabet still linear"
+        "each string is scanned a constant number of times",
+        "sorting would cost n log n comparisons",
+        "a fixed alphabet still yields linear work",
+        "counts update in constant time per character"
       ],
       "min_points": 2
     },
     {
-      "question": "What edge case makes two strings unequal before you finish counting?",
+      "question": "What breaks before you finish counting if the strings have different lengths?",
       "expected_points": [
-        "different lengths",
-        "cannot be anagrams",
-        "early false"
+        "unequal lengths cannot be anagrams",
+        "you can return false immediately",
+        "frequency vectors of different sizes never match",
+        "padding would invent characters that are not present"
       ],
       "min_points": 2
     },
     {
-      "question": "Why must every character frequency match, not just the set of letters?",
+      "question": "Why must every character frequency match rather than only the set of letters?",
       "expected_points": [
-        "extra repeats break anagrams",
-        "counts must be identical",
-        "presence alone is not enough"
+        "extra repeats break the anagram property",
+        "presence alone ignores multiplicity",
+        "the multisets of characters must be identical",
+        "one mismatched count is enough to reject"
       ],
       "min_points": 2
     }

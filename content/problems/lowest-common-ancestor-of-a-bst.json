@@ -213,27 +213,30 @@
     {
       "question": "How do you find the LCA in a BST without scanning the whole tree?",
       "expected_points": [
-        "walk from root",
-        "both values on one side \u2192 go there",
-        "split \u2192 current is LCA"
+        "walk from the root using BST comparisons",
+        "if both targets lie on one side, descend that side",
+        "when the targets split, the current node is the LCA",
+        "the walk length is proportional to the tree height, not to n in a balanced case"
       ],
       "min_points": 2
     },
     {
-      "question": "What if one value is the ancestor of the other?",
+      "question": "What breaks if one value is an ancestor of the other and you keep searching past it?",
       "expected_points": [
-        "ancestor is the LCA",
-        "walk stops at that node",
-        "still correct"
+        "the ancestor itself is the LCA",
+        "the walk should stop when the split condition first fails",
+        "descending further leaves the common prefix",
+        "BST order still identifies that ancestor uniquely"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does a split in BST search paths identify the LCA?",
+      "question": "Why does a split in the search paths identify the LCA?",
       "expected_points": [
-        "paths diverge there",
-        "shared prefix ends",
-        "all ancestor properties hold"
+        "the paths to the two targets share a prefix ending at that node",
+        "below the split the targets lie in different directions",
+        "any deeper node misses at least one target",
+        "any shallower node is an ancestor of the LCA but not the lowest"
       ],
       "min_points": 2
     }

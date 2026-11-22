@@ -163,27 +163,30 @@
     {
       "question": "How do you find the maximum average of a length-k window in linear time?",
       "expected_points": [
-        "track window sum",
-        "average = sum/k",
-        "slide across the array"
+        "track the window sum while sliding across the array",
+        "average equals sum divided by the fixed k",
+        "each slide updates the sum in constant time",
+        "the best average corresponds to the best sum for fixed k"
       ],
       "min_points": 2
     },
     {
-      "question": "What edge case appears when k equals the array length?",
+      "question": "What breaks when k equals the array length?",
       "expected_points": [
-        "only one window",
-        "answer is the full average",
-        "loop barely slides"
+        "only one window exists",
+        "the answer is simply the average of the whole array",
+        "the slide loop never moves",
+        "edge handling must still form that single window correctly"
       ],
       "min_points": 2
     },
     {
-      "question": "Why maximizing the sum is enough to maximize the average for fixed k?",
+      "question": "Why is maximizing the sum enough to maximize the average for fixed k?",
       "expected_points": [
-        "k constant",
-        "sum and average share the same argmax",
-        "no need to compare averages separately"
+        "k is constant so sum and average share the same argmax",
+        "dividing by k does not change comparisons between windows",
+        "you can avoid floating work until the final answer if desired",
+        "different window lengths would break that equivalence"
       ],
       "min_points": 2
     }

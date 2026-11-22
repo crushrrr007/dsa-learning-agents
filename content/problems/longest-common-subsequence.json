@@ -123,29 +123,32 @@
   ],
   "viva": [
     {
-      "question": "What does dp[i][j] mean for LCS of two prefixes?",
+      "question": "What does dp[i][j] mean for the LCS of two prefixes?",
       "expected_points": [
-        "LCS length of text1[:i] and text2[:j]",
-        "O(m n) fill",
-        "match \u2192 +1 diagonal else max"
+        "it is the LCS length of text1[:i] and text2[:j]",
+        "matching characters take the diagonal plus one",
+        "mismatches take the max of skipping either character",
+        "filling the table costs time proportional to the product of the lengths"
       ],
       "min_points": 2
     },
     {
-      "question": "What is LCS length when one string is empty?",
+      "question": "What is the LCS length when one string is empty?",
       "expected_points": [
-        "0",
-        "first row/col zeros",
-        "nothing to match"
+        "the length is zero",
+        "the first row and first column stay zero",
+        "nothing can be matched against an empty prefix",
+        "those zeros are the recurrence base"
       ],
       "min_points": 2
     },
     {
-      "question": "Why do equal characters take the diagonal + 1?",
+      "question": "Why do equal characters take the diagonal plus one?",
       "expected_points": [
-        "extend a common subsequence",
-        "use that match",
-        "otherwise skip a char via max"
+        "that match extends a common subsequence by one",
+        "the diagonal represents both prefixes without those characters",
+        "skipping either character cannot do better than using a real match plus the best before it",
+        "the invariant is optimal LCS lengths for all smaller prefixes"
       ],
       "min_points": 2
     }

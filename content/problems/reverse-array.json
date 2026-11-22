@@ -160,27 +160,30 @@
     {
       "question": "What is the time and space cost of swapping from both ends?",
       "expected_points": [
-        "O(n) time",
-        "O(1) extra space",
-        "about n/2 swaps"
+        "about n/2 swaps finish the reversal",
+        "work is linear in the array length",
+        "extra memory stays constant",
+        "each element moves to its mirrored index once"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens on an empty list or a single-element list?",
+      "question": "What breaks on an empty list or a single-element list if you keep swapping?",
       "expected_points": [
-        "already reversed",
-        "loop does not run",
-        "return same object"
+        "those inputs are already reversed",
+        "left and right meet immediately so the loop body never runs",
+        "further swaps would only undo correct work",
+        "returning the same list object is required"
       ],
       "min_points": 2
     },
     {
       "question": "Why stop when left meets or passes right?",
       "expected_points": [
-        "middle already placed",
-        "further swaps undo work",
-        "two pointers cross"
+        "the middle is already in place",
+        "continuing would swap elements back toward their original side",
+        "the two pointers crossing means the whole range is processed",
+        "the invariant is that outsides of [left, right] are finished"
       ],
       "min_points": 2
     }

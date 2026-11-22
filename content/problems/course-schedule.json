@@ -208,29 +208,32 @@
   ],
   "viva": [
     {
-      "question": "How does topological sort detect whether all courses can be finished?",
+      "question": "How does topological sort decide whether every course can be finished?",
       "expected_points": [
-        "Kahn or DFS cycle detect",
-        "indegrees / visiting state",
-        "cycle \u21d2 false"
+        "Kahn's algorithm or DFS coloring detects cycles",
+        "a cycle means some course depends on itself indirectly",
+        "indegrees or visiting states track residual prerequisites",
+        "finishing a full topo order proves the graph is a DAG"
       ],
       "min_points": 2
     },
     {
-      "question": "What about a graph with no edges?",
+      "question": "What breaks in a graph with no edges?",
       "expected_points": [
-        "all courses ok",
-        "any order",
-        "return true"
+        "every course is already unlocked",
+        "any order is valid",
+        "the algorithm returns true",
+        "indegrees are all zero so Kahn drains immediately"
       ],
       "min_points": 2
     },
     {
-      "question": "Why does a remaining node with indegree > 0 after Kahn mean failure?",
+      "question": "Why does a node with leftover indegree after Kahn mean failure?",
       "expected_points": [
-        "cycle holds references",
-        "cannot take that course",
-        "topo incomplete"
+        "some prerequisite cycle still holds references to it",
+        "that course can never be taken",
+        "the topological order is incomplete",
+        "acyclic graphs would have reduced every indegree to zero"
       ],
       "min_points": 2
     }

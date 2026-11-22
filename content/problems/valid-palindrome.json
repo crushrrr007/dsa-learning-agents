@@ -133,29 +133,32 @@
   ],
   "viva": [
     {
-      "question": "Why can two pointers check a palindrome in linear time?",
+      "question": "Why can two pointers decide a palindrome in linear time?",
       "expected_points": [
-        "one left and one right",
-        "each character visited once",
-        "O(1) extra space"
+        "left and right each move inward at most n times",
+        "every character is compared a constant number of times",
+        "extra memory stays constant",
+        "a mismatch can reject without scanning the center"
       ],
       "min_points": 2
     },
     {
-      "question": "What happens when the string length is 0 or 1?",
+      "question": "What breaks for length 0 or 1 if you insist on finding a mismatch?",
       "expected_points": [
-        "vacuously true",
-        "pointers meet immediately",
-        "return true"
+        "those strings are vacuously palindromes",
+        "the pointers meet before any failing comparison",
+        "the correct answer is true",
+        "there is no pair of distinct positions to disagree"
       ],
       "min_points": 2
     },
     {
-      "question": "Why do you move inward only after a matching pair?",
+      "question": "Why move inward only after a matching pair?",
       "expected_points": [
-        "mismatch means false",
-        "matched ends shrink the range",
-        "invariant: outer checked"
+        "a mismatch already proves the string is not a palindrome",
+        "matched ends shrink the unchecked middle",
+        "the invariant is that every pair outside the pointers already matches",
+        "skipping a match would leave an unchecked outer pair"
       ],
       "min_points": 2
     }

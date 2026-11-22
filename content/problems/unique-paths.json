@@ -121,29 +121,32 @@
   ],
   "viva": [
     {
-      "question": "Why is the grid path count DP O(m n)?",
+      "question": "Why is the grid path-count DP linear in the number of cells?",
       "expected_points": [
-        "dp[r][c]=from above + from left",
-        "each cell once",
-        "only right/down moves"
+        "each cell is filled once from its above and left neighbors",
+        "only right and down moves are allowed so those two parents suffice",
+        "total time is proportional to m times n",
+        "recomputing paths recursively without memoization would explode"
       ],
       "min_points": 2
     },
     {
-      "question": "How many paths exist in a 1\u00d7n grid?",
+      "question": "How many paths exist in a 1 by n grid?",
       "expected_points": [
-        "exactly 1",
-        "only right moves",
-        "fill first row with ones"
+        "exactly one path of only right moves",
+        "the first row is therefore all ones",
+        "there is never a choice to move down",
+        "the same idea makes the first column all ones"
       ],
       "min_points": 2
     },
     {
-      "question": "Why are the first row and column all ones?",
+      "question": "Why are the first row and first column entirely ones?",
       "expected_points": [
-        "only one way along the border",
-        "no choice of turns",
-        "base for the recurrence"
+        "a border cell has only one corridor leading into it",
+        "there are no turns available along that border",
+        "those ones seed every interior recurrence",
+        "any zero on the border would incorrectly kill reachable cells"
       ],
       "min_points": 2
     }

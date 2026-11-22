@@ -178,29 +178,32 @@
   ],
   "viva": [
     {
-      "question": "What is the time cost of your hash-map Two Sum versus checking every pair?",
+      "question": "What is the time cost of a hash-map Two Sum versus checking every pair?",
       "expected_points": [
-        "O(n) single pass with a hash map",
-        "brute pair check is O(n^2)",
-        "each lookup is amortized O(1)"
+        "a single pass is linear time with a hash map",
+        "checking every pair is quadratic",
+        "each map lookup is amortized constant time",
+        "you never rescan earlier indices"
       ],
       "min_points": 2
     },
     {
-      "question": "Which edge case breaks a naive scan that returns the first index twice?",
+      "question": "What breaks if a solution reuses the same index for both addends?",
       "expected_points": [
-        "cannot reuse the same index",
-        "need i < j",
-        "value may appear once only"
+        "the problem requires two distinct indices",
+        "a value that appears once cannot pair with itself",
+        "i must stay strictly less than j",
+        "self-pairs violate the statement even when 2*x equals target"
       ],
       "min_points": 2
     },
     {
-      "question": "Why store seen values as you scan instead of after the full pass?",
+      "question": "Why must you record seen values while scanning instead of after the whole pass?",
       "expected_points": [
-        "complement may already be behind you",
-        "one pass finds both indices",
-        "map holds value\u2192index so far"
+        "the complement may already appear earlier in the array",
+        "the map stores value-to-index for the prefix seen so far",
+        "waiting until the end loses the chance to match on the fly",
+        "one forward scan is enough once past values are remembered"
       ],
       "min_points": 2
     }

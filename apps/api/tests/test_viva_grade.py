@@ -37,8 +37,8 @@ def test_public_problem_hides_expected_points():
 def test_keyword_correct_answer_passes():
     item = _two_sum_rubric()
     answer = (
-        "I scan once in O(n) with a hash map so each lookup is amortized O(1); "
-        "checking every pair would be O(n^2)."
+        "A single pass is linear time with a hash map; each map lookup is amortized constant time, "
+        "while checking every pair is quadratic and you never rescan earlier indices."
     )
     result = keyword_overlap_grade(answer, item["expected_points"], item["min_points"])
     assert result["passed"] is True
@@ -58,8 +58,9 @@ def test_keyword_incorrect_answer_fails():
 
 def test_keyword_partial_follows_min_points():
     item = _two_sum_rubric()
-    # Hits the hash-map / O(n) idea but not the brute O(n^2) contrast.
-    partial = "I keep a hash map while doing a single O(n) pass with amortized O(1) lookups."
+    partial = (
+        "I keep a hash map during one linear pass so each lookup is amortized constant time."
+    )
     result = keyword_overlap_grade(partial, item["expected_points"], min_points=3)
     assert result["passed"] is False
     assert 0 < result["matched_points_count"] < 3
@@ -82,6 +83,72 @@ def test_keyword_prompt_injection_fails():
     assert result["passed"] is False
 
 
+def test_keyword_alternate_complexity_wordings_pass():
+    """Correct answers using O(n²)/quadratic/linearithmic/constant synonyms should pass."""
+    points_quad = [
+        "checking every pair is quadratic",
+        "a nested loops scan is too slow",
+        "the hash map approach stays linear",
+        "each lookup is constant time",
+    ]
+    # Uses n squared / nested loops / linear / constant instead of O(...)
+    ans_quad = (
+        "Checking every pair is n squared work with nested loops; "
+        "the hash map approach stays linear and each lookup is constant."
+    )
+    got = keyword_overlap_grade(ans_quad, points_quad, min_points=2)
+    assert got["passed"] is True
+
+    points_nlogn = [
+        "sorting costs n log n",
+        "a linearithmic preprocess is acceptable",
+        "the later scan is linear",
+        "overall stays better than quadratic",
+    ]
+    ans_nlogn = (
+        "Sorting is linearithmic (n log n); afterward a linear scan finishes, "
+        "which beats a quadratic nested-loops approach."
+    )
+    got2 = keyword_overlap_grade(ans_nlogn, points_nlogn, min_points=2)
+    assert got2["passed"] is True
+
+    points_o1 = [
+        "extra memory is O(1)",
+        "the swap uses constant space",
+        "time remains O(n)",
+        "each element moves once",
+    ]
+    ans_o1 = (
+        "The in-place swap uses constant space while time remains linear; "
+        "each element moves once."
+    )
+    got3 = keyword_overlap_grade(ans_o1, points_o1, min_points=2)
+    assert got3["passed"] is True
+
+    # Unicode O(n²) should also match quadratic points
+    points_unicode = [
+        "brute force is O(n^2)",
+        "optimal work is O(n)",
+        "lookups stay O(1)",
+        "one pass is enough",
+    ]
+    ans_unicode = "Brute force is O(n²); the optimal work is linear with constant-time lookups in one pass."
+    got4 = keyword_overlap_grade(ans_unicode, points_unicode, min_points=2)
+    assert got4["passed"] is True
+
+
+def test_keyword_vague_answer_still_fails_with_alternates():
+    points = [
+        "checking every pair is quadratic",
+        "the hash map approach stays linear",
+        "each lookup is constant time",
+        "you never rescan earlier indices",
+    ]
+    vague = "It is pretty fast and works fine in interviews."
+    got = keyword_overlap_grade(vague, points, min_points=2)
+    assert got["passed"] is False
+
+
 def test_grade_one_viva_fallback_without_key(monkeypatch):
     import asyncio
 
@@ -96,7 +163,8 @@ def test_grade_one_viva_fallback_without_key(monkeypatch):
             item["question"],
             item["expected_points"],
             item["min_points"],
-            "O(n) single pass hash map with amortized O(1) lookups beats the O(n^2) pair check.",
+            "A single pass is linear with a hash map; lookups are amortized constant time; "
+            "checking every pair is quadratic and you never rescan earlier indices.",
         )
         assert good["passed"] is True
         bad = await grade_one_viva(
@@ -117,11 +185,13 @@ def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch
     monkeypatch.setattr("app.runner.viva_grade.chat_complete", _none)
     problem = get_problem("two-sum")
     viva = problem["viva"]
-    # Build strong answers covering each question's points
     answers = [
-        "O(n) single pass with a hash map; brute pair check is O(n^2); each lookup amortized O(1).",
-        "Cannot reuse the same index; need i < j; a value may appear once only.",
-        "The complement may already be behind you; one pass finds both indices; map holds value to index so far.",
+        "A single pass is linear time with a hash map; checking every pair is quadratic; "
+        "each map lookup is amortized constant time; you never rescan earlier indices.",
+        "The problem requires two distinct indices; a value that appears once cannot pair with itself; "
+        "i must stay strictly less than j; self-pairs violate the statement even when 2*x equals target.",
+        "The complement may already appear earlier; the map stores value-to-index for the prefix seen so far; "
+        "waiting until the end loses on-the-fly matches; one forward scan is enough once past values are remembered.",
     ]
     assert len(answers) == len(viva)
 
@@ -148,7 +218,6 @@ def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch
     assert body_bad["passed"] is False
     assert body_bad["mastered"] is False
     assert any(not r["passed"] for r in body_bad["results"])
-    # Feedback must not echo expected_points verbatim
     blob = json.dumps(body_bad)
     for item in viva:
         for point in item["expected_points"]:

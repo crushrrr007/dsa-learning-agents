@@ -156,29 +156,32 @@
   ],
   "viva": [
     {
-      "question": "How can you detect height-balance in one O(n) DFS?",
+      "question": "How can you detect height-balance in one linear DFS?",
       "expected_points": [
-        "return height or -1 sentinel",
-        "check |left-right| <= 1",
-        "bubble failure up"
+        "each node returns a height or a failure sentinel",
+        "a node is balanced only when both children are balanced and their heights differ by at most one",
+        "failure bubbles upward without finishing useless work",
+        "every node is still visited at most once on success"
       ],
       "min_points": 2
     },
     {
       "question": "Is a single-node tree balanced?",
       "expected_points": [
-        "yes",
-        "height 1 or 0 convention consistent",
-        "no children skew"
+        "yes, there is no skew between children",
+        "both child heights are zero",
+        "the absolute difference is zero which is allowed",
+        "the base case returns a valid height instead of failure"
       ],
       "min_points": 2
     },
     {
       "question": "Why abort early when a subtree returns unbalanced?",
       "expected_points": [
-        "whole tree fails",
-        "no need for further height",
-        "propagate sentinel"
+        "the whole tree fails as soon as one subtree fails",
+        "further height arithmetic cannot repair that failure",
+        "propagating the sentinel avoids extra recursion",
+        "balance is a global property that requires every subtree to pass"
       ],
       "min_points": 2
     }

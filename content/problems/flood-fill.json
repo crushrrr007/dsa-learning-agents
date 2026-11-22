@@ -313,27 +313,30 @@
     {
       "question": "What is the time cost of flooding a connected same-color region?",
       "expected_points": [
-        "O(m n) worst case",
-        "each cell at most once",
-        "DFS or BFS"
+        "each cell enters the flood at most once",
+        "worst-case work covers the whole grid",
+        "DFS or BFS both stay linear in the flooded region size",
+        "neighbor checks are constant work per cell"
       ],
       "min_points": 2
     },
     {
-      "question": "What if the starting cell already has the new color?",
+      "question": "What breaks if the starting cell already has the new color and you still recurse?",
       "expected_points": [
-        "nothing to do",
-        "avoid infinite loop",
-        "return grid unchanged"
+        "there is nothing to recolor",
+        "continuing can loop forever on the same color",
+        "returning the grid unchanged is correct",
+        "the early exit preserves the original image"
       ],
       "min_points": 2
     },
     {
-      "question": "Why only recolor 4-neighbors with the original color?",
+      "question": "Why only recolor four-neighbors that still show the original color?",
       "expected_points": [
-        "connectivity rule",
-        "different colors block the flood",
-        "keeps other regions intact"
+        "connectivity is four-directional in this problem",
+        "a different color blocks the flood at that boundary",
+        "other regions must stay intact",
+        "the invariant is that the flooded set equals the original-color component of the start"
       ],
       "min_points": 2
     }

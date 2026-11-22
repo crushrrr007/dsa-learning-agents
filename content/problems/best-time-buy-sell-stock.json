@@ -153,29 +153,32 @@
   ],
   "viva": [
     {
-      "question": "How does one forward scan find the best buy/sell pair in O(n)?",
+      "question": "What is the time cost of finding the best single buy/sell pair in one forward scan?",
       "expected_points": [
-        "track minimum price so far",
-        "profit = price - min",
-        "update best profit"
+        "one linear pass tracks the minimum price so far",
+        "profit for a sell day is price minus that minimum",
+        "the best profit is updated in constant time per day",
+        "no nested day-pair loop is required"
       ],
       "min_points": 2
     },
     {
-      "question": "What do you return when prices only fall?",
+      "question": "What breaks if prices only fall and you still force a sale?",
       "expected_points": [
-        "profit zero",
-        "never sell at a loss",
-        "no positive difference"
+        "the best profit is zero when every difference is negative",
+        "selling at a loss is never required",
+        "the minimum keeps moving forward with no profitable sell",
+        "returning a negative profit violates the problem"
       ],
       "min_points": 2
     },
     {
       "question": "Why is remembering the lowest price behind you enough to judge today's sell?",
       "expected_points": [
-        "best buy is the min so far",
-        "future days handled later",
-        "single pass sufficient"
+        "the best buy for a sell today is the minimum among prior days",
+        "future days are handled when the scan reaches them",
+        "a single pass maintains that running minimum",
+        "any better buy would contradict the minimum invariant"
       ],
       "min_points": 2
     }
