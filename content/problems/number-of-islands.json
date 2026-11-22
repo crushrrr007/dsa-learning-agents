@@ -1,0 +1,224 @@
+{
+  "id": "number-of-islands",
+  "title": "Number of Islands",
+  "topic": "graphs",
+  "difficulty": "medium",
+  "pattern": "Grid DFS flood",
+  "statement": "You get a rectangular `grid` of integers where `1` is land and `0` is water. An island is a maximal group of land cells connected in the four directions (up, down, left, right \u2014 no diagonals). Return how many islands are in the grid. An empty grid has 0 islands.",
+  "examples": [
+    {
+      "input": "grid=[[1,1,0,0,0],[1,1,0,0,0],[0,0,1,0,0],[0,0,0,1,1]]",
+      "output": "3"
+    },
+    {
+      "input": "grid=[[1]]",
+      "output": "1"
+    },
+    {
+      "input": "grid=[[0,0],[0,0]]",
+      "output": "0"
+    }
+  ],
+  "constraints": [
+    "0 <= rows, cols <= 20",
+    "grid[r][c] is 0 or 1"
+  ],
+  "starter_code": "def num_islands(grid):\n    # Use locals named grid and visited so the canvas can show the flood\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    visited = set()\n    # TODO: flood each unvisited land cell\n    return 0\n",
+  "function_name": "num_islands",
+  "visual": "grid",
+  "brute_force_code": "def num_islands(grid):\n    if not grid:\n        return 0\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    def sink(r, c):\n        stack = [(r, c)]\n        while stack:\n            cr, cc = stack.pop()\n            if cr < 0 or cc < 0 or cr >= rows or cc >= cols or grid[cr][cc] != 1:\n                continue\n            grid[cr][cc] = 0\n            stack.extend([(cr + 1, cc), (cr - 1, cc), (cr, cc + 1), (cr, cc - 1)])\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                sink(r, c)\n                count += 1\n    return count\n",
+  "demo_input": [
+    [
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      1
+    ]
+  ],
+  "predict_steps": [
+    {
+      "prompt": "You start a flood at the first land cell (0,0). After the flood finishes, which cells are in visited for that island?",
+      "answer": "(0,0), (0,1), (1,0), (1,1)",
+      "accepted_answers": [
+        "(0,0) (0,1) (1,0) (1,1)",
+        "the 2x2 block of 1s in the top-left",
+        "four cells in the top-left island"
+      ],
+      "hint": "Four-direction flood stays inside the contiguous block of 1s."
+    },
+    {
+      "prompt": "After finishing that island, the scan finds the next unvisited land. What is its (r, c)?",
+      "answer": "(2, 2)",
+      "accepted_answers": [
+        "(2,2)",
+        "2,2",
+        "row 2 col 2"
+      ],
+      "hint": "Row-major scan; the lone 1 in the middle row."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        []
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": 3
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            1,
+            1,
+            1
+          ]
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": 3
+    }
+  ],
+  "edge_cases": [
+    [],
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        0
+      ]
+    ],
+    [
+      [
+        1,
+        0,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "def num_islands(grid):\n    if not grid:\n        return 0\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    visited = set()\n    def dfs(r, c):\n        if r < 0 or c < 0 or r >= rows or c >= cols:\n            return\n        if grid[r][c] != 1 or (r, c) in visited:\n            return\n        visited.add((r, c))\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n    count = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1 and (r, c) not in visited:\n                dfs(r, c)\n                count += 1\n    return count\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

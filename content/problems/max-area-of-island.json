@@ -1,0 +1,226 @@
+{
+  "id": "max-area-of-island",
+  "title": "Max Area of Island",
+  "topic": "graphs",
+  "difficulty": "medium",
+  "pattern": "Grid DFS flood",
+  "statement": "Given a `grid` of `0` (water) and `1` (land), return the area of the largest island. Area is the count of land cells in that island. Islands connect only up/down/left/right. If there is no land, return 0.",
+  "examples": [
+    {
+      "input": "grid=[[0,0,1,0,0],[1,1,1,0,0],[0,0,1,0,0]]",
+      "output": "5"
+    },
+    {
+      "input": "grid=[[0,0,0],[0,0,0]]",
+      "output": "0"
+    },
+    {
+      "input": "grid=[[1,0,1],[1,0,1]]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "1 <= rows, cols <= 20",
+    "grid[r][c] is 0 or 1"
+  ],
+  "starter_code": "def max_area_of_island(grid):\n    rows, cols = len(grid), len(grid[0]) if grid else 0\n    visited = set()\n    # TODO: DFS/BFS each island and track the max size\n    return 0\n",
+  "function_name": "max_area_of_island",
+  "visual": "grid",
+  "brute_force_code": "def max_area_of_island(grid):\n    if not grid:\n        return 0\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    def area(r, c):\n        stack = [(r, c)]\n        size = 0\n        while stack:\n            cr, cc = stack.pop()\n            if cr < 0 or cc < 0 or cr >= rows or cc >= cols or grid[cr][cc] != 1:\n                continue\n            grid[cr][cc] = 0\n            size += 1\n            stack.extend([(cr + 1, cc), (cr - 1, cc), (cr, cc + 1), (cr, cc - 1)])\n        return size\n    best = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1:\n                best = max(best, area(r, c))\n    return best\n",
+  "demo_input": [
+    [
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0
+    ]
+  ],
+  "predict_steps": [
+    {
+      "prompt": "Flood starts at the first land (0,2). After exploring that island fully, what area did you just measure?",
+      "answer": "5",
+      "accepted_answers": [
+        "5",
+        "five"
+      ],
+      "hint": "Five connected 1s form one island."
+    },
+    {
+      "prompt": "If the next land cell you try is already in visited, what do you do?",
+      "answer": "skip it",
+      "accepted_answers": [
+        "skip",
+        "skip it",
+        "continue",
+        "do not start a new flood"
+      ],
+      "hint": "Only unvisited land starts a new island measure."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          [
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        ]
+      ],
+      "expected": 5
+    },
+    {
+      "args": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          [
+            1
+          ]
+        ]
+      ],
+      "expected": 1
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            0,
+            1
+          ],
+          [
+            1,
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            0,
+            1,
+            1
+          ]
+        ]
+      ],
+      "expected": 5
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1
+          ]
+        ]
+      ],
+      "expected": 10
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        0
+      ]
+    ],
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        0,
+        1
+      ]
+    ]
+  ],
+  "reference_solution": "def max_area_of_island(grid):\n    if not grid:\n        return 0\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    visited = set()\n    def dfs(r, c):\n        if r < 0 or c < 0 or r >= rows or c >= cols:\n            return 0\n        if grid[r][c] != 1 or (r, c) in visited:\n            return 0\n        visited.add((r, c))\n        return 1 + dfs(r + 1, c) + dfs(r - 1, c) + dfs(r, c + 1) + dfs(r, c - 1)\n    best = 0\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == 1 and (r, c) not in visited:\n                best = max(best, dfs(r, c))\n    return best\n",
+  "sources": [
+    "neetcode150"
+  ]
+}

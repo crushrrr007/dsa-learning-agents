@@ -1,0 +1,312 @@
+{
+  "id": "flood-fill",
+  "title": "Flood Fill",
+  "topic": "graphs",
+  "difficulty": "easy",
+  "pattern": "Grid DFS flood",
+  "statement": "You are given a `grid` of integer colors, a start cell `(sr, sc)`, and a new `color`. Recolor the connected component of cells that share the start cell's original color (four-direction connectivity) to `color`. Return the resulting grid. If the start color is already `color`, return the grid unchanged (same values).",
+  "examples": [
+    {
+      "input": "grid=[[1,1,1],[1,1,0],[1,0,1]], sr=1, sc=1, color=2",
+      "output": "[[2,2,2],[2,2,0],[2,0,1]]"
+    },
+    {
+      "input": "grid=[[0,0,0],[0,0,0]], sr=0, sc=0, color=0",
+      "output": "[[0,0,0],[0,0,0]]"
+    },
+    {
+      "input": "grid=[[1,0],[0,1]], sr=0, sc=0, color=9",
+      "output": "[[9,0],[0,1]]"
+    }
+  ],
+  "constraints": [
+    "1 <= rows, cols <= 20",
+    "0 <= sr < rows",
+    "0 <= sc < cols"
+  ],
+  "starter_code": "def flood_fill(grid, sr, sc, color):\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    start = grid[sr][sc]\n    visited = set()\n    # TODO: flood from (sr, sc)\n    return grid\n",
+  "function_name": "flood_fill",
+  "visual": "grid",
+  "brute_force_code": "def flood_fill(grid, sr, sc, color):\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    start = grid[sr][sc]\n    if start == color:\n        return grid\n    stack = [(sr, sc)]\n    while stack:\n        r, c = stack.pop()\n        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != start:\n            continue\n        grid[r][c] = color\n        stack.extend([(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)])\n    return grid\n",
+  "demo_input": {
+    "grid": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        1
+      ]
+    ],
+    "sr": 1,
+    "sc": 1,
+    "color": 2
+  },
+  "predict_steps": [
+    {
+      "prompt": "Start color at (1,1) is 1 and new color is 2. After recoloring (1,1), which neighbor shares the start color and should be queued next (name one)?",
+      "answer": "(1,0) or (0,1)",
+      "accepted_answers": [
+        "(1,0)",
+        "(0,1)",
+        "(1, 0)",
+        "(0, 1)",
+        "left or up",
+        "1,0 or 0,1"
+      ],
+      "hint": "Look at four neighbors that still equal the original start color."
+    },
+    {
+      "prompt": "Why is the bottom-right cell (2,2) still 1 after the fill?",
+      "answer": "it is not four-connected to the start component",
+      "accepted_answers": [
+        "not connected",
+        "diagonal only",
+        "not four-connected",
+        "separated by water/other color",
+        "not reachable"
+      ],
+      "hint": "Diagonals do not count as connected."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            0,
+            1
+          ]
+        ],
+        1,
+        1,
+        2
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          0
+        ],
+        [
+          2,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        0,
+        0,
+        9
+      ],
+      "expected": [
+        [
+          9,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          [
+            5
+          ]
+        ],
+        0,
+        0,
+        7
+      ],
+      "expected": [
+        [
+          7
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1
+          ]
+        ],
+        0,
+        0,
+        3
+      ],
+      "expected": [
+        [
+          3,
+          3,
+          3
+        ],
+        [
+          3,
+          3,
+          3
+        ],
+        [
+          3,
+          3,
+          3
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          [
+            2,
+            2,
+            2
+          ],
+          [
+            2,
+            1,
+            2
+          ],
+          [
+            2,
+            2,
+            2
+          ]
+        ],
+        1,
+        1,
+        9
+      ],
+      "expected": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          9,
+          2
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        [
+          1
+        ]
+      ],
+      0,
+      0,
+      1
+    ],
+    [
+      [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      0,
+      1,
+      9
+    ]
+  ],
+  "reference_solution": "def flood_fill(grid, sr, sc, color):\n    grid = [row[:] for row in grid]\n    rows, cols = len(grid), len(grid[0])\n    start = grid[sr][sc]\n    if start == color:\n        return grid\n    visited = set()\n    def dfs(r, c):\n        if r < 0 or c < 0 or r >= rows or c >= cols:\n            return\n        if (r, c) in visited or grid[r][c] != start:\n            return\n        visited.add((r, c))\n        grid[r][c] = color\n        dfs(r + 1, c)\n        dfs(r - 1, c)\n        dfs(r, c + 1)\n        dfs(r, c - 1)\n    dfs(sr, sc)\n    return grid\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

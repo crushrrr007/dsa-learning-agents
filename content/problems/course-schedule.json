@@ -1,0 +1,209 @@
+{
+  "id": "course-schedule",
+  "title": "Course Schedule",
+  "topic": "graphs",
+  "difficulty": "medium",
+  "pattern": "Cycle detection / Kahn",
+  "statement": "There are `n` courses labeled `0 .. n-1`. Each pair in `edges` is `[a, b]` meaning course `a` requires course `b` first (directed dependency from `b` to `a`). Return `true` if you can finish every course, otherwise `false`. A cycle in the dependency graph means you cannot finish.",
+  "examples": [
+    {
+      "input": "n=2, edges=[[1,0]]",
+      "output": "true"
+    },
+    {
+      "input": "n=2, edges=[[1,0],[0,1]]",
+      "output": "false"
+    },
+    {
+      "input": "n=4, edges=[[1,0],[2,0],[3,1],[3,2]]",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= n <= 50",
+    "0 <= len(edges) <= n*(n-1)"
+  ],
+  "starter_code": "from collections import defaultdict, deque\n\ndef can_finish(n, edges):\n    # Build graph: edge b -> a for each [a, b]\n    g = defaultdict(list)\n    # TODO: detect whether a cycle exists\n    return True\n",
+  "function_name": "can_finish",
+  "visual": "graph",
+  "brute_force_code": "def can_finish(n, edges):\n    # Repeatedly remove nodes with indegree 0 (slow O(n^2) scans)\n    remaining = set(range(n))\n    preds = {i: set() for i in range(n)}\n    for a, b in edges:\n        preds[a].add(b)\n    while remaining:\n        ready = [u for u in remaining if preds[u].isdisjoint(remaining)]\n        if not ready:\n            return False\n        for u in ready:\n            remaining.remove(u)\n    return True\n",
+  "demo_input": {
+    "n": 4,
+    "edges": [
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ]
+    ]
+  },
+  "predict_steps": [
+    {
+      "prompt": "With edges [1,0],[2,0],[3,1],[3,2], which course has indegree 0 at the start?",
+      "answer": "0",
+      "accepted_answers": [
+        "0",
+        "course 0"
+      ],
+      "hint": "Nothing requires a prior course before 0."
+    },
+    {
+      "prompt": "If edges also included [0,3], what would can_finish return?",
+      "answer": "false",
+      "accepted_answers": [
+        "false",
+        "False",
+        "no"
+      ],
+      "hint": "That closes a cycle through the dependency chain."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        2,
+        [
+          [
+            1,
+            0
+          ]
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        2,
+        [
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        1,
+        []
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        4,
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        3,
+        [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        5,
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            3
+          ]
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        3,
+        []
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    [
+      1,
+      []
+    ],
+    [
+      2,
+      []
+    ],
+    [
+      2,
+      [
+        [
+          0,
+          1
+        ]
+      ]
+    ]
+  ],
+  "reference_solution": "from collections import defaultdict, deque\n\ndef can_finish(n, edges):\n    g = defaultdict(list)\n    indeg = [0] * n\n    for a, b in edges:\n        g[b].append(a)\n        indeg[a] += 1\n    queue = deque([i for i in range(n) if indeg[i] == 0])\n    seen = 0\n    while queue:\n        u = queue.popleft()\n        seen += 1\n        for v in g[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                queue.append(v)\n    return seen == n\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}
