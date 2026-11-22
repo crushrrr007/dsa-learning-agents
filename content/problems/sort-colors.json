@@ -1,0 +1,185 @@
+{
+  "id": "sort-colors",
+  "title": "Sort Colors",
+  "topic": "two-pointers",
+  "difficulty": "medium",
+  "pattern": "Same-direction pointers",
+  "statement": "Given a list `nums` containing only the values `0`, `1`, and `2`, sort it so that equal values are adjacent in the order 0s, then 1s, then 2s. Return the sorted list (do not rely on in-place mutation alone \u2014 the grader compares your return value).",
+  "examples": [
+    {
+      "input": "nums=[2,0,2,1,1,0]",
+      "output": "[0, 0, 1, 1, 2, 2]"
+    },
+    {
+      "input": "nums=[2,0,1]",
+      "output": "[0, 1, 2]"
+    },
+    {
+      "input": "nums=[0]",
+      "output": "[0]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 200",
+    "nums[i] is 0, 1, or 2"
+  ],
+  "starter_code": "def sort_colors(nums):\n    nums = list(nums)\n    low, mid, high = 0, 0, len(nums) - 1\n    # Dutch-flag partition with low/mid/high\n    return nums\n",
+  "function_name": "sort_colors",
+  "visual": "array",
+  "brute_force_code": "def sort_colors(nums):\n    counts = [0, 0, 0]\n    for x in nums:\n        counts[x] += 1\n    out = []\n    for color in (0, 1, 2):\n        out.extend([color] * counts[color])\n    return out\n",
+  "demo_input": [
+    2,
+    0,
+    2,
+    1,
+    1,
+    0
+  ],
+  "predict_steps": [
+    {
+      "prompt": "Start with low=0, mid=0, high=5 on [2,0,2,1,1,0]. nums[mid] is 2. What do you swap mid with?",
+      "answer": "high",
+      "accepted_answers": [
+        "high",
+        "nums[high]",
+        "the high pointer"
+      ],
+      "hint": "2s belong at the end."
+    },
+    {
+      "prompt": "After that swap the array starts [0,0,2,1,1,2] and high becomes 4. nums[mid] is now 0. What happens to low and mid?",
+      "answer": "both increase by 1",
+      "accepted_answers": [
+        "both += 1",
+        "low and mid advance",
+        "increment low and mid"
+      ],
+      "hint": "0s belong at the front; advance both."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          2,
+          0,
+          2,
+          1,
+          1,
+          0
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          2,
+          0,
+          1
+        ]
+      ],
+      "expected": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          0
+        ]
+      ],
+      "expected": [
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "expected": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          2,
+          2,
+          0,
+          0
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        2,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          0,
+          1,
+          2,
+          0,
+          1,
+          2,
+          0
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        0
+      ]
+    ],
+    [
+      [
+        2,
+        1,
+        0
+      ]
+    ],
+    [
+      [
+        1,
+        0,
+        1,
+        0
+      ]
+    ]
+  ],
+  "reference_solution": "def sort_colors(nums):\n    nums = list(nums)\n    low, mid, high = 0, 0, len(nums) - 1\n    while mid <= high:\n        if nums[mid] == 0:\n            nums[low], nums[mid] = nums[mid], nums[low]\n            low += 1\n            mid += 1\n        elif nums[mid] == 1:\n            mid += 1\n        else:\n            nums[mid], nums[high] = nums[high], nums[mid]\n            high -= 1\n    return nums\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}

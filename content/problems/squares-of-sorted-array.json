@@ -1,0 +1,176 @@
+{
+  "id": "squares-of-sorted-array",
+  "title": "Squares of a Sorted Array",
+  "topic": "two-pointers",
+  "difficulty": "easy",
+  "pattern": "Opposite ends",
+  "statement": "Given a list `nums` sorted in non-decreasing order (may include negatives), return a new list of the squares of each value, also sorted non-decreasing.",
+  "examples": [
+    {
+      "input": "nums=[-4,-1,0,3,10]",
+      "output": "[0, 1, 9, 16, 100]"
+    },
+    {
+      "input": "nums=[-7,-3,2,3,11]",
+      "output": "[4, 9, 9, 49, 121]"
+    },
+    {
+      "input": "nums=[0,1,2]",
+      "output": "[0, 1, 4]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 200",
+    "nums is sorted non-decreasing"
+  ],
+  "starter_code": "def sorted_squares(nums):\n    left, right = 0, len(nums) - 1\n    # Fill result from the back with the larger square\n    return []\n",
+  "function_name": "sorted_squares",
+  "visual": "array",
+  "brute_force_code": "def sorted_squares(nums):\n    return sorted(x * x for x in nums)\n",
+  "demo_input": [
+    -4,
+    -1,
+    0,
+    3,
+    10
+  ],
+  "predict_steps": [
+    {
+      "prompt": "left points at -4 and right at 10. Whose square is larger?",
+      "answer": "10",
+      "accepted_answers": [
+        "10",
+        "right",
+        "100"
+      ],
+      "hint": "Compare (-4)^2=16 vs 10^2=100."
+    },
+    {
+      "prompt": "After placing 100 at the end of the result, which pointer moves?",
+      "answer": "right",
+      "accepted_answers": [
+        "right",
+        "right decreases",
+        "right -= 1"
+      ],
+      "hint": "You consumed the rightmost value."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          -4,
+          -1,
+          0,
+          3,
+          10
+        ]
+      ],
+      "expected": [
+        0,
+        1,
+        9,
+        16,
+        100
+      ]
+    },
+    {
+      "args": [
+        [
+          -7,
+          -3,
+          2,
+          3,
+          11
+        ]
+      ],
+      "expected": [
+        4,
+        9,
+        9,
+        49,
+        121
+      ]
+    },
+    {
+      "args": [
+        [
+          0
+        ]
+      ],
+      "expected": [
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          -5,
+          -3,
+          -1
+        ]
+      ],
+      "expected": [
+        1,
+        9,
+        25
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ]
+      ],
+      "expected": [
+        1,
+        4,
+        9
+      ]
+    },
+    {
+      "args": [
+        [
+          -2,
+          -1,
+          0,
+          1,
+          2
+        ]
+      ],
+      "expected": [
+        0,
+        1,
+        1,
+        4,
+        4
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        0
+      ]
+    ],
+    [
+      [
+        -1
+      ]
+    ],
+    [
+      [
+        1,
+        2
+      ]
+    ]
+  ],
+  "reference_solution": "def sorted_squares(nums):\n    n = len(nums)\n    out = [0] * n\n    left, right = 0, n - 1\n    for i in range(n - 1, -1, -1):\n        if abs(nums[left]) >= abs(nums[right]):\n            out[i] = nums[left] * nums[left]\n            left += 1\n        else:\n            out[i] = nums[right] * nums[right]\n            right -= 1\n    return out\n",
+  "sources": [
+    "neetcode150",
+    "grind75"
+  ]
+}
