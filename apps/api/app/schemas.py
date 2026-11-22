@@ -234,6 +234,8 @@ class AgentChatResponse(BaseModel):
     reply: str
     guiding_question: str | None = None
     llm_mode: str | None = None
+    guard_triggered: bool = False
+    regenerated: bool = False
 
 
 class DiagnosticQuestionOut(BaseModel):

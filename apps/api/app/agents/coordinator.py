@@ -13,6 +13,13 @@ from app.agents.llm import (
     summarize_facts,
 )
 from app.agents.notes_store import retrieve_notes
+from app.agents.solution_guard import (
+    detect_solution_leak,
+    log_guard_event,
+    regenerate_without_solution,
+    safe_fallback_reply,
+)
+from app.content_loader import get_problem
 
 AgentRoute = Literal[
     "concept_tutor",
@@ -45,6 +52,13 @@ class AgentState(TypedDict, total=False):
     reply: str
     guiding_question: str
     agent_label: str
+    session_id: str
+    problem_id: str
+    function_name: str
+    reference_solution: str
+    guard_triggered: bool
+    regenerated: bool
+    guard_reason: str
 
 
 def choose_agent(stage: int, message: str, preferred: str | None = None) -> AgentRoute:
@@ -94,6 +108,9 @@ def route_node(state: AgentState) -> AgentState:
         "notes": notes,
         "agent": route,
         "agent_label": AGENT_ROLES.get(route, route),
+        "guard_triggered": False,
+        "regenerated": False,
+        "guard_reason": "",
     }
 
 
@@ -173,6 +190,90 @@ async def viva_agent_node(state: AgentState) -> AgentState:
     return await _reply_for("viva_agent", state)
 
 
+async def guard_node(state: AgentState) -> AgentState:
+    """Run after every agent; block leaked full solutions before END."""
+    reply = state.get("reply") or ""
+    function_name = state.get("function_name") or ""
+    reference_solution = state.get("reference_solution") or ""
+    topic = state.get("topic") or "arrays"
+    stage = int(state.get("stage") or 0)
+    agent = state.get("agent") or "coordinator"
+    session_id = state.get("session_id") or ""
+    problem_id = state.get("problem_id") or ""
+
+    leaked, reason = await detect_solution_leak(
+        reply,
+        function_name=function_name,
+        reference_solution=reference_solution,
+        use_llm=True,
+    )
+    if not leaked:
+        log_guard_event(
+            session_id=session_id,
+            agent=agent,
+            problem_id=problem_id,
+            guard_triggered=False,
+            regenerated=False,
+        )
+        return {
+            **state,
+            "guard_triggered": False,
+            "regenerated": False,
+            "guard_reason": "",
+        }
+
+    # Regenerate once with a stricter policy — never put reference_solution in the prompt.
+    regenerated_reply = await regenerate_without_solution(
+        agent=agent,
+        topic=topic,
+        stage=stage,
+        message=state.get("message") or "",
+        prior_reply=reply,
+    )
+    if regenerated_reply:
+        still_leaked, regen_reason = await detect_solution_leak(
+            regenerated_reply,
+            function_name=function_name,
+            reference_solution=reference_solution,
+            use_llm=False,  # cheap checks only on the second pass
+        )
+        if not still_leaked:
+            log_guard_event(
+                session_id=session_id,
+                agent=agent,
+                problem_id=problem_id,
+                guard_triggered=True,
+                regenerated=True,
+                reason=reason,
+            )
+            return {
+                **state,
+                "reply": regenerated_reply,
+                "guard_triggered": True,
+                "regenerated": True,
+                "guard_reason": reason,
+            }
+        reason = regen_reason or reason
+
+    fallback = safe_fallback_reply(topic=topic, stage=stage, agent=agent)
+    log_guard_event(
+        session_id=session_id,
+        agent=agent,
+        problem_id=problem_id,
+        guard_triggered=True,
+        regenerated=True,
+        reason=reason or "fallback",
+    )
+    return {
+        **state,
+        "reply": fallback["reply"],
+        "guiding_question": fallback["guiding_question"],
+        "guard_triggered": True,
+        "regenerated": True,
+        "guard_reason": reason or "fallback",
+    }
+
+
 def build_graph():
     graph = StateGraph(AgentState)
     graph.add_node("router", route_node)
@@ -181,6 +282,7 @@ def build_graph():
     graph.add_node("predict_coach", predict_coach_node)
     graph.add_node("code_mentor", code_mentor_node)
     graph.add_node("viva_agent", viva_agent_node)
+    graph.add_node("guard", guard_node)
     graph.set_entry_point("router")
     graph.add_conditional_edges(
         "router",
@@ -194,7 +296,8 @@ def build_graph():
         },
     )
     for name in ("concept_tutor", "demo_coach", "predict_coach", "code_mentor", "viva_agent"):
-        graph.add_edge(name, END)
+        graph.add_edge(name, "guard")
+    graph.add_edge("guard", END)
     return graph.compile()
 
 
@@ -222,16 +325,35 @@ async def run_coordinator(
     code: str | None = None,
     facts: dict[str, Any] | None = None,
     preferred_agent: str | None = None,
-) -> dict[str, str | None]:
+    session_id: str | None = None,
+    problem_id: str | None = None,
+) -> dict[str, Any]:
+    function_name = ""
+    reference_solution = ""
+    resolved_topic = topic or "arrays"
+    if problem_id:
+        try:
+            problem = get_problem(problem_id)
+            function_name = str(problem.get("function_name") or "")
+            reference_solution = str(problem.get("reference_solution") or "")
+            resolved_topic = topic or str(problem.get("topic") or resolved_topic)
+        except KeyError:
+            pass
+
     graph = get_graph()
     result = await graph.ainvoke(
         {
             "stage": stage,
-            "topic": topic or "arrays",
+            "topic": resolved_topic,
             "message": message,
             "code": code or "",
             "facts": facts or {},
             "preferred_agent": preferred_agent or "",
+            "session_id": session_id or "",
+            "problem_id": problem_id or "",
+            "function_name": function_name,
+            # Server-side only — never returned to clients or hint prompts.
+            "reference_solution": reference_solution,
         }
     )
     return {
@@ -239,4 +361,6 @@ async def run_coordinator(
         "agent_label": result.get("agent_label"),
         "reply": result.get("reply") or "Ask a more specific question about the concept or your last run.",
         "guiding_question": result.get("guiding_question"),
+        "guard_triggered": bool(result.get("guard_triggered")),
+        "regenerated": bool(result.get("regenerated")),
     }
