@@ -1,0 +1,118 @@
+{
+  "id": "valid-anagram",
+  "title": "Valid Anagram",
+  "topic": "arrays",
+  "difficulty": "easy",
+  "pattern": "Hash map lookup",
+  "statement": "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s` (same characters with the same frequencies), otherwise `false`. Treat characters case-sensitively; inputs use lowercase letters only in these tests.",
+  "examples": [
+    {
+      "input": "s=\"anagram\", t=\"nagaram\"",
+      "output": "true"
+    },
+    {
+      "input": "s=\"rat\", t=\"car\"",
+      "output": "false"
+    },
+    {
+      "input": "s=\"a\", t=\"a\"",
+      "output": "true"
+    }
+  ],
+  "constraints": [
+    "1 <= len(s), len(t) <= 200",
+    "lowercase English letters"
+  ],
+  "starter_code": "def is_anagram(s, t):\n    arr = list(s)\n    # Compare character counts of s and t\n    return False\n",
+  "function_name": "is_anagram",
+  "visual": "array",
+  "brute_force_code": "def is_anagram(s, t):\n    if len(s) != len(t):\n        return False\n    return sorted(s) == sorted(t)\n",
+  "demo_input": {
+    "s": "anagram",
+    "t": "nagaram"
+  },
+  "predict_steps": [
+    {
+      "prompt": "If len(s) != len(t), what can you return immediately?",
+      "answer": "false",
+      "accepted_answers": [
+        "false",
+        "False"
+      ],
+      "hint": "Anagrams must be the same length."
+    },
+    {
+      "prompt": "For s='anagram', after counting, how many times does 'a' appear?",
+      "answer": "3",
+      "accepted_answers": [
+        "3",
+        "three"
+      ],
+      "hint": "Positions of a in anagram."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        "anagram",
+        "nagaram"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "rat",
+        "car"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "a",
+        "a"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "ab",
+        "a"
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        "aabb",
+        "abab"
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        "abc",
+        "cba"
+      ],
+      "expected": true
+    }
+  ],
+  "edge_cases": [
+    [
+      "a",
+      "b"
+    ],
+    [
+      "aa",
+      "aa"
+    ],
+    [
+      "ab",
+      "ba"
+    ]
+  ],
+  "reference_solution": "def is_anagram(s, t):\n    arr = list(s)\n    if len(s) != len(t):\n        return False\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        if ch not in counts:\n            return False\n        counts[ch] -= 1\n        if counts[ch] < 0:\n            return False\n    return True\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

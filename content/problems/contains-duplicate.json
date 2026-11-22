@@ -1,0 +1,147 @@
+{
+  "id": "contains-duplicate",
+  "title": "Contains Duplicate",
+  "topic": "arrays",
+  "difficulty": "easy",
+  "pattern": "Hash map lookup",
+  "statement": "Given a list `nums`, return `true` if any value appears at least twice, otherwise return `false`.",
+  "examples": [
+    {
+      "input": "nums=[1,2,3,1]",
+      "output": "true"
+    },
+    {
+      "input": "nums=[1,2,3,4]",
+      "output": "false"
+    },
+    {
+      "input": "nums=[1]",
+      "output": "false"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 200"
+  ],
+  "starter_code": "def contains_duplicate(nums):\n    # Track values already seen while scanning nums\n    return False\n",
+  "function_name": "contains_duplicate",
+  "visual": "array",
+  "brute_force_code": "def contains_duplicate(nums):\n    n = len(nums)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if nums[i] == nums[j]:\n                return True\n    return False\n",
+  "demo_input": [
+    1,
+    2,
+    3,
+    1
+  ],
+  "predict_steps": [
+    {
+      "prompt": "Scanning nums=[1,2,3,1], after seeing indices 0..2, what values are in the seen set?",
+      "answer": "1, 2, 3",
+      "accepted_answers": [
+        "1 2 3",
+        "{1,2,3}",
+        "1,2,3"
+      ],
+      "hint": "Every new value is added until a repeat."
+    },
+    {
+      "prompt": "When you reach the last 1, what do you return?",
+      "answer": "true",
+      "accepted_answers": [
+        "true",
+        "True",
+        "yes"
+      ],
+      "hint": "1 is already in seen."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": false
+    },
+    {
+      "args": [
+        [
+          7,
+          7
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          -1,
+          0,
+          -1
+        ]
+      ],
+      "expected": true
+    },
+    {
+      "args": [
+        [
+          10,
+          9,
+          8,
+          7,
+          6,
+          5
+        ]
+      ],
+      "expected": false
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        2,
+        2
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ]
+    ]
+  ],
+  "reference_solution": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

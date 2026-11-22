@@ -1,0 +1,186 @@
+{
+  "id": "top-k-frequent",
+  "title": "Top K Frequent Elements",
+  "topic": "arrays",
+  "difficulty": "medium",
+  "pattern": "Frequency select",
+  "statement": "Given a list `nums` and an integer `k`, return the `k` most frequent values. Canonical order: sort candidates by frequency descending, breaking ties by value ascending, then take the first `k` values in that order.",
+  "examples": [
+    {
+      "input": "nums=[1,1,1,2,2,3], k=2",
+      "output": "[1, 2]"
+    },
+    {
+      "input": "nums=[1], k=1",
+      "output": "[1]"
+    },
+    {
+      "input": "nums=[4,4,4,5,5,6], k=2",
+      "output": "[4, 5]"
+    }
+  ],
+  "constraints": [
+    "1 <= k <= number of unique values",
+    "1 <= len(nums) <= 200"
+  ],
+  "starter_code": "def top_k_frequent(nums, k):\n    # Count frequencies in nums, then pick top k by the stated order\n    return []\n",
+  "function_name": "top_k_frequent",
+  "visual": "array",
+  "brute_force_code": "def top_k_frequent(nums, k):\n    uniq = list(set(nums))\n    scored = []\n    for v in uniq:\n        scored.append((-nums.count(v), v))\n    scored.sort()\n    return [v for _, v in scored[:k]]\n",
+  "demo_input": {
+    "nums": [
+      1,
+      1,
+      1,
+      2,
+      2,
+      3
+    ],
+    "k": 2
+  },
+  "predict_steps": [
+    {
+      "prompt": "For nums=[1,1,1,2,2,3], what is the frequency of 1?",
+      "answer": "3",
+      "accepted_answers": [
+        "3",
+        "three"
+      ],
+      "hint": "Count occurrences of 1."
+    },
+    {
+      "prompt": "With k=2 and ties broken by value ascending, which two values are returned?",
+      "answer": "[1, 2]",
+      "accepted_answers": [
+        "[1,2]",
+        "1 2",
+        "1,2"
+      ],
+      "hint": "1 has higher frequency than 2; 3 is dropped."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          1,
+          1,
+          2,
+          2,
+          3
+        ],
+        2
+      ],
+      "expected": [
+        1,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          1
+        ],
+        1
+      ],
+      "expected": [
+        1
+      ]
+    },
+    {
+      "args": [
+        [
+          4,
+          4,
+          4,
+          5,
+          5,
+          6
+        ],
+        2
+      ],
+      "expected": [
+        4,
+        5
+      ]
+    },
+    {
+      "args": [
+        [
+          1,
+          2,
+          3
+        ],
+        3
+      ],
+      "expected": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "args": [
+        [
+          7,
+          7,
+          8,
+          8
+        ],
+        1
+      ],
+      "expected": [
+        7
+      ]
+    },
+    {
+      "args": [
+        [
+          -1,
+          -1,
+          -2,
+          -2,
+          -2,
+          0
+        ],
+        2
+      ],
+      "expected": [
+        -2,
+        -1
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ],
+      1
+    ],
+    [
+      [
+        1,
+        1,
+        2
+      ],
+      1
+    ],
+    [
+      [
+        3,
+        2,
+        1,
+        1
+      ],
+      2
+    ]
+  ],
+  "reference_solution": "def top_k_frequent(nums, k):\n    counts = {}\n    for x in nums:\n        counts[x] = counts.get(x, 0) + 1\n    ranked = sorted(counts.keys(), key=lambda v: (-counts[v], v))\n    return ranked[:k]\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

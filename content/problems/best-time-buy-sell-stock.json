@@ -1,0 +1,154 @@
+{
+  "id": "best-time-buy-sell-stock",
+  "title": "Best Time to Buy and Sell Stock",
+  "topic": "arrays",
+  "difficulty": "easy",
+  "pattern": "Running extremum",
+  "statement": "You are given daily prices in a list `nums`. Choose one day to buy and a later day to sell. Return the maximum profit. If no profitable sale exists, return 0.",
+  "examples": [
+    {
+      "input": "nums=[7,1,5,3,6,4]",
+      "output": "5"
+    },
+    {
+      "input": "nums=[7,6,4,3,1]",
+      "output": "0"
+    },
+    {
+      "input": "nums=[2,4,1]",
+      "output": "2"
+    }
+  ],
+  "constraints": [
+    "1 <= len(nums) <= 200",
+    "prices are non-negative integers"
+  ],
+  "starter_code": "def max_profit(nums):\n    # Track the lowest price so far while scanning nums\n    return 0\n",
+  "function_name": "max_profit",
+  "visual": "array",
+  "brute_force_code": "def max_profit(nums):\n    best = 0\n    n = len(nums)\n    for i in range(n):\n        for j in range(i + 1, n):\n            profit = nums[j] - nums[i]\n            if profit > best:\n                best = profit\n    return best\n",
+  "demo_input": [
+    7,
+    1,
+    5,
+    3,
+    6,
+    4
+  ],
+  "predict_steps": [
+    {
+      "prompt": "After seeing 7 then 1, what is the lowest buy price so far?",
+      "answer": "1",
+      "accepted_answers": [
+        "1"
+      ],
+      "hint": "Update the minimum when a cheaper day appears."
+    },
+    {
+      "prompt": "Selling at 6 after buying at 1 yields what profit?",
+      "answer": "5",
+      "accepted_answers": [
+        "5"
+      ],
+      "hint": "6 - 1."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          7,
+          1,
+          5,
+          3,
+          6,
+          4
+        ]
+      ],
+      "expected": 5
+    },
+    {
+      "args": [
+        [
+          7,
+          6,
+          4,
+          3,
+          1
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          2,
+          4,
+          1
+        ]
+      ],
+      "expected": 2
+    },
+    {
+      "args": [
+        [
+          1
+        ]
+      ],
+      "expected": 0
+    },
+    {
+      "args": [
+        [
+          3,
+          2,
+          6,
+          5,
+          0,
+          3
+        ]
+      ],
+      "expected": 4
+    },
+    {
+      "args": [
+        [
+          2,
+          1,
+          2,
+          1,
+          0,
+          1,
+          2
+        ]
+      ],
+      "expected": 2
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1
+      ]
+    ],
+    [
+      [
+        2,
+        1
+      ]
+    ],
+    [
+      [
+        1,
+        2,
+        3
+      ]
+    ]
+  ],
+  "reference_solution": "def max_profit(nums):\n    best = 0\n    low = nums[0]\n    for x in nums:\n        if x < low:\n            low = x\n        profit = x - low\n        if profit > best:\n            best = profit\n    return best\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

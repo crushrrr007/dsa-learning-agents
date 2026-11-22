@@ -1,0 +1,197 @@
+{
+  "id": "group-anagrams",
+  "title": "Group Anagrams",
+  "topic": "arrays",
+  "difficulty": "medium",
+  "pattern": "Hash grouping",
+  "statement": "Given a list of strings `arr`, group anagrams together. Return a list of groups. Canonical order: sort the strings inside each group alphabetically, then sort the list of groups by each group's first string.",
+  "examples": [
+    {
+      "input": "arr=[\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+      "output": "[[\"ate\",\"eat\",\"tea\"],[\"bat\"],[\"nat\",\"tan\"]]"
+    },
+    {
+      "input": "arr=[\"\"]",
+      "output": "[[\"\"]]"
+    },
+    {
+      "input": "arr=[\"a\"]",
+      "output": "[[\"a\"]]"
+    }
+  ],
+  "constraints": [
+    "1 <= len(arr) <= 100",
+    "0 <= len(arr[i]) <= 20",
+    "lowercase letters or empty string"
+  ],
+  "starter_code": "def group_anagrams(arr):\n    # Key each string by a sorted signature, then canonicalize groups\n    return []\n",
+  "function_name": "group_anagrams",
+  "visual": "array",
+  "brute_force_code": "def group_anagrams(arr):\n    used = [False] * len(arr)\n    groups = []\n    for i in range(len(arr)):\n        if used[i]:\n            continue\n        group = [arr[i]]\n        used[i] = True\n        for j in range(i + 1, len(arr)):\n            if not used[j] and sorted(arr[i]) == sorted(arr[j]):\n                group.append(arr[j])\n                used[j] = True\n        groups.append(sorted(group))\n    groups.sort(key=lambda g: g[0])\n    return groups\n",
+  "demo_input": [
+    "eat",
+    "tea",
+    "tan",
+    "ate",
+    "nat",
+    "bat"
+  ],
+  "predict_steps": [
+    {
+      "prompt": "What signature key do 'eat' and 'tea' share?",
+      "answer": "aet",
+      "accepted_answers": [
+        "aet",
+        "sorted eat"
+      ],
+      "hint": "Sort the characters."
+    },
+    {
+      "prompt": "After grouping and sorting, which group comes first in the returned list?",
+      "answer": "[\"ate\",\"eat\",\"tea\"]",
+      "accepted_answers": [
+        "ate eat tea",
+        "[ate, eat, tea]",
+        "the eat group"
+      ],
+      "hint": "Groups sorted by first element; 'ate' < 'bat'."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      ],
+      "expected": [
+        [
+          "ate",
+          "eat",
+          "tea"
+        ],
+        [
+          "bat"
+        ],
+        [
+          "nat",
+          "tan"
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          ""
+        ]
+      ],
+      "expected": [
+        [
+          ""
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          "a"
+        ]
+      ],
+      "expected": [
+        [
+          "a"
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          "ab",
+          "ba",
+          "abc",
+          "cba",
+          "bca"
+        ]
+      ],
+      "expected": [
+        [
+          "ab",
+          "ba"
+        ],
+        [
+          "abc",
+          "bca",
+          "cba"
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          "hhh",
+          "hhh",
+          "gg"
+        ]
+      ],
+      "expected": [
+        [
+          "gg"
+        ],
+        [
+          "hhh",
+          "hhh"
+        ]
+      ]
+    },
+    {
+      "args": [
+        [
+          "z",
+          "y",
+          "x"
+        ]
+      ],
+      "expected": [
+        [
+          "x"
+        ],
+        [
+          "y"
+        ],
+        [
+          "z"
+        ]
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        "a"
+      ]
+    ],
+    [
+      [
+        "ab",
+        "ba"
+      ]
+    ],
+    [
+      [
+        "",
+        ""
+      ]
+    ]
+  ],
+  "reference_solution": "def group_anagrams(arr):\n    buckets = {}\n    for s in arr:\n        key = ''.join(sorted(s))\n        buckets.setdefault(key, []).append(s)\n    groups = [sorted(v) for v in buckets.values()]\n    groups.sort(key=lambda g: g[0])\n    return groups\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}

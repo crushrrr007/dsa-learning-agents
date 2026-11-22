@@ -1,0 +1,173 @@
+{
+  "id": "product-except-self",
+  "title": "Product of Array Except Self",
+  "topic": "arrays",
+  "difficulty": "medium",
+  "pattern": "Prefix products",
+  "statement": "Given a list `nums` of integers, return a list `out` where `out[i]` is the product of every value in `nums` except `nums[i]`. Do not use division. The result list must be the same length as `nums`.",
+  "examples": [
+    {
+      "input": "nums=[1,2,3,4]",
+      "output": "[24, 12, 8, 6]"
+    },
+    {
+      "input": "nums=[-1,1,0,-3,3]",
+      "output": "[0, 0, 9, 0, 0]"
+    },
+    {
+      "input": "nums=[2,3]",
+      "output": "[3, 2]"
+    }
+  ],
+  "constraints": [
+    "2 <= len(nums) <= 100",
+    "Product fits in a 32-bit signed int for these tests"
+  ],
+  "starter_code": "def product_except_self(nums):\n    # Build prefix and suffix products while scanning nums\n    return []\n",
+  "function_name": "product_except_self",
+  "visual": "array",
+  "brute_force_code": "def product_except_self(nums):\n    n = len(nums)\n    out = []\n    for i in range(n):\n        p = 1\n        for j in range(n):\n            if i != j:\n                p *= nums[j]\n        out.append(p)\n    return out\n",
+  "demo_input": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "predict_steps": [
+    {
+      "prompt": "For nums=[1,2,3,4], after a left-to-right prefix pass, what is the prefix product just before index 2?",
+      "answer": "2",
+      "accepted_answers": [
+        "2",
+        "1*2"
+      ],
+      "hint": "Product of nums[0]*nums[1]."
+    },
+    {
+      "prompt": "What should out[0] equal for this demo?",
+      "answer": "24",
+      "accepted_answers": [
+        "24",
+        "2*3*4"
+      ],
+      "hint": "Product of everything except the first value."
+    }
+  ],
+  "hidden_tests": [
+    {
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expected": [
+        24,
+        12,
+        8,
+        6
+      ]
+    },
+    {
+      "args": [
+        [
+          -1,
+          1,
+          0,
+          -3,
+          3
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        9,
+        0,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          2,
+          3
+        ]
+      ],
+      "expected": [
+        3,
+        2
+      ]
+    },
+    {
+      "args": [
+        [
+          0,
+          0
+        ]
+      ],
+      "expected": [
+        0,
+        0
+      ]
+    },
+    {
+      "args": [
+        [
+          5,
+          1,
+          1,
+          1
+        ]
+      ],
+      "expected": [
+        1,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "args": [
+        [
+          -2,
+          -3,
+          -4
+        ]
+      ],
+      "expected": [
+        12,
+        8,
+        6
+      ]
+    }
+  ],
+  "edge_cases": [
+    [
+      [
+        1,
+        1
+      ]
+    ],
+    [
+      [
+        0,
+        1
+      ]
+    ],
+    [
+      [
+        2,
+        0,
+        3
+      ]
+    ]
+  ],
+  "reference_solution": "def product_except_self(nums):\n    n = len(nums)\n    out = [1] * n\n    left = 1\n    for i in range(n):\n        out[i] = left\n        left *= nums[i]\n    right = 1\n    for i in range(n - 1, -1, -1):\n        out[i] *= right\n        right *= nums[i]\n    return out\n",
+  "sources": [
+    "blind75",
+    "neetcode150",
+    "grind75"
+  ]
+}
