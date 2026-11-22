@@ -49,7 +49,15 @@ export default function ProblemWorkspacePage() {
   const [predictMsg, setPredictMsg] = useState<string | null>(null);
   const [testMsg, setTestMsg] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<
-    { index: number; passed: boolean; input: unknown; expected: unknown; got: unknown; error: string | null }[]
+    {
+      index: number;
+      passed: boolean;
+      input: unknown;
+      expected: unknown;
+      got: unknown;
+      error: string | null;
+      visible?: boolean;
+    }[]
   >([]);
   const [viva, setViva] = useState<{ id: string; prompt: string }[]>([]);
   const [vivaAnswers, setVivaAnswers] = useState<string[]>(["", ""]);
@@ -151,7 +159,7 @@ export default function ProblemWorkspacePage() {
     setTestMsg(null);
     try {
       const res = await runTests(problem.id, code);
-      setStage(Math.max(stage, res.stage, 4));
+      setStage(Math.max(stage, res.stage));
       setTestResults(res.results);
       const passed = res.results.filter((r) => r.passed).length;
       setTestMsg(
@@ -464,11 +472,16 @@ export default function ProblemWorkspacePage() {
                     }`}
                   >
                     <div className="font-sans font-semibold">
-                      {r.passed ? "Passed" : "Failed"} · Case {r.index + 1}
+                      {r.passed ? "Passed" : "Failed"} ·{" "}
+                      {r.visible ? `Example ${r.index + 1}` : `Hidden case ${r.index}`}
                     </div>
-                    <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
-                    <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
-                    <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
+                    {r.visible && (
+                      <>
+                        <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
+                        <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
+                        <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
+                      </>
+                    )}
                     {r.error && <div className="text-rose-300">{r.error}</div>}
                   </li>
                 ))}

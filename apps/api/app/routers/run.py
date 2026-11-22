@@ -9,10 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.content_loader import get_problem
 from app.db import get_db
 from app.kg_service import record_attempt_kg, record_mastered_kg
-from app.progress_service import record_attempt, save_code, set_stage
+from app.progress_service import get_or_create_progress, mark_mastered, record_attempt, save_code, set_stage
 from app.runner.ast_analyzer import analyze_code, generate_viva
 from app.runner.performance import default_args_for_problem, measure_scaling
-from app.runner.problem_args import edge_case_args, normalize_demo_args
+from app.runner.problem_args import (
+    edge_case_args,
+    normalize_demo_args,
+    parse_example_args,
+    parse_example_expected,
+)
 from app.runner.sandbox import run_student_code
 from app.runner.trace_check import answer_supported_by_trace, run_reference_trace
 from app.schemas import (
@@ -26,7 +31,6 @@ from app.schemas import (
     TraceEvent,
     VivaSubmit,
 )
-from app.progress_service import mark_mastered
 
 router = APIRouter(tags=["run"])
 
@@ -180,48 +184,90 @@ async def run_tests(body: TestRequest, db: AsyncSession = Depends(get_db)) -> Te
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Problem not found") from exc
 
+    progress = await get_or_create_progress(db, body.session_id, body.problem_id, problem["topic"])
+    current_stage = int(progress.stage or 0)
+
     await save_code(db, body.session_id, body.problem_id, problem["topic"], body.code)
     analysis = analyze_code(body.code)
     results: list[TestCaseResult] = []
-    for idx, case in enumerate(problem.get("hidden_tests", [])):
-        raw = run_student_code(body.code, problem["function_name"], args=case["args"])
-        expected = case["expected"]
+    grading: list[bool] = []
+
+    # Visible examples — show input/expected on failure for student feedback.
+    for idx, ex in enumerate(problem.get("examples") or []):
+        try:
+            args = parse_example_args(problem, ex["input"])
+            expected = parse_example_expected(ex["output"])
+        except (SyntaxError, ValueError, AssertionError):
+            continue
+        raw = run_student_code(body.code, problem["function_name"], args=args)
         got = raw.get("result")
         passed = bool(raw.get("ok")) and got == expected
         results.append(
             TestCaseResult(
                 index=idx,
                 passed=passed,
-                input=case["args"],
+                input=args,
                 expected=expected,
                 got=got,
                 error=raw.get("error"),
+                visible=True,
             )
         )
 
-    # Extra edge cases: compare student vs hidden reference on server only
+    # Hidden tests — grade privately; never leak args/expected/got.
+    for idx, case in enumerate(problem.get("hidden_tests", [])):
+        raw = run_student_code(body.code, problem["function_name"], args=case["args"])
+        expected = case["expected"]
+        got = raw.get("result")
+        passed = bool(raw.get("ok")) and got == expected
+        grading.append(passed)
+        results.append(
+            TestCaseResult(
+                index=1000 + idx,
+                passed=passed,
+                input=None,
+                expected=None,
+                got=None,
+                error=None if passed else ("Runtime error" if raw.get("error") else "Wrong answer"),
+                visible=False,
+            )
+        )
+
+    # Edge cases — same privacy rules as hidden tests.
     for idx, edge in enumerate(problem.get("edge_cases", [])):
         args = edge_case_args(problem, edge)
         ref = run_student_code(problem["reference_solution"], problem["function_name"], args=args)
         stu = run_student_code(body.code, problem["function_name"], args=args)
         expected = ref.get("result") if ref.get("ok") else None
         passed = bool(stu.get("ok")) and expected is not None and stu.get("result") == expected
+        grading.append(passed)
         results.append(
             TestCaseResult(
-                index=100 + idx,
+                index=2000 + idx,
                 passed=passed,
-                input=args,
-                expected=expected,
-                got=stu.get("result"),
-                error=stu.get("error"),
+                input=None,
+                expected=None,
+                got=None,
+                error=None if passed else ("Runtime error" if stu.get("error") else "Wrong answer"),
+                visible=False,
             )
         )
 
-    passed_all = all(r.passed for r in results) and len(results) > 0
+    passed_all = bool(grading) and all(grading)
     viva = generate_viva(body.code, problem["title"]) if passed_all else []
-    stage = 4
-    await set_stage(db, body.session_id, body.problem_id, problem["topic"], 4)
-    await record_attempt(db, body.session_id, body.problem_id, 4, passed_all, f"{sum(r.passed for r in results)}/{len(results)}")
+    if passed_all:
+        row = await set_stage(db, body.session_id, body.problem_id, problem["topic"], 4)
+        stage = row.stage
+    else:
+        stage = current_stage
+    await record_attempt(
+        db,
+        body.session_id,
+        body.problem_id,
+        4 if passed_all else current_stage,
+        passed_all,
+        f"{sum(1 for g in grading if g)}/{len(grading)}",
+    )
     return TestResponse(
         passed_all=passed_all,
         results=results,

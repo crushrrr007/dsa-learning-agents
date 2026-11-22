@@ -305,6 +305,7 @@ export async function runTests(problemId: string, code: string) {
       expected: unknown;
       got: unknown;
       error: string | null;
+      visible?: boolean;
     }[];
     viva: { id: string; prompt: string }[];
     ast_insights: string[];

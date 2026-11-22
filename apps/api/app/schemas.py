@@ -179,10 +179,11 @@ class TestRequest(BaseModel):
 class TestCaseResult(BaseModel):
     index: int
     passed: bool
-    input: Any
-    expected: Any
+    input: Any = None
+    expected: Any = None
     got: Any = None
     error: str | None = None
+    visible: bool = False
 
 
 class TestResponse(BaseModel):

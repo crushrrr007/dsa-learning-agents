@@ -99,7 +99,7 @@ def test_two_and_three_arg_through_run_and_test(monkeypatch):
         )
         assert test2.status_code == 200
         results2 = test2.json()["results"]
-        assert any(r["index"] < 100 for r in results2)
+        assert any(r["index"] >= 1000 for r in results2)  # hidden suite present
         assert all(r["passed"] for r in results2)
 
         # 3-arg synthetic through same endpoints
@@ -127,5 +127,5 @@ def test_two_and_three_arg_through_run_and_test(monkeypatch):
         )
         assert test3.status_code == 200
         results3 = test3.json()["results"]
-        assert len([r for r in results3 if r["index"] < 100]) == 5
+        assert len([r for r in results3 if 1000 <= r["index"] < 2000]) == 5
         assert all(r["passed"] for r in results3)
