@@ -72,11 +72,11 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 ## Product shape
 
-- **Per-topic adaptive path** — Diagnose prerequisites → Plan Agent soft path → Teach Agent overview → practice  
-- **Problems list** — NeetCode-style roadmap checklist (soft plan badges; nothing hard-locked)  
-- **Workspace** — description | editor + testcases | **persistent agents sidebar**  
-- **Agents** — Hint / Demo / Predict / Debug / Viva always visible while coding; Diagnostic / Plan / Teach on topic pages  
-- **Deeper plans** — diagnostic misses become **Before you code** micro-reviews (soft guidance only)
+- **Visual pattern roadmap** — React Flow graph of topics → patterns (personalized from a SQLite knowledge graph)  
+- **Pattern explore** — filter problems by pattern chips; no Phase I/II chrome  
+- **Per-topic adaptive path** — Diagnose → soft Plan → Teach → Practice  
+- **Workspace** — description | editor + testcases | persistent **skinned** agents sidebar  
+- **KG memory** — diagnostic/attempt/mastery edges inform future plans and the home graph
 
 ## Evaluator demo script (Two Pointers)
 

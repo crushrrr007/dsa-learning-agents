@@ -71,7 +71,7 @@ export default function ProgressPage() {
         <div>
           <h1 className="display text-4xl font-semibold">Your progress</h1>
           <p className="mt-2 text-[var(--muted)]">
-            Guest session mastery across Phase I and Phase II. Use Reset before each evaluator demo.
+            Guest session mastery across topics and patterns. Use Reset before each evaluator demo.
           </p>
         </div>
         <Button variant="secondary" onClick={onReset} disabled={resetting}>
@@ -113,7 +113,8 @@ export default function ProgressPage() {
                   <div>
                     <h2 className="font-semibold">{t.title}</h2>
                     <p className="text-xs text-[var(--muted)]">
-                      Phase {t.phase ?? 1} · {t.problems_mastered}/{t.problems_total} mastered
+                      {t.problems_mastered}/{t.problems_total} mastered
+                      {t.has_plan ? " · plan ready" : ""}
                     </p>
                   </div>
                 </div>
@@ -133,7 +134,7 @@ export default function ProgressPage() {
                       <span className="ml-2 text-xs uppercase text-[var(--muted)]">{p.difficulty}</span>
                     </span>
                     <span className="text-xs text-[var(--muted)]">
-                      {p.mastered ? "Mastered" : p.stage > 0 ? `Stage ${p.stage}` : t.learn_completed ? "Ready" : "Locked"}
+                      {p.mastered ? "Mastered" : p.stage > 0 ? `Stage ${p.stage}` : "Ready"}
                     </span>
                   </Link>
                 ))}

@@ -17,6 +17,10 @@ const AGENTS: {
   title: string;
   blurb: string;
   starter: string;
+  accent: string;
+  accentSoft: string;
+  letter: string;
+  empty: string;
 }[] = [
   {
     id: "concept_tutor",
@@ -24,6 +28,10 @@ const AGENTS: {
     title: "Concept Tutor",
     blurb: "Pattern & invariant — no full solutions.",
     starter: "Explain the core pattern for this problem in plain words.",
+    accent: "#0b6e5f",
+    accentSoft: "rgba(11,110,95,0.18)",
+    letter: "H",
+    empty: "Ask what must stay true after each step.",
   },
   {
     id: "demo_coach",
@@ -31,6 +39,10 @@ const AGENTS: {
     title: "Demo Coach",
     blurb: "Walk through the brute-force / demo trace.",
     starter: "What should I watch for in the demo trace?",
+    accent: "#1d4e89",
+    accentSoft: "rgba(29,78,137,0.18)",
+    letter: "D",
+    empty: "Run a demo, then ask which frame matters.",
   },
   {
     id: "predict_coach",
@@ -38,6 +50,10 @@ const AGENTS: {
     title: "Predict Coach",
     blurb: "Check your next-step predictions.",
     starter: "Help me predict the next pointer move.",
+    accent: "#7c3aed",
+    accentSoft: "rgba(124,58,237,0.18)",
+    letter: "P",
+    empty: "Name the next state change before you peek.",
   },
   {
     id: "code_mentor",
@@ -45,6 +61,10 @@ const AGENTS: {
     title: "Code Mentor",
     blurb: "Debug from AST, errors, and failing tests.",
     starter: "My last run failed — what should I inspect first?",
+    accent: "#b45309",
+    accentSoft: "rgba(180,83,9,0.18)",
+    letter: "X",
+    empty: "Paste a failure in your question after Run/Submit.",
   },
   {
     id: "viva_agent",
@@ -52,6 +72,10 @@ const AGENTS: {
     title: "Viva Agent",
     blurb: "Complexity & edge-case interview probes.",
     starter: "Ask me a viva question about this approach.",
+    accent: "#9a3412",
+    accentSoft: "rgba(154,52,18,0.2)",
+    letter: "V",
+    empty: "Ready when you want to defend complexity or edges.",
   },
 ];
 
@@ -81,7 +105,7 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
       role: "agent",
       agent: meta.id,
       text: `${meta.title} ready. ${meta.blurb}`,
-      question: "What do you want to understand next?",
+      question: meta.empty,
     },
   ]);
   const [input, setInput] = useState("");
@@ -96,7 +120,7 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
         role: "agent",
         agent: next.id,
         text: `Switched to ${next.title}. ${next.blurb}`,
-        question: "Ask a focused question — I will not paste a full solution.",
+        question: next.empty,
       },
     ]);
     setInput("");
@@ -144,13 +168,31 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
   }
 
   return (
-    <div className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-lg border border-[var(--line)] bg-[#0f1419] text-[#e7ecf1]">
-      <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8b9aab]">Agents</p>
-          <p className="text-sm font-semibold text-white">{meta.title}</p>
+    <div
+      className="flex h-full min-h-[320px] flex-col overflow-hidden rounded-lg border text-[#e7ecf1]"
+      style={{
+        borderColor: meta.accent + "66",
+        background: `linear-gradient(165deg, ${meta.accentSoft} 0%, #0f1419 42%, #0f1419 100%)`,
+      }}
+    >
+      <div className="flex items-center gap-3 border-b border-white/10 px-3 py-2.5">
+        <div
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-black text-white"
+          style={{ background: meta.accent }}
+        >
+          {meta.letter}
         </div>
-        {llmMode && <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wide">{llmMode}</span>}
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: meta.accent }}>
+            Agent
+          </p>
+          <p className="truncate text-sm font-semibold text-white">{meta.title}</p>
+        </div>
+        {llmMode && (
+          <span className="rounded px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/70" style={{ background: meta.accentSoft }}>
+            {llmMode}
+          </span>
+        )}
       </div>
 
       <div className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 py-2">
@@ -159,27 +201,36 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
             key={a.id}
             type="button"
             onClick={() => switchAgent(a.id)}
-            className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
-              active === a.id ? "bg-[var(--accent)] text-white" : "bg-white/5 text-[#b7c2ce] hover:bg-white/10"
-            }`}
+            className="shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
+            style={
+              active === a.id
+                ? { background: a.accent, color: "#fff" }
+                : { background: "rgba(255,255,255,0.06)", color: "#b7c2ce" }
+            }
           >
             {a.short}
           </button>
         ))}
       </div>
 
-      <p className="border-b border-white/10 px-3 py-2 text-[11px] text-[#8b9aab]">{meta.blurb}</p>
+      <p className="border-b border-white/10 px-3 py-2 text-[11px]" style={{ color: "#a8b4c0" }}>
+        {meta.blurb}
+      </p>
 
       <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
+        {messages.length === 0 && <p className="text-xs text-white/50">{meta.empty}</p>}
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`rounded-md px-3 py-2 text-sm leading-relaxed ${
-              m.role === "user" ? "ml-6 bg-[var(--accent)]/25" : "mr-4 bg-white/5"
-            }`}
+            className={`rounded-md px-3 py-2 text-sm leading-relaxed ${m.role === "user" ? "ml-6" : "mr-4"}`}
+            style={
+              m.role === "user"
+                ? { background: meta.accentSoft }
+                : { background: "rgba(255,255,255,0.05)", borderLeft: `3px solid ${meta.accent}` }
+            }
           >
             {m.agent && m.role === "agent" && (
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#7dcea0]">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider" style={{ color: meta.accent }}>
                 {(m.agentLabel || m.agent).replaceAll("_", " ").split("—")[0].trim()}
               </div>
             )}
@@ -196,7 +247,7 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
           type="button"
           onClick={() => send(meta.starter)}
           disabled={busy}
-          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-left text-xs text-[#b7c2ce] hover:bg-white/10"
+          className="w-full rounded-md border border-white/10 px-3 py-1.5 text-left text-xs text-[#b7c2ce] hover:bg-white/10"
         >
           Quick ask: {meta.starter}
         </button>
@@ -206,9 +257,10 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder={`Ask ${meta.short}…`}
-            className="h-10 flex-1 rounded-md border border-white/10 bg-[#161c23] px-3 text-sm text-white outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="h-10 flex-1 rounded-md border border-white/10 bg-[#161c23] px-3 text-sm text-white outline-none"
+            style={{ boxShadow: busy ? undefined : `inset 0 0 0 1px ${meta.accent}33` }}
           />
-          <Button onClick={() => send()} disabled={busy}>
+          <Button onClick={() => send()} disabled={busy} style={{ background: meta.accent }}>
             {busy ? "…" : "Ask"}
           </Button>
         </div>

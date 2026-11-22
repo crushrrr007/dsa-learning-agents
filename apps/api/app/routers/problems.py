@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.content_loader import get_problem, list_problems, public_problem
+from app.content_loader import get_problem, list_patterns, list_problems, public_problem
 from app.db import get_db
 from app.progress_service import get_or_create_progress, get_topic_plan, parse_plan_json
-from app.schemas import ProblemDetail, ProblemSummary
+from app.schemas import PatternOut, ProblemDetail, ProblemSummary
 
 router = APIRouter(prefix="/problems", tags=["problems"])
 
@@ -21,13 +21,21 @@ def _badge_map(plan: dict | None) -> dict[str, str]:
     return out
 
 
+@router.get("/patterns", response_model=list[PatternOut])
+async def patterns():
+    return [PatternOut(**p) for p in list_patterns()]
+
+
 @router.get("", response_model=list[ProblemSummary])
-async def problems(topic: str | None = None, session_id: str = "guest", db: AsyncSession = Depends(get_db)):
-    items = list_problems(topic)
-    # Soft plan badges only — problems are always openable
+async def problems(
+    topic: str | None = None,
+    pattern: str | None = None,
+    session_id: str = "guest",
+    db: AsyncSession = Depends(get_db),
+):
+    items = list_problems(topic, pattern)
     plan_row = await get_topic_plan(db, session_id, topic) if topic else None
     badges = _badge_map(parse_plan_json(plan_row))
-    # If listing all topics, merge badges per topic lazily
     if not topic:
         badges = {}
         seen: set[str] = set()
@@ -42,7 +50,7 @@ async def problems(topic: str | None = None, session_id: str = "guest", db: Asyn
     for p in items:
         try:
             row = await get_or_create_progress(db, session_id, p["id"], p["topic"])
-            stage = max(row.stage, 1)  # soft unlock: coding path available
+            stage = max(row.stage, 1)
             out.append(
                 ProblemSummary(
                     id=p["id"],
@@ -50,6 +58,7 @@ async def problems(topic: str | None = None, session_id: str = "guest", db: Asyn
                     topic=p["topic"],
                     difficulty=p["difficulty"],
                     pattern=p["pattern"],
+                    pattern_id=p.get("pattern_id") or "",
                     stage=stage,
                     mastered=bool(row.mastered),
                     plan_badge=badges.get(p["id"]),
@@ -63,6 +72,7 @@ async def problems(topic: str | None = None, session_id: str = "guest", db: Asyn
                     topic=p["topic"],
                     difficulty=p["difficulty"],
                     pattern=p["pattern"],
+                    pattern_id=p.get("pattern_id") or "",
                     plan_badge=badges.get(p["id"]),
                 )
             )
@@ -77,7 +87,6 @@ async def problem_detail(problem_id: str, session_id: str = "guest", db: AsyncSe
         raise HTTPException(status_code=404, detail="Problem not found") from exc
     pub = public_problem(problem)
     row = await get_or_create_progress(db, session_id, problem_id, problem["topic"])
-    # Soft unlock: entering a problem starts at least stage 1 (See)
     stage = max(row.stage, 1)
     if row.stage < 1:
         row.stage = 1

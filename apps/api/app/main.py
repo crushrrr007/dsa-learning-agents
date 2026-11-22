@@ -20,6 +20,15 @@ async def lifespan(_: FastAPI):
         notes_store._collection()
     except Exception:
         pass
+    # Seed curriculum knowledge graph
+    try:
+        from app.db import SessionLocal
+        from app.kg_service import seed_curriculum_graph
+
+        async with SessionLocal() as session:
+            await seed_curriculum_graph(session)
+    except Exception:
+        pass
     yield
 
 

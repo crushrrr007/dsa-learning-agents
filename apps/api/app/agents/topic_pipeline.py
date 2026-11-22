@@ -202,13 +202,38 @@ def interpret_diagnostic(topic: str, answers: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_soft_plan(topic: str, answers: dict[str, Any], analysis: dict[str, Any] | None = None) -> dict[str, Any]:
+def build_soft_plan(
+    topic: str,
+    answers: dict[str, Any],
+    analysis: dict[str, Any] | None = None,
+    kg_signals: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Plan agent: ordered recommendations — soft, never locks."""
     analysis = analysis or interpret_diagnostic(topic, answers)
+    kg_signals = kg_signals or {}
+    # Merge historical weak skills from KG into this diagnostic view
+    hist_weak = list(kg_signals.get("weak_skills") or [])
+    if hist_weak:
+        merged = list(dict.fromkeys([*(analysis.get("skills_weak") or []), *hist_weak]))
+        analysis = {**analysis, "skills_weak": merged}
+        if not analysis.get("low_comfort") and hist_weak:
+            analysis = {**analysis, "low_comfort": True}
+
     problems = list_problems(topic)
-    # Sort easy → medium → hard, then title
+    mastered = set(kg_signals.get("mastered_problems") or [])
+    mastered_patterns = set(kg_signals.get("mastered_patterns") or [])
+    # Prefer unmastered; deprioritize mastered patterns
+    problems = [p for p in problems if p["id"] not in mastered] or list_problems(topic)
+    # Sort easy → medium → hard, then title; bump weak-pattern problems slightly earlier
+    weak_patterns = set(kg_signals.get("weak_patterns") or [])
     order_diff = {"easy": 0, "medium": 1, "hard": 2}
-    problems = sorted(problems, key=lambda p: (order_diff.get(str(p.get("difficulty", "")).lower(), 9), p["title"]))
+
+    def sort_key(p: dict[str, Any]):
+        weak_boost = -1 if p.get("pattern_id") in weak_patterns else 0
+        mastered_pat = 2 if p.get("pattern_id") in mastered_patterns else 0
+        return (weak_boost + mastered_pat, order_diff.get(str(p.get("difficulty", "")).lower(), 9), p["title"])
+
+    problems = sorted(problems, key=sort_key)
 
     recommended: list[dict[str, str]] = []
     review_first: list[dict[str, str]] = []
@@ -369,9 +394,24 @@ async def teach_overview(topic: str, plan: dict[str, Any] | None = None) -> dict
     }
 
 
-async def run_diagnostic_to_plan(topic: str, answers: dict[str, Any]) -> dict[str, Any]:
+async def run_diagnostic_to_plan(
+    topic: str,
+    answers: dict[str, Any],
+    *,
+    session_id: str | None = None,
+    db: Any = None,
+) -> dict[str, Any]:
     analysis = interpret_diagnostic(topic, answers)
-    plan = build_soft_plan(topic, answers, analysis)
+    kg_signals: dict[str, Any] = {}
+    if session_id and db is not None:
+        try:
+            from app.kg_service import session_signals
+
+            kg_signals = await session_signals(db, session_id, topic)
+        except Exception:
+            kg_signals = {}
+    plan = build_soft_plan(topic, answers, analysis, kg_signals=kg_signals)
     plan = await enrich_plan_with_llm(topic, plan)
     plan["diagnostic_analysis"] = analysis
+    plan["kg_signals"] = kg_signals
     return plan

@@ -60,3 +60,28 @@ class TopicPlan(Base):
     plan_json: Mapped[str] = mapped_column(Text, default="{}")
     overview_completed: Mapped[int] = mapped_column(Integer, default=0)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
+
+
+class KgNode(Base):
+    __tablename__ = "kg_nodes"
+
+    id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32), index=True)  # topic|pattern|problem|skill
+    label: Mapped[str] = mapped_column(String(256), default="")
+    meta_json: Mapped[str] = mapped_column(Text, default="{}")
+
+
+class KgEdge(Base):
+    __tablename__ = "kg_edges"
+    __table_args__ = (
+        UniqueConstraint("src", "dst", "rel", "session_id", name="uq_kg_edge"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    src: Mapped[str] = mapped_column(String(128), index=True)
+    dst: Mapped[str] = mapped_column(String(128), index=True)
+    rel: Mapped[str] = mapped_column(String(32), index=True)
+    weight: Mapped[float] = mapped_column(Float, default=1.0)
+    session_id: Mapped[str] = mapped_column(String(64), default="", index=True)
+    meta_json: Mapped[str] = mapped_column(Text, default="{}")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)

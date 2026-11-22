@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -12,11 +13,19 @@ def _content_dir() -> Path:
     return get_settings().content_dir
 
 
+def slugify_pattern(label: str) -> str:
+    s = (label or "pattern").strip().lower()
+    s = s.replace("/", " ")
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    return s.strip("-") or "pattern"
+
+
 def clear_content_cache() -> None:
     load_roadmap.cache_clear()
     load_all_problems.cache_clear()
     load_topic_quiz.cache_clear()
     load_diagnostic.cache_clear()
+    list_patterns.cache_clear()
 
 
 @lru_cache
@@ -30,6 +39,9 @@ def load_all_problems() -> dict[str, dict[str, Any]]:
     problems: dict[str, dict[str, Any]] = {}
     for path in sorted((_content_dir() / "problems").glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
+        label = data.get("pattern") or "General"
+        data["pattern"] = label
+        data["pattern_id"] = data.get("pattern_id") or slugify_pattern(label)
         problems[data["id"]] = data
     return problems
 
@@ -49,11 +61,47 @@ def get_problem(problem_id: str) -> dict[str, Any]:
     return problems[problem_id]
 
 
-def list_problems(topic: str | None = None) -> list[dict[str, Any]]:
+def list_problems(topic: str | None = None, pattern: str | None = None) -> list[dict[str, Any]]:
     items = list(load_all_problems().values())
     if topic:
         items = [p for p in items if p["topic"] == topic]
+    if pattern:
+        pid = pattern if not pattern.startswith("pattern:") else pattern
+        # accept pattern_id or display label
+        items = [
+            p
+            for p in items
+            if p.get("pattern_id") == pid or slugify_pattern(p.get("pattern", "")) == slugify_pattern(pid)
+        ]
     return sorted(items, key=lambda p: (p["topic"], p["title"]))
+
+
+@lru_cache
+def list_patterns() -> tuple[dict[str, Any], ...]:
+    by_id: dict[str, dict[str, Any]] = {}
+    for p in load_all_problems().values():
+        pid = p["pattern_id"]
+        if pid not in by_id:
+            by_id[pid] = {
+                "id": pid,
+                "title": p["pattern"],
+                "topics": set(),
+                "problem_ids": [],
+            }
+        by_id[pid]["topics"].add(p["topic"])
+        by_id[pid]["problem_ids"].append(p["id"])
+    out = []
+    for pid, row in sorted(by_id.items(), key=lambda x: x[1]["title"].lower()):
+        out.append(
+            {
+                "id": pid,
+                "title": row["title"],
+                "topics": sorted(row["topics"]),
+                "problems_total": len(row["problem_ids"]),
+                "problem_ids": row["problem_ids"],
+            }
+        )
+    return tuple(out)
 
 
 def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
@@ -64,6 +112,7 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
         "topic": problem["topic"],
         "difficulty": problem["difficulty"],
         "pattern": problem["pattern"],
+        "pattern_id": problem.get("pattern_id") or slugify_pattern(problem.get("pattern", "")),
         "statement": problem["statement"],
         "examples": problem["examples"],
         "constraints": problem["constraints"],

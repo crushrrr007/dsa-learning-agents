@@ -27,7 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/" className="flex items-baseline gap-2">
                 <span className="display text-xl font-semibold tracking-tight text-[var(--ink)]">Pointer Lab</span>
                 <span className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] sm:inline">
-                  Multi-agent DSA
+                  Pattern roadmap
                 </span>
               </Link>
               <nav className="flex items-center gap-4 text-sm font-semibold text-[var(--muted)]">

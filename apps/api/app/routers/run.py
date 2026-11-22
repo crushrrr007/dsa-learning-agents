@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import get_problem
 from app.db import get_db
+from app.kg_service import record_attempt_kg, record_mastered_kg
 from app.progress_service import record_attempt, save_code, set_stage
 from app.runner.ast_analyzer import analyze_code, generate_viva
 from app.runner.performance import default_args_for_problem, measure_scaling
@@ -91,7 +92,12 @@ async def run_code(body: RunRequest, db: AsyncSession = Depends(get_db)) -> RunR
 
     if body.mode == "student" and body.code:
         await save_code(db, body.session_id, body.problem_id, problem["topic"], body.code)
-        await record_attempt(db, body.session_id, body.problem_id, 3, bool(raw.get("ok")), raw.get("error") or "")
+        ok = bool(raw.get("ok"))
+        await record_attempt(db, body.session_id, body.problem_id, 3, ok, raw.get("error") or "")
+        try:
+            await record_attempt_kg(db, body.session_id, body.problem_id, success=ok, topic=problem["topic"])
+        except Exception:
+            pass
 
     events = [TraceEvent(**e) for e in raw.get("events", [])]
     return RunResponse(
@@ -269,4 +275,8 @@ async def submit_viva(body: VivaSubmit, db: AsyncSession = Depends(get_db)):
         return {"passed": False, "detail": "Answer both viva questions with at least a short sentence each."}
     row = await mark_mastered(db, body.session_id, body.problem_id, problem["topic"])
     await record_attempt(db, body.session_id, body.problem_id, 4, True, "viva")
+    try:
+        await record_mastered_kg(db, body.session_id, body.problem_id)
+    except Exception:
+        pass
     return {"passed": True, "mastered": True, "stage": row.stage}

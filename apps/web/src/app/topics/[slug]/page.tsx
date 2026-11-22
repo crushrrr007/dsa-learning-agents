@@ -313,6 +313,19 @@ export default function TopicPage() {
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Practice</p>
               <h2 className="text-xl font-semibold">Problems</h2>
               <p className="text-sm text-[var(--muted)]">Open any problem — badges are soft recommendations only.</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {Array.from(new Map(orderedProblems.map((p) => [p.pattern_id || p.pattern, p.pattern])).entries()).map(
+                  ([id, title]) => (
+                    <Link
+                      key={String(id)}
+                      href={`/?pattern=${encodeURIComponent(String(id))}`}
+                      className="rounded-full border border-[var(--line)] px-2 py-0.5 text-[10px] font-semibold text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                    >
+                      {title}
+                    </Link>
+                  ),
+                )}
+              </div>
               {nextId && (
                 <p className="mt-1 text-xs font-medium text-[var(--accent)]">
                   Evaluator: continue to recommended problem →

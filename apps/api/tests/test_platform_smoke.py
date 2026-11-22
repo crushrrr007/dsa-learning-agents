@@ -26,12 +26,13 @@ def test_health(client: TestClient):
     assert res.json()["ok"] is True
 
 
-def test_roadmap_has_both_phases(client: TestClient):
+def test_roadmap_topics_flat(client: TestClient):
     res = client.get("/topics/roadmap", params={"session_id": "test_smoke"})
     data = res.json()
     slugs = {t["slug"] for t in data["topics"]}
     assert {"arrays", "trees", "graphs", "dynamic-programming"} <= slugs
-    assert len(data.get("phases", [])) == 2
+    # Product UI no longer surfaces phases
+    assert data.get("phases", []) == []
 
 
 def test_runner_palindrome_reference():
@@ -224,3 +225,40 @@ def test_diagnostic_builds_soft_plan(client: TestClient):
 def test_content_diagnostics_exist():
     root = Path(__file__).resolve().parents[3] / "content"
     assert len(list((root / "diagnostics").glob("*.json"))) >= 7
+
+
+def test_patterns_and_roadmap_graph(client: TestClient):
+    pats = client.get("/problems/patterns")
+    assert pats.status_code == 200
+    data = pats.json()
+    assert len(data) >= 5
+    assert all("id" in p and "title" in p for p in data)
+
+    filtered = client.get("/problems", params={"session_id": "pat", "pattern": "opposite-ends"})
+    assert filtered.status_code == 200
+    rows = filtered.json()
+    assert len(rows) >= 1
+    assert all(r.get("pattern_id") == "opposite-ends" for r in rows)
+
+    graph = client.get("/topics/roadmap/graph", params={"session_id": "graph_smoke"})
+    assert graph.status_code == 200
+    body = graph.json()
+    kinds = {n["kind"] for n in body["nodes"]}
+    assert "topic" in kinds and "pattern" in kinds
+    assert len(body["edges"]) >= 1
+
+
+def test_kg_edges_after_diagnostic(client: TestClient):
+    sid = "kg_diag_session"
+    diag = client.get("/topics/two-pointers/diagnostic", params={"session_id": sid}).json()
+    answers = {}
+    for q in diag["questions"]:
+        answers[q["id"]] = 0 if q["type"] == "mcq" else q["choices"][0]
+    built = client.post("/topics/two-pointers/diagnostic", json={"session_id": sid, "answers": answers})
+    assert built.status_code == 200
+    graph = client.get("/topics/roadmap/graph", params={"session_id": sid}).json()
+    # After diagnostic, graph should still load; recommended/weak styles may appear on edges/nodes
+    assert graph["session_id"] == sid
+    assert any(n["kind"] == "pattern" for n in graph["nodes"])
+    signals = graph.get("signals") or {}
+    assert "recommended_problems" in signals or "weak_skills" in signals

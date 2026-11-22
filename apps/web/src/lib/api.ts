@@ -65,9 +65,35 @@ export type ProblemSummary = {
   topic: string;
   difficulty: string;
   pattern: string;
+  pattern_id?: string;
   stage: number;
   mastered: boolean;
   plan_badge?: string | null;
+};
+
+export type PatternInfo = {
+  id: string;
+  title: string;
+  topics: string[];
+  problems_total: number;
+  problem_ids: string[];
+};
+
+export type RoadmapGraph = {
+  session_id: string;
+  nodes: {
+    id: string;
+    kind: string;
+    label: string;
+    slug?: string;
+    pattern_id?: string;
+    color?: string;
+    status?: string;
+    position: { x: number; y: number };
+    problems_total?: number;
+  }[];
+  edges: { id: string; source: string; target: string; rel: string; style?: string }[];
+  signals: Record<string, string[]>;
 };
 
 export type MicroReview = {
@@ -104,6 +130,7 @@ export type ProblemDetail = ProblemSummary & {
   visual: string;
   predict_steps: { prompt: string; hint?: string }[];
   last_code: string;
+  pattern_id?: string;
 };
 
 export type TraceEvent = {
@@ -208,10 +235,25 @@ export async function submitQuiz(topic: string, answers: number[]) {
   });
 }
 
-export async function fetchProblems(topic?: string) {
+export async function fetchProblems(topic?: string, pattern?: string) {
   const sid = getSessionId();
-  const q = topic ? `&topic=${encodeURIComponent(topic)}` : "";
-  return request<ProblemSummary[]>(`/problems?session_id=${encodeURIComponent(sid)}${q}`);
+  const q = [
+    topic ? `topic=${encodeURIComponent(topic)}` : "",
+    pattern ? `pattern=${encodeURIComponent(pattern)}` : "",
+  ]
+    .filter(Boolean)
+    .join("&");
+  const suffix = q ? `&${q}` : "";
+  return request<ProblemSummary[]>(`/problems?session_id=${encodeURIComponent(sid)}${suffix}`);
+}
+
+export async function fetchPatterns() {
+  return request<PatternInfo[]>(`/problems/patterns`);
+}
+
+export async function fetchRoadmapGraph() {
+  const sid = getSessionId();
+  return request<RoadmapGraph>(`/topics/roadmap/graph?session_id=${encodeURIComponent(sid)}`);
 }
 
 export async function fetchProblem(id: string) {

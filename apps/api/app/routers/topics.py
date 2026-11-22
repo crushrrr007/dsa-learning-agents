@@ -14,6 +14,7 @@ from app.content_loader import (
     topic_quiz,
 )
 from app.db import get_db
+from app.kg_service import build_roadmap_graph, record_diagnostic_kg
 from app.progress_service import (
     build_progress_snapshot,
     get_topic_plan,
@@ -30,6 +31,7 @@ from app.schemas import (
     OverviewOut,
     QuizResult,
     QuizSubmit,
+    RoadmapGraphOut,
     RoadmapOut,
     TopicDemoOut,
     TopicLearnOut,
@@ -77,12 +79,18 @@ async def roadmap(session_id: str = "guest", db: AsyncSession = Depends(get_db))
     snap = await build_progress_snapshot(db, session_id)
     topics = snap["topics"]
     return RoadmapOut(
-        phase=data["phase"],
+        phase=data.get("phase", 0),
         title=data["title"],
         description=data["description"],
         topics=topics,
-        phases=data.get("phases", []),
+        phases=[],  # phases removed from product UI
     )
+
+
+@router.get("/roadmap/graph", response_model=RoadmapGraphOut)
+async def roadmap_graph(session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> RoadmapGraphOut:
+    graph = await build_roadmap_graph(db, session_id)
+    return RoadmapGraphOut(**graph)
 
 
 @router.get("/{slug}/learn", response_model=TopicLearnOut)
@@ -193,8 +201,12 @@ async def submit_diagnostic(
     roadmap = load_roadmap()
     if not any(t["slug"] == slug for t in roadmap["topics"]):
         raise HTTPException(status_code=404, detail="Topic not found")
-    plan = await run_diagnostic_to_plan(slug, body.answers or {})
+    plan = await run_diagnostic_to_plan(slug, body.answers or {}, session_id=body.session_id, db=db)
     row = await upsert_topic_plan(db, body.session_id, slug, answers=body.answers or {}, plan=plan)
+    try:
+        await record_diagnostic_kg(db, body.session_id, slug, plan)
+    except Exception:
+        pass
     return TopicPlanOut(
         topic=slug,
         has_plan=True,

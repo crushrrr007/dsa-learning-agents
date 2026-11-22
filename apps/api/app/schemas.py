@@ -38,6 +38,7 @@ class ProblemSummary(BaseModel):
     topic: str
     difficulty: str
     pattern: str
+    pattern_id: str = ""
     stage: int = 0
     mastered: bool = False
     plan_badge: str | None = None
@@ -49,6 +50,7 @@ class ProblemDetail(BaseModel):
     topic: str
     difficulty: str
     pattern: str
+    pattern_id: str = ""
     statement: str
     examples: list[dict[str, Any]]
     constraints: list[str]
@@ -59,6 +61,21 @@ class ProblemDetail(BaseModel):
     stage: int = 0
     mastered: bool = False
     last_code: str = ""
+
+
+class PatternOut(BaseModel):
+    id: str
+    title: str
+    topics: list[str] = Field(default_factory=list)
+    problems_total: int = 0
+    problem_ids: list[str] = Field(default_factory=list)
+
+
+class RoadmapGraphOut(BaseModel):
+    session_id: str
+    nodes: list[dict[str, Any]] = Field(default_factory=list)
+    edges: list[dict[str, Any]] = Field(default_factory=list)
+    signals: dict[str, Any] = Field(default_factory=dict)
 
 
 class TopicLearnOut(BaseModel):

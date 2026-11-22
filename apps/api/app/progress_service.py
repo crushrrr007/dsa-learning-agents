@@ -7,6 +7,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import list_problems, load_roadmap
+from app.kg_service import clear_session_kg
 from app.models import Attempt, Progress, TopicPlan, TopicProgress
 
 
@@ -236,9 +237,15 @@ async def reset_session_progress(db: AsyncSession, session_id: str) -> dict[str,
     attempts = await db.execute(delete(Attempt).where(Attempt.session_id == session_id))
     plans = await db.execute(delete(TopicPlan).where(TopicPlan.session_id == session_id))
     await db.commit()
+    kg_deleted = 0
+    try:
+        kg_deleted = await clear_session_kg(db, session_id)
+    except Exception:
+        pass
     return {
         "progress_deleted": prog.rowcount or 0,
         "topics_deleted": topics.rowcount or 0,
         "attempts_deleted": attempts.rowcount or 0,
         "plans_deleted": plans.rowcount or 0,
+        "kg_edges_deleted": kg_deleted,
     }
