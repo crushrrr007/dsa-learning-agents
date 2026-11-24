@@ -87,6 +87,7 @@ class ProblemDetail(BaseModel):
     mastered: bool = False
     last_code: str = ""
     next_predict_index: int = 0
+    demo_args: list[Any] = Field(default_factory=list)
 
 
 class PatternOut(BaseModel):
@@ -132,7 +133,7 @@ class RunRequest(BaseModel):
     session_id: str
     problem_id: str
     code: str | None = None
-    mode: str = Field(description="student | brute | reference_hidden")
+    mode: Literal["student", "brute", "reference_hidden"]
     args: list[Any] | None = None
 
 

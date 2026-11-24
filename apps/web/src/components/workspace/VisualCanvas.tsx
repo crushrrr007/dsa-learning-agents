@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -59,15 +59,23 @@ function layoutTree(values: unknown[]): { nodes: Node[]; edges: Edge[] } {
       edges,
     };
   }
-  const positions: Record<number, { x: number; y: number }> = { 0: { x: 260, y: 30 } };
-  for (let i = 0; i < values.length; i++) {
-    if (values[i] === null || values[i] === undefined) continue;
-    const depth = Math.floor(Math.log2(i + 1));
-    const indexInLevel = i - (2 ** depth - 1);
-    const levelCount = 2 ** depth;
+  const links = new Map<number, { depth: number; slot: number; parent: number | null }>();
+  links.set(0, { depth: 0, slot: 0, parent: null });
+  const queue = [0];
+  let next = 1;
+  for (let head = 0; head < queue.length && next < values.length; head++) {
+    const parent = queue[head];
+    const position = links.get(parent)!;
+    for (let side = 0; side < 2 && next < values.length; side++, next++) {
+      if (values[next] == null) continue;
+      links.set(next, { depth: position.depth + 1, slot: position.slot * 2 + side, parent });
+      queue.push(next);
+    }
+  }
+  for (const [i, { depth, slot, parent }] of links) {
+    if (values[i] == null) continue;
     const y = 30 + depth * 85;
-    const x = 40 + ((indexInLevel + 0.5) / levelCount) * 480;
-    positions[i] = { x, y };
+    const x = 40 + ((slot + 0.5) / (2 ** depth)) * 480;
     nodes.push({
       id: `t${i}`,
       position: { x, y },
@@ -84,17 +92,14 @@ function layoutTree(values: unknown[]): { nodes: Node[]; edges: Edge[] } {
         fontWeight: 700,
       },
     });
-    if (i > 0) {
-      const parent = Math.floor((i - 1) / 2);
-      if (values[parent] !== null && values[parent] !== undefined) {
-        edges.push({
-          id: `te${parent}-${i}`,
-          source: `t${parent}`,
-          target: `t${i}`,
-          markerEnd: { type: MarkerType.ArrowClosed },
-          style: { stroke: "#04785799" },
-        });
-      }
+    if (parent !== null) {
+      edges.push({
+        id: `te${parent}-${i}`,
+        source: `t${parent}`,
+        target: `t${i}`,
+        markerEnd: { type: MarkerType.ArrowClosed },
+        style: { stroke: "#04785799" },
+      });
     }
   }
   return { nodes, edges };
@@ -289,17 +294,8 @@ function layoutGrid(focus: Record<string, unknown>): { nodes: Node[]; edges: Edg
 export const VISUAL_MODES = ["array", "window", "linkedlist", "tree", "graph", "dp", "grid"] as const;
 
 export function VisualCanvas({ visual, event, fallbackSequence }: Props) {
-  const stickySequence = useRef<unknown[]>([]);
   const focus = useMemo(() => (event?.focus || {}) as Record<string, unknown>, [event]);
-  const sequence = useMemo(() => {
-    const parsed = parseSequence(focus, fallbackSequence);
-    if (parsed.length) {
-      stickySequence.current = parsed;
-      return parsed;
-    }
-    if (stickySequence.current.length) return stickySequence.current;
-    return parsed;
-  }, [focus, fallbackSequence]);
+  const sequence = useMemo(() => parseSequence(focus, fallbackSequence), [focus, fallbackSequence]);
   const left =
     pointerIndex(focus, "left") ??
     pointerIndex(focus, "i") ??

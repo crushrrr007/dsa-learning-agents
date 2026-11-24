@@ -33,7 +33,7 @@ function TestDetails({ tests }: { tests: WorkspaceTestCase[] }) {
   );
 }
 
-export function WorkspaceConsole({ tab, open, note, run, tests, stale, onTab, onToggle }: {
+export function WorkspaceConsole({ tab, open, note, run, tests, stale, onTab, onToggle, onTrace, onCoach }: {
   tab: ConsoleTab;
   open: boolean;
   note: string | null;
@@ -42,6 +42,8 @@ export function WorkspaceConsole({ tab, open, note, run, tests, stale, onTab, on
   stale: boolean;
   onTab: (tab: ConsoleTab) => void;
   onToggle: () => void;
+  onTrace?: () => void;
+  onCoach?: () => void;
 }) {
   const passed = tests.filter((test) => test.passed).length;
   return (
@@ -56,6 +58,8 @@ export function WorkspaceConsole({ tab, open, note, run, tests, stale, onTab, on
       <div id="workspace-feedback" className="workspace-console-content" hidden={!open}>
         {stale && (run || tests.length > 0) && <p className="workspace-console-note">This feedback is from before your latest edits.</p>}
         {note && <p className="workspace-console-status" role="status">{note}</p>}
+        {tab === "output" && onTrace && <button type="button" className="workspace-console-action" onClick={onTrace}>Open execution trace</button>}
+        {tab === "tests" && onCoach && <button type="button" className="workspace-console-action" onClick={onCoach}>Ask Code Mentor about this failure</button>}
         {tab === "output" ? (
           run ? <div className="flex flex-col gap-2">
             {run.ok && <div className="workspace-output"><strong>Return value</strong><pre>{formatValue(run.result)}</pre></div>}

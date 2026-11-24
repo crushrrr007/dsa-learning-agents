@@ -112,10 +112,17 @@ def test_prediction_progress_resumes_in_order(client):
 
     assert predict(0, "right").status_code == 409
     assert client.post("/test", json={**payload, "code": "def sorted_squares(nums): return []"}).status_code == 409
+    bad_input = client.post("/run", json={**payload, "mode": "brute", "args": [0, 1]})
+    assert bad_input.status_code == 422
+    preview = client.post("/run", json={**payload, "mode": "brute", "args": [[-2, 0, 3]]}).json()
+    assert preview["result"] == [0, 4, 9] and preview["events"] and preview["stage"] == 1
     assert client.post("/run", json={**payload, "mode": "brute"}).json()["stage"] == 2
     assert predict(1, "right").status_code == 409
     assert predict(0, "  ").status_code == 422
-    assert predict(0, "right").json()["next_predict_index"] == 1
+    for answer in ("1", "left", "not right"):
+        wrong = predict(0, answer).json()
+        assert wrong["correct"] is False and wrong["next_predict_index"] == 0
+    assert predict(0, "Right!").json()["next_predict_index"] == 1
     assert client.get(f"/problems/{pid}", params={"session_id": sid}).json()["next_predict_index"] == 1
     final = predict(1, "right").json()
     assert final["stage"] == 3 and final["next_predict_index"] == 2

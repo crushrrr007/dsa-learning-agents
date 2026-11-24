@@ -137,6 +137,7 @@ export type ProblemDetail = Omit<ProblemSummary, "solved"> & {
   viva?: { question: string }[];
   last_code: string;
   next_predict_index: number;
+  demo_args: unknown[];
   pattern_id?: string;
 };
 

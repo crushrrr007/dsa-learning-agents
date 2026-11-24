@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.content_loader import get_problem, list_patterns, list_problems, public_problem
 from app.db import get_db
 from app.progress_service import build_problem_summaries, get_or_create_progress, next_prediction_index
+from app.runner.problem_args import normalize_demo_args
 from app.schemas import PatternOut, ProblemDetail, ProblemSummary
 
 router = APIRouter(prefix="/problems", tags=["problems"])
@@ -42,4 +43,5 @@ async def problem_detail(problem_id: str, session_id: str = "guest", db: AsyncSe
         mastered=bool(row.mastered),
         last_code=row.last_code or problem["starter_code"],
         next_predict_index=await next_prediction_index(db, row, len(pub["predict_steps"])),
+        demo_args=normalize_demo_args(problem),
     )

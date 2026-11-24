@@ -6,7 +6,9 @@ import { useParams } from "next/navigation";
 import type { OnMount } from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
-import { ChevronLeft, ChevronRight, Code2, Lock, MessagesSquare, Play, Send } from "lucide-react";
+import { Code2, Lock, MessagesSquare, Play, Send } from "lucide-react";
+import { LearningChecklist } from "@/components/workspace/LearningChecklist";
+import { TraceExplorer, type TraceOrigin } from "@/components/workspace/TraceExplorer";
 import { WorkspaceConsole, type ConsoleTab } from "@/components/workspace/WorkspaceConsole";
 import { Button } from "@/components/ui/button";
 import { AgentDock, type AgentId } from "@/components/workspace/AgentDock";
@@ -30,15 +32,21 @@ import {
   type WorkspaceTestCase,
 } from "@/lib/api";
 
+function syncEditorTrace(editor: Parameters<OnMount>[0] | null, decoration: ReturnType<Parameters<OnMount>[0]["createDecorationsCollection"]> | null, line: number | null) {
+  if (!decoration) return;
+  if (line === null) {
+    decoration.clear();
+    return;
+  }
+  decoration.set([{ range: { startLineNumber: line, endLineNumber: line, startColumn: 1, endColumn: 1 }, options: { isWholeLine: true, className: "workspace-executing-line", linesDecorationsClassName: "workspace-executing-gutter" } }]);
+  editor?.revealLineInCenterIfOutsideViewport(line);
+}
+
 function EditorLoading() {
   return <p role="status" className="px-4 py-3 text-sm text-[var(--surface)]/70">Loading Python editor…</p>;
 }
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), { ssr: false, loading: EditorLoading });
-const VisualCanvas = dynamic(
-  () => import("@/components/workspace/VisualCanvas").then((m) => m.VisualCanvas),
-  { ssr: false },
-);
 
 type LeftTab = "description" | "path" | "trace";
 
@@ -97,6 +105,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const [run, setRun] = useState<RunResponse | null>(null);
   const [eventIdx, setEventIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [traceSpeed, setTraceSpeed] = useState(1);
+  const [traceOrigin, setTraceOrigin] = useState<TraceOrigin>({ mode: "demo", args: problem.demo_args });
+  const [coachPrompt, setCoachPrompt] = useState<{ text: string; agent: AgentId } | null>(null);
   const [predictIdx, setPredictIdx] = useState(problem.next_predict_index);
   const [predictAnswer, setPredictAnswer] = useState("");
   const [predictMsg, setPredictMsg] = useState<string | null>(null);
@@ -123,12 +134,18 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const predictionInput = useRef<HTMLInputElement>(null);
   const vivaHeading = useRef<HTMLHeadingElement>(null);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const traceDecoration = useRef<ReturnType<Parameters<OnMount>[0]["createDecorationsCollection"]> | null>(null);
   const plainEditorRef = useRef<HTMLTextAreaElement>(null);
   const coachPanelRef = useRef<HTMLElement>(null);
   const coachTriggerRef = useRef<HTMLButtonElement>(null);
 
   const events: TraceEvent[] = run?.events || [];
   const currentEvent = events[eventIdx] || null;
+  const traceLine = leftTab === "trace" && traceOrigin.mode === "student" && traceOrigin.code === code && currentEvent && currentEvent.line > 0 ? currentEvent.line : null;
+
+  useEffect(() => {
+    if (!plainEditor) syncEditorTrace(editorRef.current, traceDecoration.current, traceLine);
+  }, [plainEditor, traceLine]);
 
   useEffect(() => {
     if (!playing || events.length === 0) return;
@@ -140,9 +157,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
         }
         return i + 1;
       });
-    }, 450);
+    }, 700 / traceSpeed);
     return () => clearInterval(t);
-  }, [playing, events.length]);
+  }, [playing, events.length, traceSpeed]);
 
   const vivaReady = stage === 4 && viva.length > 0;
   const resolved = resolveActiveStage({ stage, vivaReady, mastered, hasTestResults: testResults.length > 0 });
@@ -169,18 +186,25 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
     }
   }
 
-  async function onSee() {
+  function onSee() {
+    return traceDemo();
+  }
+
+  async function traceDemo(args?: unknown[]) {
+    if (busy) return;
     setBusy(true);
     setError(null);
+    setPlaying(false);
     try {
-      const res = await runCode({ problem_id: problem.id, mode: "brute" });
+      const res = await runCode({ problem_id: problem.id, mode: "brute", args });
       if (!res.ok) {
-        setError("The demo couldn’t run. Try again before moving to Predict.");
+        setError(args ? `Custom input failed: ${res.error?.trim().split("\n").at(-1) ?? "Check the argument values."}` : "The demo couldn’t run. Try again before moving to Predict.");
         return;
       }
       setRun(res);
+      setCoachPrompt(null);
       setEventIdx(0);
-      setPlaying(Boolean(res.events.length) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      setTraceOrigin({ mode: "demo", args: args ?? problem.demo_args, custom: Boolean(args) });
       setStage(res.stage);
       setSelectedStage(null);
       setLeftTab("trace");
@@ -221,7 +245,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
     }
   }
 
-  async function onRun() {
+  async function onRun(args?: unknown[]) {
     if (busy || stage < 3 || !code.trim()) return;
     setBusy(true);
     setEditorAction("run");
@@ -231,14 +255,21 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
     setConsoleTab("output");
     setConsoleOpen(true);
     try {
-      const res = await runCode({ problem_id: problem.id, mode: "student", code });
+      const res = await runCode({ problem_id: problem.id, mode: "student", code, args });
       setTestResults([]);
       setTestMsg(null);
       setSavedCode(code);
       setStudentRun({ response: res, code });
       setRun(res);
+      setCoachPrompt(null);
       setEventIdx(0);
-      setPlaying(Boolean(res.events.length) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      setPlaying(false);
+      setTraceOrigin({ mode: "student", code, args: args ?? problem.demo_args, custom: Boolean(args) });
+      if (args) {
+        setLeftTab("trace");
+        setMobilePane("problem");
+        setError(res.ok ? null : `Custom input failed: ${res.error?.trim().split("\n").at(-1) ?? "Check the argument values."}`);
+      }
       setStage(res.stage);
       if (res.stage < 4) clearViva();
       else if (!mastered && !viva.length) {
@@ -246,7 +277,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       }
       setRunNotice(res.ok ? "Run completed." : `Runtime error: ${res.error?.trim().split("\n").at(-1) || "The run did not complete."}`);
     } catch (e) {
-      setRunNotice(e instanceof Error ? e.message : "Run failed. Try again.");
+      const message = e instanceof Error ? e.message : "Run failed. Try again.";
+      setRunNotice(message);
+      if (args || leftTab === "trace") setError(message);
     } finally {
       setEditorAction(null);
       setBusy(false);
@@ -358,6 +391,13 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       setAgentsOpen(true);
       requestAnimationFrame(() => coachPanelRef.current?.focus());
     }
+  }
+
+  function openCoach(text: string, agent: AgentId) {
+    setPlaying(false);
+    setCoachPrompt({ text, agent });
+    setAgentsOpen(true);
+    requestAnimationFrame(() => coachPanelRef.current?.focus());
   }
 
   const locked = stage < 3;
@@ -529,6 +569,10 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
                           <Button type="submit" size="sm" disabled={busy || stage < 2 || !predictAnswer.trim()}>Check prediction</Button>
                           <p role="status" className="text-sm text-[var(--muted)]">{predictMsg}</p>
                         </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <button type="button" className="learn-text-link" onClick={() => setLeftTab("trace")}>Review the trace</button>
+                          <button type="button" className="learn-text-link" onClick={() => openCoach(`Help me reason through this prediction without answering it: ${step.prompt}`, "predict_coach")}>Ask Predict Coach</button>
+                        </div>
                       </form>
                     )}
                   </div>
@@ -556,7 +600,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
                       )}
                     </div>
                     {mastered ? (
-                      <p className="mt-2 text-sm text-[var(--muted)]">Mastery is saved for this guest session.</p>
+                      <div className="mt-2 flex flex-col gap-2"><p className="text-sm text-[var(--muted)]">Mastery is saved for this guest session.</p><Link className="learn-text-link" href={`/practice?pattern=${encodeURIComponent(problem.pattern_id ?? problem.pattern)}`}>Try another problem in this pattern</Link></div>
                     ) : (
                       <div className="mt-3 space-y-3">
                         {viva.map((q, i) => {
@@ -601,31 +645,18 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
               </div>
             )}
 
-            {leftTab === "trace" && (
-              <div className="space-y-3 animate-rise">
-                <div className="workspace-trace-controls">
-                  <span>{events.length ? `Frame ${eventIdx + 1}/${events.length}` : "No trace yet"}</span>
-                  <div className="flex items-center gap-1">
-                    <button type="button" aria-label="Previous frame" disabled={eventIdx === 0} onClick={() => { setPlaying(false); setEventIdx((index) => Math.max(0, index - 1)); }}><ChevronLeft size={18} aria-hidden="true" /></button>
-                    <button type="button" disabled={events.length < 2} onClick={() => { if (!playing && eventIdx === events.length - 1) setEventIdx(0); setPlaying(!playing); }}>{playing ? "Pause" : "Play"}</button>
-                    <button type="button" aria-label="Next frame" disabled={eventIdx >= events.length - 1} onClick={() => { setPlaying(false); setEventIdx((index) => Math.min(events.length - 1, index + 1)); }}><ChevronRight size={18} aria-hidden="true" /></button>
-                  </div>
-                </div>
-                {events.length > 1 && <input type="range" className="w-full accent-[var(--accent)]" aria-label="Trace frame" min={0} max={events.length - 1} value={eventIdx} onChange={(event) => { setPlaying(false); setEventIdx(Number(event.target.value)); }} />}
-                <div className="h-[360px] overflow-hidden rounded-md border border-[var(--line)]">
-                  <VisualCanvas visual={problem.visual} event={currentEvent} />
-                </div>
-                {currentEvent && (
-                  <pre className="overflow-x-auto rounded-md bg-[#0f1419] p-3 text-[11px] text-[#d7dee7]">
-                    {JSON.stringify(
-                      { line: currentEvent.line, focus: currentEvent.focus, locals: currentEvent.locals },
-                      null,
-                      2,
-                    )}
-                  </pre>
-                )}
-              </div>
-            )}
+            {leftTab === "path" && <LearningChecklist stage={stage} active={resolved} ranCode={Boolean(studentRun)} mastered={mastered} />}
+
+            {leftTab === "trace" && <TraceExplorer
+              visual={problem.visual} events={events} index={eventIdx} playing={playing} speed={traceSpeed} busy={busy}
+              origin={traceOrigin} demoArgs={problem.demo_args}
+              onSeek={(index) => { setPlaying(false); setCoachPrompt(null); setEventIdx(index); }}
+              onPlay={() => { setCoachPrompt(null); if (!playing && eventIdx === events.length - 1) setEventIdx(0); setPlaying(!playing); }}
+              onSpeed={setTraceSpeed} onDemo={() => void onSee()}
+              onTraceCode={!locked ? () => void onRun() : undefined}
+              onCustom={(args) => { if (locked) void traceDemo(args); else void onRun(args); }}
+              onCoach={() => openCoach(`What should I watch in frame ${eventIdx + 1} at line ${currentEvent?.line}, without giving away the solution?`, "demo_coach")}
+            />}
           </div>
         </section>
 
@@ -635,7 +666,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
             <div className="workspace-editor-actions">
               {!locked && <button type="button" aria-pressed={plainEditor} disabled={busy} onClick={() => setPlainEditor(!plainEditor)} className="workspace-editor-mode">Plain text</button>}
               <button type="button" aria-expanded={agentsOpen} aria-controls="workspace-coaches" className="workspace-editor-mode workspace-coach-trigger workspace-desktop-trigger" onClick={(event) => toggleCoaches(event.currentTarget)}><MessagesSquare size={16} aria-hidden="true" />Coaches</button>
-              <Button size="sm" variant="secondary" type="button" onClick={onRun} disabled={busy || locked || !code.trim()} aria-keyshortcuts="Control+Enter Meta+Enter" title="Run · Ctrl/⌘ + Enter"><Play size={15} aria-hidden="true" />{editorAction === "run" ? "Running…" : "Run"}</Button>
+              <Button size="sm" variant="secondary" type="button" onClick={() => void onRun()} disabled={busy || locked || !code.trim()} aria-keyshortcuts="Control+Enter Meta+Enter" title="Run · Ctrl/⌘ + Enter"><Play size={15} aria-hidden="true" />{editorAction === "run" ? "Running…" : "Run"}</Button>
               <Button size="sm" type="button" onClick={onSubmit} disabled={busy || locked || !code.trim()} aria-keyshortcuts="Control+Shift+Enter Meta+Shift+Enter" title="Submit · Ctrl/⌘ + Shift + Enter"><Send size={15} aria-hidden="true" />{editorAction === "submit" ? "Checking…" : "Submit"}</Button>
             </div>
           </header>
@@ -664,7 +695,11 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
                 theme="vs-dark"
                 value={code}
                 onChange={onCodeChange}
-                onMount={(editor) => { editorRef.current = editor; }}
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                  traceDecoration.current = editor.createDecorationsCollection();
+                  syncEditorTrace(editor, traceDecoration.current, traceLine);
+                }}
                 options={{
                   ariaLabel: "Python code editor",
                   readOnly: busy,
@@ -689,13 +724,15 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
             stale={consoleTab === "output" ? Boolean(studentRun && studentRun.code !== code) : code !== savedCode}
             onTab={(tab) => { setConsoleTab(tab); setConsoleOpen(true); }}
             onToggle={() => setConsoleOpen(!consoleOpen)}
+            onTrace={traceOrigin.mode === "student" && events.length ? () => { setLeftTab("trace"); setMobilePane("problem"); } : undefined}
+            onCoach={failedExample && code === savedCode ? () => openCoach("Compare my result with the visible test that failed. Give me one next debugging step, not a solution.", "code_mentor") : undefined}
           />}
         </section>
 
         <aside id="workspace-coaches" ref={coachPanelRef} tabIndex={-1} aria-labelledby="workspace-coaches-title" hidden={!agentsOpen} className="workspace-coach-panel">
           <div className="workspace-coach-heading"><h2 id="workspace-coaches-title">Practice coaches</h2><button type="button" className="workspace-editor-mode" onClick={() => toggleCoaches()}>Hide coaches</button></div>
           <div className="min-h-0 flex-1">
-            <AgentDock topic={problem.topic} problemId={problem.id} stage={stage} code={code} lastRun={lastRun} suggestedAgent={agentForStage(resolved)} />
+            <AgentDock topic={problem.topic} problemId={problem.id} stage={stage} code={code} lastRun={lastRun} suggestedAgent={agentForStage(resolved)} contextualPrompt={coachPrompt} />
           </div>
         </aside>
       </div>

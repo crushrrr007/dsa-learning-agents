@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -20,7 +21,6 @@ from app.runner.problem_args import (
     parse_example_expected,
 )
 from app.runner.sandbox import run_student_code
-from app.runner.trace_check import answer_supported_by_trace, run_reference_trace
 from app.runner.viva_grade import grade_problem_viva
 from app.schemas import (
     PredictRequest,
@@ -38,10 +38,6 @@ from app.schemas import (
 
 router = APIRouter(tags=["run"])
 logger = logging.getLogger(__name__)
-
-
-def _normalize_args(problem: dict[str, Any], args: list[Any] | None) -> list[Any]:
-    return normalize_demo_args(problem, args)
 
 
 def _code_for_mode(problem: dict[str, Any], mode: str, code: str | None) -> str:
@@ -69,14 +65,21 @@ async def run_code(body: RunRequest, db: AsyncSession = Depends(get_db)) -> RunR
     if body.mode == "student" and progress.stage < 3:
         raise HTTPException(status_code=409, detail="Finish Predict before running your code.")
 
+    if body.args is not None:
+        expected = len(normalize_demo_args(problem))
+        if len(body.args) != expected:
+            raise HTTPException(status_code=422, detail=f"Provide {expected} positional arguments in one JSON array.")
+        if len(json.dumps(body.args)) > 8000:
+            raise HTTPException(status_code=422, detail="Custom trace input is too large. Use a small example.")
+
     code = _code_for_mode(problem, body.mode, body.code)
-    args = _normalize_args(problem, body.args)
+    args = normalize_demo_args(problem, body.args)
     started = time.perf_counter()
     raw = run_student_code(code, problem["function_name"], args=args)
     duration = (time.perf_counter() - started) * 1000
     analysis = analyze_code(code)
     perf: list[dict[str, Any]] = []
-    if body.mode == "brute":
+    if body.mode == "brute" and body.args is None:
         perf = measure_scaling(
             code,
             problem["function_name"],
@@ -119,24 +122,14 @@ def _normalize_predict_answer(text: str) -> str:
     cleaned = cleaned.replace("→", " ").replace("->", " ")
     for token in ("=", ",", ";", ":"):
         cleaned = cleaned.replace(token, " ")
-    return " ".join(cleaned.split())
+    return " ".join(cleaned.rstrip(".?! ").split())
 
 
 def _predict_matches(expected: str, got: str, alternatives: list[str] | None = None) -> bool:
-    candidates = [expected, *(alternatives or [])]
-    norm_got = _normalize_predict_answer(got)
-    for cand in candidates:
-        norm_exp = _normalize_predict_answer(str(cand))
-        if not norm_exp:
-            continue
-        if norm_got == norm_exp or norm_exp in norm_got or norm_got in norm_exp:
-            return True
-        # Token overlap for short numeric / pointer answers
-        exp_tokens = set(norm_exp.split())
-        got_tokens = set(norm_got.split())
-        if exp_tokens and exp_tokens <= got_tokens:
-            return True
-    return False
+    answer = _normalize_predict_answer(got)
+    return bool(answer) and any(
+        answer == _normalize_predict_answer(str(candidate)) for candidate in (expected, *(alternatives or []))
+    )
 
 
 @router.post("/predict", response_model=PredictResponse)
@@ -160,30 +153,13 @@ async def predict(body: PredictRequest, db: AsyncSession = Depends(get_db)) -> P
         raise HTTPException(status_code=422, detail="Enter a prediction before checking it.")
     step = steps[body.step_index]
 
-    # Run a live reference trace so predictions are grounded in real execution facts.
-    trace = run_reference_trace(problem, _normalize_args)
-    events = trace.get("events") or []
-    text_ok = _predict_matches(
-        str(step["answer"]),
-        body.answer,
-        step.get("accepted_answers") or [],
-    )
-    trace_ok = answer_supported_by_trace(
-        body.answer,
-        events,
-        keys=step.get("trace_keys"),
-    )
-    # Accept authored/flexible text matches; when the answer is pointer/numeric,
-    # also accept freeform answers that clearly appear in the live trace.
-    correct = text_ok or (trace_ok and bool(events))
+    correct = _predict_matches(str(step["answer"]), body.answer, step.get("accepted_answers"))
 
     if correct:
         next_index += 1
         if next_index == len(steps):
             progress.stage = max(progress.stage, 3)
     hint = None if correct else step.get("hint")
-    if not correct and events:
-        hint = ((hint or "") + " Checked against a live code trace.").strip()
     await record_attempt(db, body.session_id, body.problem_id, 2, correct, f"predict:{body.step_index}")
     return PredictResponse(correct=correct, hint=hint, stage=progress.stage, next_predict_index=next_index)
 

@@ -98,6 +98,7 @@ type Props = {
   lastRun?: Record<string, unknown> | null;
   /** Soft highlight for the coach that matches the current workspace stage. */
   suggestedAgent?: AgentId;
+  contextualPrompt?: { text: string; agent: AgentId } | null;
 };
 
 export function AgentDock({
@@ -107,6 +108,7 @@ export function AgentDock({
   code,
   lastRun,
   suggestedAgent,
+  contextualPrompt,
 }: Props) {
   const [override, setOverride] = useState<AgentId | null>(null);
   const recommend = suggestedAgent || AGENTS[Math.min(Math.max(stage, 0), 4)].id;
@@ -122,7 +124,7 @@ export function AgentDock({
     if (log) log.scrollTop = log.scrollHeight;
   }, [messages.length]);
 
-  async function send(text?: string) {
+  async function send(text?: string, agent?: AgentId) {
     const userText = (text ?? input).trim();
     if (!userText || busy) return;
     setInput("");
@@ -136,7 +138,7 @@ export function AgentDock({
         message: userText,
         code,
         last_run: lastRun || undefined,
-        preferred_agent: override ?? undefined,
+        preferred_agent: agent ?? override ?? undefined,
       });
       setMessages((m) => [
         ...m,
@@ -250,11 +252,11 @@ export function AgentDock({
       <div className="space-y-2 border-t border-white/10 p-3">
         <button
           type="button"
-          onClick={() => send(meta.starter)}
+          onClick={() => send(contextualPrompt?.text ?? meta.starter, contextualPrompt?.agent)}
           disabled={busy}
           className="w-full rounded-md border border-white/10 px-3 py-1.5 text-left text-xs text-[#b7c2ce] hover:bg-white/10"
         >
-          Quick ask: {meta.starter}
+          {contextualPrompt ? `Ask ${coachingNames[contextualPrompt.agent]}: ${contextualPrompt.text}` : `Quick ask: ${meta.starter}`}
         </button>
         <div className="flex gap-2">
           <input
