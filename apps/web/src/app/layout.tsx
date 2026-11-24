@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Pointer Lab — Multi-Agent DSA",
   description:
-    "Pattern practice with a NeetCode-style workspace and teaching agents that hint instead of dumping solutions.",
+    "Showcase how specialized coaching agents improve DSA learning: See → Predict → Code → Test → Viva — hints, not solution dumps.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -38,6 +38,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
                 >
                   Home
+                </Link>
+                <Link
+                  href="/#agents"
+                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] sm:inline"
+                >
+                  Coaches
                 </Link>
                 <Link
                   href="/problems"

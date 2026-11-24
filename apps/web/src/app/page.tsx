@@ -1,25 +1,18 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Circle, ArrowRight, Sparkles } from "lucide-react";
+import { TOPIC_AGENTS, WORKSPACE_AGENTS } from "@/lib/agents";
 import {
   fetchPatterns,
   fetchProblems,
   fetchRoadmap,
-  fetchRoadmapGraph,
   type PatternInfo,
   type ProblemSummary,
   type Roadmap,
-  type RoadmapGraph,
 } from "@/lib/api";
-
-const RoadmapGraphView = dynamic(
-  () => import("@/components/roadmap/RoadmapGraph").then((m) => m.RoadmapGraph),
-  { ssr: false },
-);
 
 const PILOT_TOPIC = "two-pointers";
 
@@ -34,7 +27,6 @@ function HomeInner() {
   const search = useSearchParams();
   const patternFilter = search.get("pattern") || "";
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
-  const [graph, setGraph] = useState<RoadmapGraph | null>(null);
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [patterns, setPatterns] = useState<PatternInfo[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -44,13 +36,11 @@ function HomeInner() {
   useEffect(() => {
     Promise.all([
       fetchRoadmap(),
-      fetchRoadmapGraph(),
       fetchProblems(undefined, patternFilter || undefined),
       fetchPatterns(),
     ])
-      .then(([r, g, p, pats]) => {
+      .then(([r, p, pats]) => {
         setRoadmap(r);
-        setGraph(g);
         setProblems(p);
         setPatterns(pats);
         const init: Record<string, boolean> = {};
@@ -80,7 +70,6 @@ function HomeInner() {
 
   return (
     <div className="pb-16">
-      {/* Full-bleed brand hero */}
       <section className="mesh-hero relative overflow-hidden text-white">
         <div className="pointer-events-none absolute inset-0 opacity-30">
           <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-teal-400/30 blur-3xl" />
@@ -90,45 +79,45 @@ function HomeInner() {
           <div className="animate-rise max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-100 backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" />
-              Multi-agent DSA lab
+              Multi-agent DSA · research showcase
             </p>
             <h1 className="display mt-5 text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-7xl">
               Pointer Lab
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-              Pattern sheets and a LeetCode-like editor — with coaches that teach through See, Predict, Code, Test, and
-              Viva instead of dumping answers.
+              Not another solution dump. Five specialized coaches walk you through See → Predict → Code → Test → Viva
+              so you learn the pattern — and can defend it.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href={`/topics/${PILOT_TOPIC}`}
                 className="inline-flex h-12 items-center gap-2 rounded-xl bg-teal-400 px-6 text-sm font-bold text-[#042f2e] transition hover:bg-teal-300"
               >
-                {pilotTopic?.has_plan ? "Continue demo path" : "Start Two Pointers demo"}
+                {pilotTopic?.has_plan ? "Continue demo path" : "Try the multi-agent demo"}
                 <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="#agents"
+                className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
+              >
+                Meet the coaches
               </Link>
               <Link
                 href="/problems"
                 className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
               >
-                Open practice sheet
-              </Link>
-              <Link
-                href="/progress"
-                className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
-              >
-                {loading ? "…" : `${mastered}/${problems.length || "—"}`} mastered
+                Practice sheet
               </Link>
             </div>
           </div>
 
           <div className="animate-rise-delay mt-10 grid gap-3 sm:grid-cols-5">
             {[
-              { t: "See", d: "Watch the slow path fail" },
-              { t: "Predict", d: "Name the next state" },
-              { t: "Code", d: "Editor unlocks" },
-              { t: "Test", d: "Hidden cases gate viva" },
-              { t: "Viva", d: "Defend to master" },
+              { t: "See", d: "Demo Coach narrates the slow path" },
+              { t: "Predict", d: "Predict Coach checks your next state" },
+              { t: "Code", d: "Editor unlocks · Mentor on standby" },
+              { t: "Test", d: "Failures feed Code Mentor" },
+              { t: "Viva", d: "Viva Agent · mastery only if you defend" },
             ].map((s, i) => (
               <div
                 key={s.t}
@@ -145,36 +134,89 @@ function HomeInner() {
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {loading && (
-          <div className="panel mt-8 rounded-2xl p-6 text-[var(--muted)]">Loading practice sheet…</div>
+          <div className="panel mt-8 rounded-2xl p-6 text-[var(--muted)]">Loading…</div>
         )}
         {error && (
           <div className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-800">
-            Could not reach the API on port 8417.
+            Could not reach the API.
             <pre className="mt-2 text-xs opacity-80">{error}</pre>
           </div>
         )}
 
         {!loading && !error && (
           <>
-            {graph && (
-              <section className="animate-rise-late mt-10">
-                <div className="mb-3 flex items-end justify-between gap-3">
-                  <div>
-                    <h2 className="display text-2xl font-bold">Pattern roadmap</h2>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      Topics → patterns. Amber weak, green mastered — click a node to jump in.
+            <section id="agents" className="animate-rise-late mt-12 scroll-mt-20">
+              <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Why multi-agent</p>
+                  <h2 className="display mt-1 text-3xl font-bold">Five coaches, one learning loop</h2>
+                  <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
+                    A single chatbot tries to do everything and often pastes answers. Pointer Lab routes you to a
+                    specialist per stage — then a solution guard blocks full dumps.
+                  </p>
+                </div>
+                <p className="text-xs font-semibold tabular-nums text-[var(--muted)]">
+                  {mastered}/{problems.length} mastered this session
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {WORKSPACE_AGENTS.map((a) => (
+                  <div
+                    key={a.id}
+                    className="rounded-2xl border border-[var(--line)] bg-white p-5 shadow-sm"
+                    style={{ borderTopColor: a.accent, borderTopWidth: 3 }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-black text-white"
+                        style={{ background: a.accent }}
+                      >
+                        {a.letter}
+                      </span>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: a.accent }}>
+                          {a.stage}
+                        </p>
+                        <h3 className="font-bold text-[var(--ink)]">{a.title}</h3>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{a.job}</p>
+                    <p className="mt-2 text-xs text-[var(--muted)]">
+                      <span className="font-semibold text-[var(--ink)]">When: </span>
+                      {a.when}
                     </p>
                   </div>
+                ))}
+                <div className="rounded-2xl border border-dashed border-[var(--line)] bg-slate-50/80 p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">Plus on topic entry</p>
+                  <h3 className="mt-1 font-bold text-[var(--ink)]">Diagnose · Plan · Teach</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+                    {TOPIC_AGENTS.map((a) => (
+                      <li key={a.id}>
+                        <span className="font-semibold text-[var(--ink)]">{a.title}: </span>
+                        {a.job}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={`/topics/${PILOT_TOPIC}`}
+                    className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-[var(--accent)] hover:underline"
+                  >
+                    Run demo path <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
-                <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-white/90 shadow-[var(--shadow)]">
-                  <RoadmapGraphView graph={graph} />
-                </div>
-              </section>
-            )}
+              </div>
+            </section>
 
-            <section className="mt-10">
+            <section className="mt-12">
               <h2 className="display text-2xl font-bold">Patterns</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">Filter the sheet the way AlgoMaster filters by idea.</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Filter by idea, then open a problem into the agent loop.{" "}
+                <Link href="/patterns" className="font-semibold text-[var(--accent)] hover:underline">
+                  Full pattern map
+                </Link>
+              </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link
                   href="/"
@@ -216,7 +258,7 @@ function HomeInner() {
                 <div>
                   <h2 className="display text-2xl font-bold">Practice sheet</h2>
                   <p className="mt-1 text-sm text-[var(--muted)]">
-                    Ordered topics — expand a row or open the diagnose → plan path.
+                    Expand a topic or start diagnose → plan. Every problem opens with coaches.
                   </p>
                 </div>
                 <p className="text-xs font-semibold tabular-nums text-[var(--muted)]">

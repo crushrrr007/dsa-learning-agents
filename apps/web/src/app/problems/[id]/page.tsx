@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AgentDock, type AgentId } from "@/components/workspace/AgentDock";
+import { AgentDock } from "@/components/workspace/AgentDock";
 import {
   StageRail,
   WORKSPACE_STAGES,
@@ -13,6 +13,7 @@ import {
   resolveActiveStage,
   type WorkspaceStageId,
 } from "@/components/workspace/StageRail";
+import { WORKSPACE_AGENTS, agentForWorkspaceStage } from "@/lib/agents";
 import {
   completeSee,
   fetchProblem,
@@ -35,28 +36,13 @@ const VisualCanvas = dynamic(
 );
 
 type LeftTab = "description" | "path" | "trace";
+type ConsoleTab = "tests" | "output";
 
 function diffClass(d: string) {
   const x = d.toLowerCase();
   if (x === "easy") return "text-emerald-300 bg-emerald-500/15 border-emerald-400/30";
   if (x === "hard") return "text-rose-300 bg-rose-500/15 border-rose-400/30";
   return "text-amber-300 bg-amber-500/15 border-amber-400/30";
-}
-
-function agentForStage(active: WorkspaceStageId): AgentId {
-  switch (active) {
-    case "see":
-      return "demo_coach";
-    case "predict":
-      return "predict_coach";
-    case "code":
-    case "test":
-      return "code_mentor";
-    case "viva":
-      return "viva_agent";
-    default:
-      return "concept_tutor";
-  }
 }
 
 export default function ProblemWorkspacePage() {
@@ -95,6 +81,8 @@ export default function ProblemWorkspacePage() {
   const [agentsOpen, setAgentsOpen] = useState(false);
   const [uiStage, setUiStage] = useState<WorkspaceStageId>("see");
   const [related, setRelated] = useState<ProblemSummary[]>([]);
+  const [consoleTab, setConsoleTab] = useState<ConsoleTab>("tests");
+  const [seedAsk, setSeedAsk] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProblem(id)
@@ -219,13 +207,18 @@ export default function ProblemWorkspacePage() {
   async function onRun() {
     if (!problem) return;
     setBusy(true);
+    setConsoleTab("output");
     try {
       const res = await runCode({ problem_id: problem.id, mode: "student", code });
       setRun(res);
       setEventIdx(0);
       setPlaying(Boolean(res.events?.length));
       if (res.ok) setStage((s) => Math.max(s, 3));
-      setTestMsg(res.ok ? `Demo run ok → ${JSON.stringify(res.result)}` : `Runtime error: ${res.error}`);
+      setTestMsg(res.ok ? `Run ok → ${JSON.stringify(res.result)}` : `Runtime error: ${res.error}`);
+      if (!res.ok) {
+        setAgentsOpen(true);
+        setSeedAsk("My last run failed — what should I inspect first?");
+      }
       if (res.events?.length) setLeftTab("trace");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Run failed");
@@ -238,6 +231,7 @@ export default function ProblemWorkspacePage() {
     if (!problem) return;
     setBusy(true);
     setTestMsg(null);
+    setConsoleTab("tests");
     try {
       const res = await runTests(problem.id, code);
       setStage(Math.max(stage, res.stage));
@@ -257,6 +251,13 @@ export default function ProblemWorkspacePage() {
         setUiStage("viva");
       } else {
         setUiStage("test");
+        setAgentsOpen(true);
+        const fail = res.results.find((r) => !r.passed);
+        setSeedAsk(
+          fail
+            ? `Submit failed on ${fail.visible ? `example ${fail.index + 1}` : `hidden case ${fail.index}`}: expected ${JSON.stringify(fail.expected)}, got ${JSON.stringify(fail.got)}. What should I inspect first?`
+            : "My submit failed — what should I inspect first?",
+        );
       }
       setRun((prev) => ({
         ...(prev || {
@@ -334,6 +335,8 @@ export default function ProblemWorkspacePage() {
   const locked = stage < 3;
   const step = problem.predict_steps[predictIdx];
   const stageMeta = WORKSPACE_STAGES.find((s) => s.id === uiStage);
+  const coachId = agentForWorkspaceStage(uiStage);
+  const coach = WORKSPACE_AGENTS.find((a) => a.id === coachId) || WORKSPACE_AGENTS[0];
 
   const lastRun = run
     ? {
@@ -372,7 +375,25 @@ export default function ProblemWorkspacePage() {
         >
           {problem.pattern}
         </Link>
-        <div className="ml-auto hidden md:block">
+        <button
+          type="button"
+          onClick={() => setAgentsOpen(true)}
+          className="ml-auto flex items-center gap-2 rounded-lg border px-2.5 py-1 text-left transition hover:brightness-110 lg:ml-0"
+          style={{ borderColor: coach.accent + "55", background: coach.accentSoft }}
+          title={coach.job}
+        >
+          <span
+            className="flex h-6 w-6 items-center justify-center rounded text-[10px] font-black text-white"
+            style={{ background: coach.accent }}
+          >
+            {coach.letter}
+          </span>
+          <span className="hidden sm:block">
+            <span className="block text-[9px] font-bold uppercase tracking-wider text-white/50">On deck</span>
+            <span className="block text-xs font-semibold text-white">{coach.short}</span>
+          </span>
+        </button>
+        <div className="hidden md:block">
           <StageRail
             tone="dark"
             stage={stage}
@@ -682,35 +703,43 @@ export default function ProblemWorkspacePage() {
         </section>
 
         <section className="flex min-h-0 flex-col border-r border-[var(--ws-line)] bg-[#0d1117]">
-          <div className="flex flex-wrap items-center gap-2 border-b border-[var(--ws-line)] px-3 py-2">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">Editor</p>
-              <span className="text-xs font-semibold text-white/70">Python3</span>
+          <div className="flex flex-wrap items-center gap-2 border-b border-[var(--ws-line)] bg-[#161b22] px-2 py-1.5">
+            <div className="flex items-center gap-1 rounded-t-md border border-b-0 border-white/10 bg-[#0d1117] px-3 py-1.5">
+              <span className="h-2 w-2 rounded-full bg-teal-400" />
+              <span className="font-mono text-xs font-semibold text-white/80">solution.py</span>
             </div>
-            <div className="ml-auto flex gap-2">
-              <Button size="sm" variant="secondary" onClick={onRun} disabled={busy || locked}>
-                Run
+            <span className="hidden text-[10px] font-medium text-white/35 sm:inline">Python 3 · IBM Plex Mono</span>
+            <div className="ml-auto flex items-center gap-2">
+              <Button size="sm" variant="secondary" onClick={onRun} disabled={busy || locked} title="Quick run">
+                {busy && consoleTab === "output" ? "Running…" : "Run"}
               </Button>
-              <Button size="sm" onClick={onSubmit} disabled={busy || locked}>
-                Submit
+              <Button size="sm" onClick={onSubmit} disabled={busy || locked} title="Full test suite">
+                {busy && consoleTab === "tests" ? "Testing…" : "Submit"}
               </Button>
               <Button size="sm" variant="secondary" className="lg:hidden" onClick={() => setAgentsOpen(true)}>
-                Agents
+                Coaches
               </Button>
             </div>
           </div>
 
-          <div className="relative min-h-[240px] flex-1">
+          <div className="relative min-h-[280px] flex-[1.2]">
             {locked && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/55 p-6 text-center backdrop-blur-[2px]">
-                <div className="max-w-sm animate-rise rounded-lg border border-white/15 bg-[#161b22] p-4 text-sm text-white">
-                  <p className="font-semibold">Editor unlocks after Predict</p>
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 p-6 text-center backdrop-blur-[2px]">
+                <div className="max-w-sm animate-rise rounded-xl border border-white/15 bg-[#161b22] p-5 text-sm text-white shadow-xl">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-teal-300">Stage lock</p>
+                  <p className="mt-1 font-semibold">Editor unlocks after Predict</p>
                   <p className="mt-2 text-white/70">
-                    Finish See → Predict on Learn path. Stuck? Ask Hint or Predict in Agents — not for the full answer.
+                    Finish See → Predict first. Stuck? Ask <strong className="text-white">Hint</strong> or{" "}
+                    <strong className="text-white">Predict</strong> — they will not paste the solution.
                   </p>
-                  <Button className="mt-3" size="sm" onClick={() => setLeftTab("path")}>
-                    Open stages
-                  </Button>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    <Button size="sm" onClick={() => setLeftTab("path")}>
+                      Open stages
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => setAgentsOpen(true)}>
+                      Ask {coach.short}
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -723,58 +752,121 @@ export default function ProblemWorkspacePage() {
               options={{
                 readOnly: locked,
                 minimap: { enabled: false },
-                fontSize: 13,
+                fontSize: 14,
+                lineHeight: 22,
+                padding: { top: 12, bottom: 12 },
                 fontFamily: "IBM Plex Mono, ui-monospace, monospace",
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
+                renderLineHighlight: "line",
+                cursorBlinking: "smooth",
+                smoothScrolling: true,
+                tabSize: 4,
               }}
             />
           </div>
 
-          <div className="flex min-h-[180px] flex-[0.4] flex-col border-t border-white/10 bg-[#0f1419]">
-            <div className="border-b border-white/10 px-3 py-1.5 text-xs font-semibold text-white/70">Testcases</div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
-              {testMsg && <p className="mb-3 font-medium text-white">{testMsg}</p>}
-              {testResults.length === 0 && !testMsg && (
-                <p className="text-white/50">Run for a quick check. Submit for examples + hidden tests.</p>
+          <div className="flex min-h-[200px] flex-[0.55] flex-col border-t border-white/10 bg-[#0f1419]">
+            <div className="flex items-center gap-1 border-b border-white/10 px-2 pt-1">
+              {(
+                [
+                  ["tests", "Testcases"],
+                  ["output", "Output"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setConsoleTab(id)}
+                  className={`rounded-t-md px-3 py-1.5 text-xs font-semibold ${
+                    consoleTab === id ? "bg-white/10 text-white" : "text-white/45 hover:text-white/80"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+              {!locked && testResults.some((r) => !r.passed) && (
+                <button
+                  type="button"
+                  className="ml-auto mb-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-200 hover:bg-amber-400/10"
+                  onClick={() => {
+                    setAgentsOpen(true);
+                    setSeedAsk("My submit has failing tests — what should I inspect first?");
+                  }}
+                >
+                  Ask Code Mentor →
+                </button>
               )}
-              <ul className="space-y-2">
-                {testResults.map((r) => (
-                  <li
-                    key={r.index}
-                    className={`rounded border px-3 py-2 font-mono text-xs ${
-                      r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
-                    }`}
-                  >
-                    <div className="font-sans font-semibold">
-                      {r.passed ? "Passed" : "Failed"} ·{" "}
-                      {r.visible ? `Example ${r.index + 1}` : `Hidden case ${r.index}`}
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
+              {consoleTab === "output" && (
+                <div className="space-y-2 font-mono text-xs">
+                  {testMsg && <p className="font-sans text-sm font-medium text-white">{testMsg}</p>}
+                  {run?.error && <pre className="whitespace-pre-wrap text-rose-300">{run.error}</pre>}
+                  {run && !run.error && (
+                    <pre className="whitespace-pre-wrap text-emerald-200/90">
+                      {JSON.stringify({ result: run.result, stdout: run.stdout, ms: run.duration_ms }, null, 2)}
+                    </pre>
+                  )}
+                  {run?.ast_insights?.length ? (
+                    <div className="mt-2 font-sans text-xs text-white/50">
+                      AST: {run.ast_insights.join(" · ")}
                     </div>
-                    {r.visible && (
-                      <>
-                        <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
-                        <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
-                        <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
-                      </>
-                    )}
-                    {r.error && <div className="text-rose-300">{r.error}</div>}
-                  </li>
-                ))}
-              </ul>
-              {run?.ast_insights?.[0] && <p className="mt-3 text-xs text-white/50">AST: {run.ast_insights[0]}</p>}
+                  ) : null}
+                  {!run && !testMsg && (
+                    <p className="font-sans text-white/45">Run your code for a quick check on the demo input.</p>
+                  )}
+                </div>
+              )}
+              {consoleTab === "tests" && (
+                <>
+                  {testMsg && <p className="mb-3 font-medium text-white">{testMsg}</p>}
+                  {testResults.length === 0 && !testMsg && (
+                    <p className="text-white/50">Submit runs examples + hidden tests. Viva unlocks only when all pass.</p>
+                  )}
+                  <ul className="space-y-2">
+                    {testResults.map((r) => (
+                      <li
+                        key={r.index}
+                        className={`rounded-lg border px-3 py-2 font-mono text-xs ${
+                          r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
+                        }`}
+                      >
+                        <div className="font-sans font-semibold">
+                          {r.passed ? "Passed" : "Failed"} ·{" "}
+                          {r.visible ? `Example ${r.index + 1}` : `Hidden case ${r.index}`}
+                        </div>
+                        {r.visible && (
+                          <>
+                            <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
+                            <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
+                            <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
+                          </>
+                        )}
+                        {r.error && <div className="text-rose-300">{r.error}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           </div>
         </section>
 
         <aside className="hidden min-h-0 flex-col border-l border-[var(--ws-line)] bg-[var(--ws-bg)] p-2 lg:flex">
+          <p className="mb-1.5 px-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+            Multi-agent coaches
+          </p>
           <AgentDock
             topic={problem.topic}
             problemId={problem.id}
             stage={stage}
             code={code}
             lastRun={lastRun}
-            defaultAgent={agentForStage(uiStage)}
-            suggestedAgent={agentForStage(uiStage)}
+            defaultAgent={coachId}
+            suggestedAgent={coachId}
+            seedAsk={seedAsk}
+            onSeedConsumed={() => setSeedAsk(null)}
           />
         </aside>
 
@@ -786,9 +878,9 @@ export default function ProblemWorkspacePage() {
               aria-label="Close agents"
               onClick={() => setAgentsOpen(false)}
             />
-            <div className="flex h-full w-[min(100%,380px)] flex-col bg-[#0f1419] p-2 shadow-2xl">
+            <div className="flex h-full w-[min(100%,400px)] flex-col bg-[#0f1419] p-2 shadow-2xl">
               <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-white/60">Agents</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-white/60">Coaches</span>
                 <Button size="sm" variant="secondary" onClick={() => setAgentsOpen(false)}>
                   Close
                 </Button>
@@ -800,8 +892,10 @@ export default function ProblemWorkspacePage() {
                   stage={stage}
                   code={code}
                   lastRun={lastRun}
-                  defaultAgent={agentForStage(uiStage)}
-                  suggestedAgent={agentForStage(uiStage)}
+                  defaultAgent={coachId}
+                  suggestedAgent={coachId}
+                  seedAsk={seedAsk}
+                  onSeedConsumed={() => setSeedAsk(null)}
                 />
               </div>
             </div>

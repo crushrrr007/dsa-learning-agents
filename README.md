@@ -2,6 +2,10 @@
 
 University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
+## Goal
+
+**Showcase a multi-agent DSA lab:** specialized coaches (Concept, Demo, Predict, Code, Viva) improve learning vs a single chatbot that dumps answers. See **[AGENTS.md](./AGENTS.md)** for how routing and the solution guard work.
+
 ## Product shape (NeetCode × TakeYouForward × AlgoMaster × agents)
 
 | Borrow | Where in Pointer Lab |
