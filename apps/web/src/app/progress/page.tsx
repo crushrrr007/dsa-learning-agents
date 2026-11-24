@@ -85,7 +85,7 @@ export default function ProgressPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="panel rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Topics unlocked</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Overviews done</p>
           <p className="display mt-2 text-3xl font-semibold">
             {totals.learned}/{totals.topics}
           </p>

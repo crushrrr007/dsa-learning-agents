@@ -23,9 +23,9 @@ export function resolveActiveStage(opts: {
 }): WorkspaceStageId {
   if (opts.mastered) return "viva";
   if (opts.vivaReady || opts.testsPassed) return "viva";
-  if (opts.stage >= 3) return "test";
-  if (opts.stage >= 2) return "code";
-  if (opts.stage >= 1) return "predict";
+  // After Predict unlocks the editor, land on Code — not Test.
+  if (opts.stage >= 3) return "code";
+  if (opts.stage >= 2) return "predict";
   return "see";
 }
 
@@ -45,7 +45,7 @@ export function stageUnlocked(
     case "test":
       return stage >= 3;
     case "viva":
-      return testsPassed || vivaReady;
+      return testsPassed || vivaReady || stage >= 4;
   }
 }
 
@@ -69,13 +69,13 @@ export function StageRail({
   return (
     <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Practice stages">
       {WORKSPACE_STAGES.map((s, i) => {
-        const unlocked = stageUnlocked(s.id, stage, testsPassed, vivaReady) || (s.id === "see");
+        const unlocked = stageUnlocked(s.id, stage, testsPassed, vivaReady) || s.id === "see";
         const isActive = active === s.id;
         const done =
           (s.id === "see" && stage >= 2) ||
           (s.id === "predict" && stage >= 3) ||
-          (s.id === "code" && stage >= 3 && (testsPassed || vivaReady)) ||
-          (s.id === "test" && (testsPassed || vivaReady)) ||
+          (s.id === "code" && stage >= 3) ||
+          (s.id === "test" && (testsPassed || vivaReady || stage >= 4)) ||
           (s.id === "viva" && mastered);
 
         return (
@@ -125,10 +125,10 @@ export function nextActionCopy(opts: {
       body: "You finished See → Predict → Code → Test → Viva. Pick another problem or reset for a fresh demo.",
     };
   }
-  if (opts.active === "viva" || opts.vivaReady || opts.testsPassed) {
+  if (opts.active === "viva" || opts.vivaReady || opts.testsPassed || opts.stage >= 4) {
     return {
       title: "Viva unlocked",
-      body: "Answer the oral checks in Learn path. Agents won’t dump a full solution — defend your approach.",
+      body: "Answer the oral checks on the Stages tab. Coaches hint — they never paste a full solution.",
       cta: "Open viva",
     };
   }
@@ -146,15 +146,16 @@ export function nextActionCopy(opts: {
       cta: "Go to predict",
     };
   }
-  if (opts.active === "code" || opts.active === "test") {
+  if (opts.active === "test") {
     return {
-      title: "Code, then Submit",
-      body: "Run for a quick check. Submit runs examples + hidden tests. You only unlock viva on a full pass.",
+      title: "Submit tests",
+      body: "Submit runs examples + hidden cases. Viva unlocks only when every case passes.",
       cta: "Focus editor",
     };
   }
   return {
-    title: "Keep going",
-    body: "Follow the stage rail left to right. Ask Hint if you stall — not for the full answer.",
+    title: "Code your approach",
+    body: "Write the solution, Run for a quick check, then Submit. Ask Debug if a test fails.",
+    cta: "Focus editor",
   };
 }

@@ -57,7 +57,7 @@ function BeforeYouCode({ reviews }: { reviews: MicroReview[] }) {
                 href={`/topics/${r.prereq_topic}`}
                 className="mt-2 inline-block text-xs font-semibold text-[var(--accent)] hover:underline"
               >
-                Open {r.prereq_topic.replace(/-/g, " ")} lesson →
+                Review {r.prereq_topic.replace(/-/g, " ")} topic →
               </Link>
             ) : null}
           </li>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { chatAgent } from "@/lib/api";
 
@@ -122,20 +122,36 @@ export function AgentDock({
   const [busy, setBusy] = useState(false);
   const [llmMode, setLlmMode] = useState<string | null>(null);
   const recommend = suggestedAgent || defaultAgent;
+  const userPicked = useRef(false);
 
-  function switchAgent(id: AgentId) {
+  function switchAgent(id: AgentId, fromUser = true) {
     const next = AGENTS.find((a) => a.id === id) || AGENTS[0];
+    if (fromUser) userPicked.current = true;
     setActive(id);
     setMessages([
       {
         role: "agent",
         agent: next.id,
-        text: `Switched to ${next.title}. ${next.blurb}`,
+        text: fromUser
+          ? `Switched to ${next.title}. ${next.blurb}`
+          : `${next.title} is on deck for this stage. ${next.blurb}`,
         question: next.empty,
       },
     ]);
     setInput("");
   }
+
+  useEffect(() => {
+    userPicked.current = false;
+  }, [problemId]);
+
+  // Follow the workspace stage until the learner picks a coach manually.
+  useEffect(() => {
+    if (!suggestedAgent || userPicked.current) return;
+    if (suggestedAgent === active) return;
+    switchAgent(suggestedAgent, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to stage suggestion
+  }, [suggestedAgent, problemId]);
 
   async function send(text?: string) {
     const userText = (text ?? input).trim();

@@ -6,11 +6,26 @@ University-lab workspace for learning DSA with **real Python tracing** and **tea
 
 1. Open **Home** → **Start Two Pointers** (or nav **Pilot**).
 2. **Diagnose** → soft plan → brief overview.
-3. Open the **recommended problem**.
+3. Open the **recommended problem** (usually **Valid Palindrome**).
 4. Finish the locked loop: **See → Predict → Code → Test → Viva**.
 5. Use **Progress → Reset session** before a fresh demo.
 
 Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
+
+## Professor demo script (~8–12 min)
+
+**Setup:** API `:8417`, web `:3417`, `GROQ_API_KEY` set, Progress → **Reset session**.
+
+| Beat | Show |
+|------|------|
+| 1. Positioning | Home: practice sheet + pattern graph. Pitch: NeetCode workspace + ordered path + **multi-agent coaches** that refuse solution dumps. |
+| 2. Path | **Pilot** → Two Pointers diagnose (miss one MCQ) → soft plan + Before you code → overview → **recommended problem**. |
+| 3. Stages | Workspace stage rail. **See** brute demo + Visual tab. **Predict** steps → editor unlocks. |
+| 4. Agents | Ask **Hint** / **Predict** / **Debug** with Groq live. Point out stage-suggested coach + no full solution. |
+| 5. Submit | Paste a correct solution (or finish coding). Fail once if you want gating; then full pass → **Viva**. |
+| 6. Close | Mastered on Progress. Reset for the next visitor. |
+
+**Talking point:** Same LeetCode-like editor professors know — differentiated by See/Predict gates, viva rubrics, and LangGraph coaches with a solution-leak guard.
 
 ## Curriculum
 

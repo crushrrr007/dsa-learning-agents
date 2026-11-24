@@ -101,8 +101,19 @@ export default function ProblemWorkspacePage() {
         const s = p.stage <= 0 ? 1 : Math.max(1, p.stage);
         setStage(s);
         setPredictDone(s >= 3);
-        setTestsPassed(Boolean(p.mastered));
-        if (p.mastered) setLeftTab("path");
+        const testsOk = Boolean(p.mastered) || s >= 4;
+        setTestsPassed(testsOk);
+        if (testsOk && (p.viva?.length || 0) > 0) {
+          setViva(
+            (p.viva || []).map((q, i) => ({
+              id: `q${i}`,
+              prompt: q.question,
+            })),
+          );
+          setVivaAnswers((p.viva || []).map(() => ""));
+          setVivaResults([]);
+        }
+        if (p.mastered || testsOk) setLeftTab("path");
         else if (s >= 3) setLeftTab("description");
         else setLeftTab("path");
       })
@@ -396,7 +407,7 @@ export default function ProblemWorkspacePage() {
             {(
               [
                 ["description", "Description"],
-                ["path", "Learn path"],
+                ["path", "Stages"],
                 ["trace", "Visual"],
               ] as const
             ).map(([idTab, label]) => (
@@ -450,7 +461,8 @@ export default function ProblemWorkspacePage() {
             {leftTab === "path" && (
               <div className="space-y-4 animate-rise">
                 <p className="text-sm text-[var(--muted)]">
-                  One door only: finish each stage in order. Coaches hint — they never paste a full solution.
+                  NeetCode-style workspace with a teaching loop: finish each stage in order. Five coaches hint —
+                  they never paste a full solution.
                 </p>
 
                 <div
@@ -634,7 +646,7 @@ export default function ProblemWorkspacePage() {
                     Finish See → Predict on Learn path. Stuck? Ask Hint or Predict in Agents — not for the full answer.
                   </p>
                   <Button className="mt-3" size="sm" onClick={() => setLeftTab("path")}>
-                    Open learn path
+                    Open stages
                   </Button>
                 </div>
               </div>

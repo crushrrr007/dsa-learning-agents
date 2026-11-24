@@ -297,6 +297,13 @@ async def submit_viva(body: VivaSubmit, db: AsyncSession = Depends(get_db)) -> V
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Problem not found") from exc
 
+    progress = await get_or_create_progress(db, body.session_id, body.problem_id, problem["topic"])
+    if progress.stage < 4 and not progress.mastered:
+        raise HTTPException(
+            status_code=403,
+            detail="Pass all tests before viva. Submit a full-passing solution first.",
+        )
+
     viva_spec = problem.get("viva") or []
     if len(viva_spec) < 2:
         raise HTTPException(status_code=500, detail="Problem is missing viva rubrics")

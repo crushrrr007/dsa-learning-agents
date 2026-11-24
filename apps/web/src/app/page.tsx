@@ -86,11 +86,11 @@ function HomeInner() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       <header className="animate-rise mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Guest practice lab</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Pattern practice sheet</p>
         <h1 className="display mt-2 text-4xl font-semibold sm:text-5xl">Pointer Lab</h1>
         <p className="mt-3 max-w-xl text-base text-[var(--muted)] sm:text-lg">
-          Learn DSA by finishing one locked loop — See, Predict, Code, Test, Viva — with coaches that hint instead of
-          dumping answers.
+          NeetCode-style problems, TakeYouForward-style ordered paths, AlgoMaster-style patterns — plus five teaching
+          agents and a locked See → Predict → Code → Test → Viva loop that never dumps the solution.
         </p>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--accent)]/30 bg-gradient-to-br from-white via-white to-[var(--accent)]/10 shadow-[var(--shadow)]">
@@ -233,12 +233,20 @@ function HomeInner() {
           </section>
 
           <div className="space-y-3">
-            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">All topics</h2>
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Practice sheet</h2>
+                <p className="text-xs text-[var(--muted)]">Topic rows like a curated sheet — expand for problems, or open the path.</p>
+              </div>
+            </div>
             {topics.map((topic) => {
               const list = byTopic.get(topic.slug) || [];
               if (patternFilter && list.length === 0) return null;
               const isOpen = open[topic.slug];
               const isPilot = topic.slug === PILOT_TOPIC;
+              const pct = topic.problems_total
+                ? Math.round((topic.problems_mastered / topic.problems_total) * 100)
+                : 0;
               return (
                 <div
                   key={topic.slug}
@@ -257,7 +265,7 @@ function HomeInner() {
                         <span className="font-semibold">{topic.title}</span>
                         {isPilot && (
                           <span className="rounded bg-[var(--accent)]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--accent)]">
-                            Pilot
+                            Demo path
                           </span>
                         )}
                         {topic.has_plan ? (
@@ -267,8 +275,14 @@ function HomeInner() {
                         )}
                       </div>
                       <p className="truncate text-xs text-[var(--muted)]">{topic.summary}</p>
+                      <div className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-black/5">
+                        <div
+                          className="h-full rounded-full bg-[var(--accent)] transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
                     </div>
-                    <span className="text-xs font-medium text-[var(--muted)]">
+                    <span className="text-xs font-medium tabular-nums text-[var(--muted)]">
                       {topic.problems_mastered}/{topic.problems_total}
                     </span>
                     <Link
