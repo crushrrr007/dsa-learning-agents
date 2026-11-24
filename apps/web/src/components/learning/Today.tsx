@@ -41,6 +41,7 @@ function TracePreview() {
           ))}
         </div>
         <p className="today-trace-note"><MoveRight size={16} aria-hidden="true" /> Run real Python traces with a coach at each stage.</p>
+        <Link href="/agents" className="today-trace-link">See how the agents work <ArrowRight size={16} aria-hidden="true" /></Link>
       </div>
     </figure>
   );

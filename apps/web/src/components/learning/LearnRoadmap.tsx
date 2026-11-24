@@ -1,14 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, BookOpen, Check, GitBranch, List, Network } from "lucide-react";
+import { ArrowRight, BookOpen, Check, GitBranch } from "lucide-react";
 import useSWR from "swr";
-import { fetchPatterns, fetchRoadmap, fetchRoadmapGraph, type Topic } from "@/lib/api";
+import { fetchPatterns, fetchRoadmap, type Topic } from "@/lib/api";
 import { LoadState, PageHeading, Prerequisites } from "./shared";
-
-const Graph = dynamic(() => import("@/components/roadmap/RoadmapGraph").then((module) => module.RoadmapGraph), { ssr: false });
 
 function ChapterList({ topics }: { topics: Topic[] }) {
   const ordered = [...topics].sort((a, b) => (a.phase ?? 1) - (b.phase ?? 1) || a.order - b.order);
@@ -41,28 +38,19 @@ function ChapterList({ topics }: { topics: Topic[] }) {
 export function LearnRoadmap() {
   const params = useSearchParams();
   const patternsPath = params.get("path") === "patterns";
-  const graphView = params.get("view") === "graph";
-  const path = patternsPath ? "patterns" : "foundations";
   const roadmap = useSWR("learning-roadmap", fetchRoadmap, { revalidateOnMount: true });
-  const patterns = useSWR(patternsPath && !graphView ? "learning-patterns" : null, fetchPatterns);
-  const graph = useSWR(graphView ? "learning-roadmap-graph" : null, fetchRoadmapGraph);
+  const patterns = useSWR(patternsPath ? "learning-patterns" : null, fetchPatterns);
   const names = new Map(roadmap.data?.topics.map((topic) => [topic.slug, topic.title]));
   return (
     <div className="learn-main">
       <PageHeading label="The curriculum" title="Learning roadmap" copy="Follow the foundations in order, or go straight to the interview patterns you want to strengthen." />
       <div className="learn-toolbar">
         <nav aria-label="Learning path" className="learn-segment">
-          <Link href={`/learn?path=foundations${graphView ? "&view=graph" : ""}`} aria-current={!patternsPath ? "page" : undefined}><BookOpen size={17} aria-hidden="true" />Foundations</Link>
-          <Link href={`/learn?path=patterns${graphView ? "&view=graph" : ""}`} aria-current={patternsPath ? "page" : undefined}><GitBranch size={17} aria-hidden="true" />Interview Patterns</Link>
-        </nav>
-        <nav aria-label="Roadmap view" className="learn-segment">
-          <Link href={`/learn?path=${path}`} aria-current={!graphView ? "page" : undefined}><List size={17} aria-hidden="true" />List</Link>
-          <Link href={`/learn?path=${path}&view=graph`} aria-current={graphView ? "page" : undefined}><Network size={17} aria-hidden="true" />Graph</Link>
+          <Link href="/learn?path=foundations" aria-current={!patternsPath ? "page" : undefined}><BookOpen size={17} aria-hidden="true" />Foundations</Link>
+          <Link href="/learn?path=patterns" aria-current={patternsPath ? "page" : undefined}><GitBranch size={17} aria-hidden="true" />Interview Patterns</Link>
         </nav>
       </div>
-      {graphView ? (
-        graph.data ? <section aria-label="Interactive pattern graph"><p className="learn-graph-help">Choose a chapter to learn or a pattern to find practice problems. You can switch back to List at any time.</p><Graph graph={graph.data} /></section> : <LoadState error={graph.error} retry={() => void graph.mutate()} loading="Loading the pattern graph…" />
-      ) : patternsPath ? (
+      {patternsPath ? (
         patterns.data ? <section className="learn-chapters" aria-labelledby="pattern-library"><div className="learn-section-heading"><div><p className="learn-kicker">Practice by technique</p><h2 id="pattern-library" className="font-serif">Pattern library</h2></div><span className="learn-pill">{patterns.data.length} patterns</span></div><ul className="learn-patterns">{patterns.data.map((pattern) => <li key={pattern.id}><Link href={`/practice?pattern=${encodeURIComponent(pattern.id)}`} className="learn-panel learn-pattern-card"><span className="learn-icon"><GitBranch size={19} aria-hidden="true" /></span><div><h3 className="font-serif">{pattern.title}</h3><p>{pattern.topics.map((topic) => names.get(topic) ?? topic.replaceAll("-", " ")).join(" · ")}</p><span>{pattern.problems_total} {pattern.problems_total === 1 ? "problem" : "problems"}</span></div><ArrowRight size={17} className="learn-row-arrow" aria-hidden="true" /></Link></li>)}</ul></section> : <LoadState error={patterns.error} retry={() => void patterns.mutate()} loading="Loading patterns…" />
       ) : roadmap.data ? <ChapterList topics={roadmap.data.topics} /> : <LoadState error={roadmap.error} retry={() => void roadmap.mutate()} loading="Loading chapters…" />}
     </div>

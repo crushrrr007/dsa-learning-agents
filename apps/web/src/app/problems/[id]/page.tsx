@@ -220,6 +220,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
     setError(null);
     try {
       const res = await runCode({ problem_id: problem.id, mode: "student", code });
+      setTestResults([]);
       setRun(res);
       setEventIdx(0);
       setPlaying(Boolean(res.events.length) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -326,13 +327,16 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const step = problem.predict_steps[Math.min(predictIdx, problem.predict_steps.length - 1)];
   const stageMeta = WORKSPACE_STAGES.find((s) => s.id === resolved);
 
+  const failedExample = testResults.find((test) => test.visible && !test.passed);
   const lastRun = run
     ? {
-        error: run.error,
-        result: run.result,
+        error: testResults.length ? failedExample?.error : run.error,
+        result: testResults.length ? undefined : run.result,
         ast_insights: run.ast_insights,
-        events: run.events,
-        ok: run.ok,
+        active_frame: currentEvent,
+        event_count: run.events.length,
+        ok: testResults.length ? testResults.every((test) => test.passed) : run.ok,
+        failed_case: failedExample ? { expected: failedExample.expected, got: failedExample.got } : undefined,
       }
     : null;
 
@@ -683,8 +687,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
             stage={stage}
             code={code}
             lastRun={lastRun}
-            defaultAgent={agentForStage(uiStage)}
-            suggestedAgent={agentForStage(uiStage)}
+            suggestedAgent={agentForStage(resolved)}
           />
         </aside>
 
@@ -710,8 +713,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
                   stage={stage}
                   code={code}
                   lastRun={lastRun}
-                  defaultAgent={agentForStage(uiStage)}
-                  suggestedAgent={agentForStage(uiStage)}
+                  suggestedAgent={agentForStage(resolved)}
                 />
               </div>
             </div>

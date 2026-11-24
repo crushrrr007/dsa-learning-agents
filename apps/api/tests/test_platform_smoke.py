@@ -139,7 +139,11 @@ def test_content_files_exist():
     assert len(list((root / "quizzes").glob("*.json"))) >= 7
 
 
-def test_agents_status_and_stage_routing(client: TestClient):
+def test_agents_status_and_stage_routing(client: TestClient, monkeypatch):
+    async def local_only(**_):
+        return None
+
+    monkeypatch.setattr("app.agents.coordinator.chat_complete", local_only)
     status = client.get("/agents/status")
     assert status.status_code == 200
     body = status.json()
@@ -175,7 +179,8 @@ def test_agents_status_and_stage_routing(client: TestClient):
         assert res.status_code == 200
         data = res.json()
         assert data["agent"] == agent
-        assert data["reply"]
+        assert data["reply"] and data["routing_reason"] == "stage"
+        assert data["reply_source"] == "local"
         assert data["llm_mode"] in {"mock", "groq", "openai"}
 
     forced = client.post(
@@ -190,6 +195,19 @@ def test_agents_status_and_stage_routing(client: TestClient):
     )
     assert forced.status_code == 200
     assert forced.json()["agent"] == "viva_agent"
+    assert forced.json()["routing_reason"] == "requested"
+
+    intent = client.post("/agents/chat", json={
+        "session_id": "agent_route_test", "stage": 1, "message": "Help me explain the time complexity.",
+    }).json()
+    assert intent["agent"] == "viva_agent" and intent["routing_reason"] == "question"
+
+    demo = client.post("/agents/chat", json={
+        "session_id": "agent_route_test", "stage": 1, "topic": "two-pointers", "message": "Explain this frame.",
+        "last_run": {"events": [{"locals": {"left": 9}}], "active_frame": {"locals": {"left": 0}}, "event_count": 12},
+    }).json()
+    assert "12 frames" in demo["reply"] and "left = 0" in demo["reply"]
+    assert "left = 9" not in demo["reply"]
 
 
 def test_soft_unlock_without_lesson(client: TestClient):

@@ -30,6 +30,9 @@ AgentRoute = Literal[
 ]
 
 
+RoutingReason = Literal["requested", "question", "stage"]
+ReplySource = Literal["model", "local", "guard_fallback"]
+
 VALID_AGENTS: tuple[AgentRoute, ...] = (
     "concept_tutor",
     "demo_coach",
@@ -48,6 +51,8 @@ class AgentState(TypedDict, total=False):
     notes: str
     preferred_agent: str
     route: AgentRoute
+    routing_reason: RoutingReason
+    reply_source: ReplySource
     agent: str
     reply: str
     guiding_question: str
@@ -61,16 +66,17 @@ class AgentState(TypedDict, total=False):
     guard_reason: str
 
 
-def choose_agent(stage: int, message: str, preferred: str | None = None) -> AgentRoute:
-    """Route by explicit UI pick, then learning stage / phrases."""
-    if preferred in VALID_AGENTS:
-        return preferred  # type: ignore[return-value]
+def route_agent(stage: int, message: str, preferred: str | None = None) -> tuple[AgentRoute, RoutingReason]:
+    """Route by explicit pick, then question intent, then learning stage."""
+    for agent in VALID_AGENTS:
+        if preferred == agent:
+            return agent, "requested"
     lower = (message or "").lower()
     if any(
         phrase in lower
         for phrase in ("viva", "time complexity", "space complexity", "edge case", "defend your", "interview question")
     ):
-        return "viva_agent"
+        return "viva_agent", "question"
     if any(
         phrase in lower
         for phrase in (
@@ -82,20 +88,24 @@ def choose_agent(stage: int, message: str, preferred: str | None = None) -> Agen
             "quiz",
         )
     ):
-        return "concept_tutor"
+        return "concept_tutor", "question"
     if stage <= 0:
-        return "concept_tutor"
+        return "concept_tutor", "stage"
     if stage == 1:
-        return "demo_coach"
+        return "demo_coach", "stage"
     if stage == 2:
-        return "predict_coach"
+        return "predict_coach", "stage"
     if stage == 3:
-        return "code_mentor"
-    return "viva_agent"
+        return "code_mentor", "stage"
+    return "viva_agent", "stage"
+
+
+def choose_agent(stage: int, message: str, preferred: str | None = None) -> AgentRoute:
+    return route_agent(stage, message, preferred)[0]
 
 
 def route_node(state: AgentState) -> AgentState:
-    route = choose_agent(
+    route, reason = route_agent(
         int(state.get("stage") or 0),
         state.get("message") or "",
         state.get("preferred_agent"),
@@ -105,6 +115,7 @@ def route_node(state: AgentState) -> AgentState:
     return {
         **state,
         "route": route,
+        "routing_reason": reason,
         "notes": notes,
         "agent": route,
         "agent_label": AGENT_ROLES.get(route, route),
@@ -158,16 +169,12 @@ async def _reply_for(agent: AgentRoute, state: AgentState) -> AgentState:
             "agent": agent,
             "agent_label": role,
             "reply": llm,
+            "reply_source": "model",
             "guiding_question": questions.get(agent),
         }
 
-    if llm and llm.startswith("(LLM unavailable:"):
-        mocked = mock_agent_reply(agent, topic=topic, stage=stage, message=message, notes=notes, facts=facts)
-        mocked["reply"] = f"{llm}\n\nFalling back to local coach:\n{mocked['reply']}"
-        return {**state, "agent": agent, "agent_label": role, **mocked}
-
-    mocked = mock_agent_reply(agent, topic=topic, stage=stage, message=message, notes=notes, facts=facts)
-    return {**state, "agent": agent, "agent_label": role, **mocked}
+    local_reply = mock_agent_reply(agent, topic=topic, stage=stage, message=message, notes=notes, facts=facts)
+    return {**state, "agent": agent, "agent_label": role, "reply_source": "local", **local_reply}
 
 
 async def concept_tutor_node(state: AgentState) -> AgentState:
@@ -249,6 +256,7 @@ async def guard_node(state: AgentState) -> AgentState:
             return {
                 **state,
                 "reply": regenerated_reply,
+                "reply_source": "model",
                 "guard_triggered": True,
                 "regenerated": True,
                 "guard_reason": reason,
@@ -267,6 +275,7 @@ async def guard_node(state: AgentState) -> AgentState:
     return {
         **state,
         "reply": fallback["reply"],
+        "reply_source": "guard_fallback",
         "guiding_question": fallback["guiding_question"],
         "guard_triggered": True,
         "regenerated": True,
@@ -361,6 +370,8 @@ async def run_coordinator(
         "agent_label": result.get("agent_label"),
         "reply": result.get("reply") or "Ask a more specific question about the concept or your last run.",
         "guiding_question": result.get("guiding_question"),
+        "routing_reason": result.get("routing_reason", "stage"),
+        "reply_source": result.get("reply_source", "local"),
         "guard_triggered": bool(result.get("guard_triggered")),
         "regenerated": bool(result.get("regenerated")),
     }

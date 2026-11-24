@@ -101,23 +101,6 @@ export type PatternInfo = {
   problem_ids: string[];
 };
 
-export type RoadmapGraph = {
-  session_id: string;
-  nodes: {
-    id: string;
-    kind: string;
-    label: string;
-    slug?: string;
-    pattern_id?: string;
-    color?: string;
-    status?: string;
-    position: { x: number; y: number };
-    problems_total?: number;
-  }[];
-  edges: { id: string; source: string; target: string; rel: string; style?: string }[];
-  signals: Record<string, string[]>;
-};
-
 export type MicroReview = {
   skill: string;
   title: string;
@@ -287,11 +270,6 @@ export async function fetchPatterns() {
   return request<PatternInfo[]>(`/problems/patterns`);
 }
 
-export async function fetchRoadmapGraph() {
-  const sid = getSessionId();
-  return request<RoadmapGraph>(`/topics/roadmap/graph?session_id=${encodeURIComponent(sid)}`);
-}
-
 export async function fetchProblem(id: string) {
   const sid = getSessionId();
   return request<ProblemDetail>(`/problems/${id}?session_id=${encodeURIComponent(sid)}`);
@@ -377,6 +355,16 @@ export async function resetProgress() {
   });
 }
 
+export type AgentReply = {
+  agent: string;
+  agent_label: string | null;
+  reply: string;
+  guiding_question: string | null;
+  routing_reason: "requested" | "question" | "stage";
+  reply_source: "model" | "local" | "guard_fallback";
+  guard_triggered: boolean;
+};
+
 export async function chatAgent(payload: {
   problem_id?: string;
   topic?: string;
@@ -386,13 +374,7 @@ export async function chatAgent(payload: {
   last_run?: Record<string, unknown>;
   preferred_agent?: string;
 }) {
-  return request<{
-    agent: string;
-    agent_label: string | null;
-    reply: string;
-    guiding_question: string | null;
-    llm_mode: string | null;
-  }>(`/agents/chat`, {
+  return request<AgentReply>(`/agents/chat`, {
     method: "POST",
     body: JSON.stringify({ session_id: getSessionId(), ...payload }),
   });

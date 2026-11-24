@@ -5,7 +5,8 @@ University-lab workspace for learning DSA with **real Python tracing** and **tea
 ## Start learning
 
 - **Today** recommends a first chapter, a problem from your plan, or the practice you left unfinished.
-- **Learn** offers an ordered Foundations path and an Interview Patterns path, with an optional graph view.
+- **Learn** offers an ordered Foundations path and an Interview Patterns library.
+- **Agents** shows what each specialist does and lets you try the actual coach router with a sample.
 - **Practice** lets you search the whole catalog and share filters by URL. **Progress** distinguishes Solved from Mastered.
 
 To run the existing sample, choose **Today → Try the Two Pointers sample → Take the diagnostic**. Build the soft plan, read the overview, then open the recommended problem and finish **See → Predict → Code → Test → Viva**. For a fresh demo, use **Progress → Reset guest progress**.
@@ -90,8 +91,8 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 - **One-door topic path** — Diagnose → soft Plan → Teach overview → Practice  
 - **Problem workspace** — description | editor + tests | stage rail + next-action banner | skinned agents  
-- **Visual pattern roadmap** — React Flow graph (optional; pilots can ignore)  
-- **KG memory** — diagnostic/attempt/mastery edges inform plans and the home graph  
+- **Learning roadmap** — ordered chapters and a browsable pattern library
+- **KG memory** — diagnostic, attempt, and mastery signals inform plans independently of the UI
 - **Solution privacy** — public problem payload strips reference solutions; LangGraph guard blocks leaky coach replies  
 
 ## Tests

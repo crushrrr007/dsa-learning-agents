@@ -257,6 +257,8 @@ class AgentChatResponse(BaseModel):
     reply: str
     guiding_question: str | None = None
     llm_mode: str | None = None
+    routing_reason: Literal["requested", "question", "stage"] = "stage"
+    reply_source: Literal["model", "local", "guard_fallback"] = "local"
     guard_triggered: bool = False
     regenerated: bool = False
 

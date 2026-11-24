@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { chatAgent } from "@/lib/api";
+import { coachingNames, coachReplyText, replyLabels, routingLabels } from "@/lib/coaching";
 
 export type AgentId =
   | "concept_tutor"
@@ -85,6 +87,7 @@ type Msg = {
   agentLabel?: string | null;
   text: string;
   question?: string | null;
+  attribution?: string;
 };
 
 type Props = {
@@ -93,7 +96,6 @@ type Props = {
   stage: number;
   code: string;
   lastRun?: Record<string, unknown> | null;
-  defaultAgent?: AgentId;
   /** Soft highlight for the coach that matches the current workspace stage. */
   suggestedAgent?: AgentId;
 };
@@ -104,38 +106,21 @@ export function AgentDock({
   stage,
   code,
   lastRun,
-  defaultAgent,
   suggestedAgent,
 }: Props) {
-  const initial = defaultAgent || AGENTS[Math.min(Math.max(stage, 0), 4)].id;
-  const [active, setActive] = useState<AgentId>(initial);
-  const meta = useMemo(() => AGENTS.find((a) => a.id === active) || AGENTS[0], [active]);
-  const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "agent",
-      agent: meta.id,
-      text: `${meta.title} ready. ${meta.blurb}`,
-      question: meta.empty,
-    },
-  ]);
+  const [override, setOverride] = useState<AgentId | null>(null);
+  const recommend = suggestedAgent || AGENTS[Math.min(Math.max(stage, 0), 4)].id;
+  const active = override || recommend;
+  const meta = AGENTS.find((agent) => agent.id === active) ?? AGENTS[0];
+  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [llmMode, setLlmMode] = useState<string | null>(null);
-  const recommend = suggestedAgent || defaultAgent;
+  const logRef = useRef<HTMLDivElement>(null);
 
-  function switchAgent(id: AgentId) {
-    const next = AGENTS.find((a) => a.id === id) || AGENTS[0];
-    setActive(id);
-    setMessages([
-      {
-        role: "agent",
-        agent: next.id,
-        text: `Switched to ${next.title}. ${next.blurb}`,
-        question: next.empty,
-      },
-    ]);
-    setInput("");
-  }
+  useEffect(() => {
+    const log = logRef.current;
+    if (log) log.scrollTop = log.scrollHeight;
+  }, [messages.length]);
 
   async function send(text?: string) {
     const userText = (text ?? input).trim();
@@ -151,17 +136,17 @@ export function AgentDock({
         message: userText,
         code,
         last_run: lastRun || undefined,
-        preferred_agent: active,
+        preferred_agent: override ?? undefined,
       });
-      if (res.llm_mode) setLlmMode(res.llm_mode);
       setMessages((m) => [
         ...m,
         {
           role: "agent",
           agent: res.agent,
-          agentLabel: res.agent_label,
-          text: res.reply,
+          agentLabel: coachingNames[res.agent] ?? res.agent_label,
+          text: coachReplyText(res),
           question: res.guiding_question,
+          attribution: [routingLabels[res.routing_reason], replyLabels[res.reply_source], res.guard_triggered ? "Guard intervened" : null].filter(Boolean).join(" · "),
         },
       ]);
     } catch (e) {
@@ -195,28 +180,27 @@ export function AgentDock({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: meta.accent }}>
-            Agent
+            {override ? "Selected coach" : "Suggested for this stage"}
           </p>
           <p className="truncate text-sm font-semibold text-white">{meta.title}</p>
         </div>
-        {llmMode && (
-          <span className="rounded px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/70" style={{ background: meta.accentSoft }}>
-            {llmMode}
-          </span>
-        )}
+        <Link href="/agents" className="text-xs font-semibold text-white/80 underline underline-offset-4">How it works</Link>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 py-2">
+      <div role="group" aria-label="Coach preference" className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 py-2">
+        <button type="button" aria-pressed={!override} onClick={() => setOverride(null)} disabled={busy} className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold ${!override ? "bg-[var(--accent)] text-[var(--surface)]" : "bg-[var(--surface)]/10 text-[var(--surface)]"}`}>Auto</button>
         {AGENTS.map((a) => {
           const isRec = recommend === a.id;
           return (
             <button
               key={a.id}
               type="button"
-              onClick={() => switchAgent(a.id)}
+              aria-pressed={override === a.id}
+              onClick={() => setOverride(a.id)}
+              disabled={busy}
               className="relative shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
               style={
-                active === a.id
+                override === a.id
                   ? { background: a.accent, color: "#fff" }
                   : isRec
                     ? { background: a.accentSoft, color: "#e7ecf1", boxShadow: `inset 0 0 0 1px ${a.accent}` }
@@ -234,11 +218,10 @@ export function AgentDock({
       </div>
 
       <p className="border-b border-white/10 px-3 py-2 text-[11px]" style={{ color: "#a8b4c0" }}>
-        {meta.blurb}
-        {recommend === active ? " · Best fit for your current stage." : null}
+        {override ? meta.blurb : "Auto picks a specialist from your question and current stage."}
       </p>
 
-      <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
+      <div ref={logRef} role="log" aria-label="Coach messages" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 py-3">
         {messages.length === 0 && <p className="text-xs text-white/50">{meta.empty}</p>}
         {messages.map((m, i) => (
           <div
@@ -255,7 +238,8 @@ export function AgentDock({
                 {(m.agentLabel || m.agent).replaceAll("_", " ").split("—")[0].trim()}
               </div>
             )}
-            <p className="whitespace-pre-wrap">{m.text}</p>
+            {m.attribution && <p className="mb-1 text-xs text-[var(--surface)]/75">{m.attribution}</p>}
+            <p className="whitespace-pre-wrap break-words">{m.text}</p>
             {m.question && (
               <p className="mt-2 border-t border-white/10 pt-2 text-xs text-[#8b9aab]">Q: {m.question}</p>
             )}
@@ -276,8 +260,11 @@ export function AgentDock({
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder={`Ask ${meta.short}…`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) void send();
+            }}
+            aria-label="Question for the coaches"
+            placeholder={override ? `Ask ${meta.short}…` : "Ask a coach…"}
             className="h-10 flex-1 rounded-md border border-white/10 bg-[#161c23] px-3 text-sm text-white outline-none"
             style={{ boxShadow: busy ? undefined : `inset 0 0 0 1px ${meta.accent}33` }}
           />
