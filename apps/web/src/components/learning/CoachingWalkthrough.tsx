@@ -16,6 +16,19 @@ type WalkthroughStep = {
   facts?: Record<string, unknown>;
 };
 
+const writtenHints = [
+  "Two pointers track two positions at once. Before writing code, say what makes it safe to move one of them without revisiting the position you leave behind.",
+  "At this frame, left is at 0 and right is at 4. In the next frame, compare their positions again. Which value changed first?",
+  "Before advancing the trace, write down the next left and right positions. Explain which comparison would justify that move.",
+  "An IndexError means an index is outside the list. Inspect both indices immediately before the failing line and check where either one last changed.",
+  "Describe how often each pointer can move as the array grows. Then defend why your stopping condition still works when the pointers meet.",
+];
+
+type ExampleResult =
+  | { kind: "loading" }
+  | { kind: "live"; reply: AgentReply }
+  | { kind: "error"; message: string };
+
 const steps: WalkthroughStep[] = [
   { id: "concept_tutor", stage: 0, label: "Understand", icon: BookOpen, role: "Explains the pattern and the rule that must stay true, using the chapter notes rather than giving you code.", context: "The learner is new to Two Pointers and has not opened the editor.", prompt: "What should I pay attention to before I start?" },
   { id: "demo_coach", stage: 1, label: "See", icon: Eye, role: "Walks through the demo and points out which values to watch as Python runs.", context: "Sample trace frame: left is at index 0 and right is at index 4.", prompt: "What should I notice in this frame?", facts: { events: [{ line: 2, locals: { left: 0, right: 4 } }] } },
@@ -26,16 +39,19 @@ const steps: WalkthroughStep[] = [
 
 export function CoachingWalkthrough() {
   const [selected, setSelected] = useState(0);
-  const [replies, setReplies] = useState<Record<number, AgentReply>>({});
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<Partial<Record<number, ExampleResult>>>({});
+  const [written, setWritten] = useState<number | null>(null);
   const step = steps[selected];
-  const reply = replies[selected];
+  const result = results[selected];
+  const busy = result?.kind === "loading";
+  const reply = result?.kind === "live" ? result.reply : null;
+  const showWritten = written === selected || result?.kind === "error";
 
   async function runExample() {
     if (busy) return;
-    setBusy(true);
-    setError(null);
+    const index = selected;
+    setWritten(null);
+    setResults((current) => ({ ...current, [index]: { kind: "loading" } }));
     try {
       const result = await chatAgent({
         problem_id: "squares-of-sorted-array",
@@ -44,11 +60,13 @@ export function CoachingWalkthrough() {
         message: step.prompt,
         last_run: step.facts,
       });
-      setReplies((current) => ({ ...current, [selected]: result }));
+      if (!result.reply || !routingLabels[result.routing_reason] || !replyLabels[result.reply_source]) {
+        throw new Error("The live service did not return a complete decision trace.");
+      }
+      setResults((current) => ({ ...current, [index]: { kind: "live", reply: result } }));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The coach could not reply. Try again.");
-    } finally {
-      setBusy(false);
+      const message = cause instanceof Error ? cause.message : "The coach could not reply.";
+      setResults((current) => ({ ...current, [index]: { kind: "error", message } }));
     }
   }
 
@@ -61,7 +79,7 @@ export function CoachingWalkthrough() {
       <p className="coach-console-copy">Try a preset question from Squares of a Sorted Array. The context is a sample; the coordinator and reply are live. This does not change your progress.</p>
       <div className="coach-step-picker" role="group" aria-label="Choose a coaching stage">
         {steps.map(({ id, label, icon: Icon }, index) => (
-          <button key={id} type="button" aria-pressed={selected === index} disabled={busy} onClick={() => { setSelected(index); setError(null); }}>
+          <button key={id} type="button" aria-pressed={selected === index} onClick={() => { setSelected(index); setWritten(null); }}>
             <Icon size={19} aria-hidden="true" />
             <span><strong>{label}</strong><small>{coachingNames[id]}</small></span>
           </button>
@@ -71,12 +89,21 @@ export function CoachingWalkthrough() {
         <div className="coach-example">
           <div><p className="learn-kicker">{step.label}</p><h3 className="font-serif">{coachingNames[step.id]}</h3><p>{step.role}</p></div>
           <dl className="coach-example-context"><div><dt>Example context</dt><dd>{step.context}</dd></div><div><dt>What the learner asks</dt><dd>{step.prompt}</dd></div></dl>
-          <button type="button" className="learn-button" onClick={() => void runExample()} disabled={busy}><Play size={16} aria-hidden="true" /> {busy ? "Asking the coordinator…" : "Run this example"}</button>
-          {error && <p role="alert" className="coach-example-error">{error}</p>}
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="learn-button" onClick={() => void runExample()} disabled={busy}><Play size={16} aria-hidden="true" /> {busy ? "Asking the coordinator…" : result?.kind === "error" ? "Retry live example" : "Run this example"}</button>
+            {!showWritten && <button type="button" className="learn-text-link" onClick={() => setWritten(selected)}>Read a written example</button>}
+            {written === selected && reply && <button type="button" className="learn-text-link" onClick={() => setWritten(null)}>Show live reply</button>}
+          </div>
         </div>
-        <div className="coach-receipt" aria-live="polite" aria-busy={busy}>
-          <p className="coach-receipt-kicker"><ShieldCheck size={18} aria-hidden="true" /> Decision trace</p>
-          {reply ? (
+        <div className="coach-receipt" aria-live="polite">
+          <p className="coach-receipt-kicker"><ShieldCheck size={18} aria-hidden="true" /> {showWritten ? "Written example" : "Decision trace"}</p>
+          {showWritten ? (
+            <>
+              {result?.kind === "error" && <p role="status">Live reply unavailable: {result.message}</p>}
+              <p>{writtenHints[selected]}</p>
+              <p className="coach-example-mode">This is an authored illustration, not a live reply or guard report.</p>
+            </>
+          ) : busy ? <p role="status">Waiting for the coordinator. You can explore another stage while it works.</p> : reply ? (
             <>
               <ol className="coach-receipt-list">
                 <li><strong>Router</strong><span>{routingLabels[reply.routing_reason]}</span></li>

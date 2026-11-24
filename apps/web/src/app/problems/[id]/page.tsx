@@ -6,6 +6,8 @@ import { useParams } from "next/navigation";
 import type { OnMount } from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
+import { ChevronLeft, ChevronRight, Code2, Lock, MessagesSquare, Play, Send } from "lucide-react";
+import { WorkspaceConsole, type ConsoleTab } from "@/components/workspace/WorkspaceConsole";
 import { Button } from "@/components/ui/button";
 import { AgentDock, type AgentId } from "@/components/workspace/AgentDock";
 import {
@@ -25,6 +27,7 @@ import {
   type RunResponse,
   type TraceEvent,
   type VivaQuestionResult,
+  type WorkspaceTestCase,
 } from "@/lib/api";
 
 function EditorLoading() {
@@ -98,17 +101,15 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const [predictAnswer, setPredictAnswer] = useState("");
   const [predictMsg, setPredictMsg] = useState<string | null>(null);
   const [testMsg, setTestMsg] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<
-    {
-      index: number;
-      passed: boolean;
-      input: unknown;
-      expected: unknown;
-      got: unknown;
-      error: string | null;
-      visible?: boolean;
-    }[]
-  >([]);
+  const [testResults, setTestResults] = useState<WorkspaceTestCase[]>([]);
+  const [studentRun, setStudentRun] = useState<{ response: RunResponse; code: string } | null>(null);
+  const [runNotice, setRunNotice] = useState<string | null>(null);
+  const [editorAction, setEditorAction] = useState<"run" | "submit" | null>(null);
+  const [consoleTab, setConsoleTab] = useState<ConsoleTab>("output");
+  const [consoleOpen, setConsoleOpen] = useState(false);
+  const [mobilePane, setMobilePane] = useState<"problem" | "editor">(problem.stage === 3 ? "editor" : "problem");
+  const [plainEditor, setPlainEditor] = useState(false);
+  const [savedCode, setSavedCode] = useState(problem.last_code || problem.starter_code);
   const [viva, setViva] = useState(() => problem.stage === 4 && !problem.mastered
     ? (problem.viva ?? []).map(({ question }, index) => ({ id: `q${index}`, prompt: question }))
     : []);
@@ -122,6 +123,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const predictionInput = useRef<HTMLInputElement>(null);
   const vivaHeading = useRef<HTMLHeadingElement>(null);
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const plainEditorRef = useRef<HTMLTextAreaElement>(null);
+  const coachPanelRef = useRef<HTMLElement>(null);
+  const coachTriggerRef = useRef<HTMLButtonElement>(null);
 
   const events: TraceEvent[] = run?.events || [];
   const currentEvent = events[eventIdx] || null;
@@ -180,6 +184,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       setStage(res.stage);
       setSelectedStage(null);
       setLeftTab("trace");
+      setMobilePane("problem");
       setPredictMsg(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Run failed");
@@ -202,6 +207,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
         if (res.stage >= 3) {
           setPredictMsg("All predictions passed — editor unlocked.");
           setLeftTab("description");
+          setMobilePane("editor");
         } else {
           setPredictMsg("Correct. Try the next prediction.");
         }
@@ -216,11 +222,20 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   }
 
   async function onRun() {
+    if (busy || stage < 3 || !code.trim()) return;
     setBusy(true);
+    setEditorAction("run");
     setError(null);
+    setStudentRun(null);
+    setRunNotice("Running Python…");
+    setConsoleTab("output");
+    setConsoleOpen(true);
     try {
       const res = await runCode({ problem_id: problem.id, mode: "student", code });
       setTestResults([]);
+      setTestMsg(null);
+      setSavedCode(code);
+      setStudentRun({ response: res, code });
       setRun(res);
       setEventIdx(0);
       setPlaying(Boolean(res.events.length) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -229,22 +244,28 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       else if (!mastered && !viva.length) {
         setViva((problem.viva ?? []).map(({ question }, index) => ({ id: `q${index}`, prompt: question })));
       }
-      setTestMsg(res.ok ? `Demo returned ${JSON.stringify(res.result)}` : `Runtime error: ${res.error?.trim().split("\n").at(-1) || "The run did not complete."}`);
-      if (res.events?.length) setLeftTab("trace");
+      setRunNotice(res.ok ? "Run completed." : `Runtime error: ${res.error?.trim().split("\n").at(-1) || "The run did not complete."}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Run failed");
+      setRunNotice(e instanceof Error ? e.message : "Run failed. Try again.");
     } finally {
+      setEditorAction(null);
       setBusy(false);
     }
   }
 
   async function onSubmit() {
+    if (busy || stage < 3 || !code.trim()) return;
     setBusy(true);
+    setEditorAction("submit");
     setError(null);
+    setConsoleTab("tests");
+    setConsoleOpen(true);
+    setTestResults([]);
     setTestMsg("Checking your submission…");
     try {
       const res = await runTests(problem.id, code);
       setStage(res.stage);
+      setSavedCode(code);
       setTestResults(res.results);
       const passed = res.results.filter((r) => r.passed).length;
       setTestMsg(
@@ -278,6 +299,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       setTestResults([]);
       setTestMsg(e instanceof Error ? e.message : "Submit failed. Try again.");
     } finally {
+      setEditorAction(null);
       setBusy(false);
     }
   }
@@ -303,8 +325,10 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   }
 
   function onSelectStage(id: WorkspaceStageId) {
+    const coding = id === "code" || id === "test";
     setSelectedStage(id);
-    setLeftTab(id === "code" || id === "test" ? "description" : "path");
+    setLeftTab(coding ? "description" : "path");
+    setMobilePane(coding ? "editor" : "problem");
   }
 
   function onActionCta() {
@@ -318,8 +342,21 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       });
     } else {
       onSelectStage(resolved);
-      editorRef.current?.getDomNode()?.scrollIntoView({ block: "nearest" });
-      editorRef.current?.focus();
+      requestAnimationFrame(() => {
+        if (plainEditor) plainEditorRef.current?.focus();
+        else editorRef.current?.focus();
+      });
+    }
+  }
+
+  function toggleCoaches(trigger?: HTMLButtonElement) {
+    if (agentsOpen) {
+      setAgentsOpen(false);
+      requestAnimationFrame(() => (trigger ?? coachTriggerRef.current)?.focus());
+    } else {
+      coachTriggerRef.current = trigger ?? null;
+      setAgentsOpen(true);
+      requestAnimationFrame(() => coachPanelRef.current?.focus());
     }
   }
 
@@ -379,8 +416,13 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
         {error && <p role="alert" className="mt-2 text-sm font-medium text-[var(--bad)]">{error}</p>}
       </div>
 
-      <div className="relative grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(240px,0.95fr)_minmax(320px,1.2fr)_minmax(260px,0.9fr)]">
-        <section className="flex min-h-0 flex-col border-r border-[var(--line)] bg-white">
+      <div className="workspace-mobile-nav" role="group" aria-label="Workspace panels">
+        <button type="button" aria-pressed={mobilePane === "problem"} onClick={() => setMobilePane("problem")}>Problem</button>
+        <button type="button" aria-pressed={mobilePane === "editor"} onClick={() => setMobilePane("editor")}><Code2 size={16} aria-hidden="true" />Editor</button>
+        <button type="button" className="workspace-coach-trigger" aria-expanded={agentsOpen} aria-controls="workspace-coaches" onClick={(event) => toggleCoaches(event.currentTarget)}><MessagesSquare size={16} aria-hidden="true" />Coaches</button>
+      </div>
+      <div className="workspace-grid" data-mobile-pane={mobilePane} data-coaches={agentsOpen ? "open" : "closed"}>
+        <section className="workspace-problem flex min-h-0 min-w-0 flex-col border border-[var(--line)] bg-[var(--surface)]" aria-label="Problem and trace">
           <div className="border-b border-[var(--line)] px-3 pt-2">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Problem</p>
           </div>
@@ -561,20 +603,15 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
 
             {leftTab === "trace" && (
               <div className="space-y-3 animate-rise">
-                <div className="flex items-center justify-between text-xs text-[var(--muted)]">
-                  <span>Trace frames</span>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="underline disabled:opacity-40"
-                      onClick={() => setPlaying((p) => !p)}
-                      disabled={!events.length}
-                    >
-                      {playing ? "Pause" : "Play"}
-                    </button>
-                    <span>{events.length ? `${eventIdx + 1}/${events.length}` : "No frames — run demo or code first"}</span>
+                <div className="workspace-trace-controls">
+                  <span>{events.length ? `Frame ${eventIdx + 1}/${events.length}` : "No trace yet"}</span>
+                  <div className="flex items-center gap-1">
+                    <button type="button" aria-label="Previous frame" disabled={eventIdx === 0} onClick={() => { setPlaying(false); setEventIdx((index) => Math.max(0, index - 1)); }}><ChevronLeft size={18} aria-hidden="true" /></button>
+                    <button type="button" disabled={events.length < 2} onClick={() => { if (!playing && eventIdx === events.length - 1) setEventIdx(0); setPlaying(!playing); }}>{playing ? "Pause" : "Play"}</button>
+                    <button type="button" aria-label="Next frame" disabled={eventIdx >= events.length - 1} onClick={() => { setPlaying(false); setEventIdx((index) => Math.min(events.length - 1, index + 1)); }}><ChevronRight size={18} aria-hidden="true" /></button>
                   </div>
                 </div>
+                {events.length > 1 && <input type="range" className="w-full accent-[var(--accent)]" aria-label="Trace frame" min={0} max={events.length - 1} value={eventIdx} onChange={(event) => { setPlaying(false); setEventIdx(Number(event.target.value)); }} />}
                 <div className="h-[360px] overflow-hidden rounded-md border border-[var(--line)]">
                   <VisualCanvas visual={problem.visual} event={currentEvent} />
                 </div>
@@ -592,133 +629,75 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
           </div>
         </section>
 
-        <section className="flex min-h-0 flex-col border-r border-[var(--line)] bg-[#1e1e1e]">
-          <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-3 py-2">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">Editor</p>
-              <span className="text-xs font-semibold text-white/70">Python3</span>
+        <section className="workspace-editor" aria-label="Python editor and results">
+          <header className="workspace-editor-toolbar">
+            <div className="workspace-editor-title"><Code2 size={18} aria-hidden="true" /><div><strong>Python 3</strong><p>{locked ? "Locked until Predict" : code !== savedCode ? "Unsaved edits" : "Saves on Run or Submit"}</p></div></div>
+            <div className="workspace-editor-actions">
+              {!locked && <button type="button" aria-pressed={plainEditor} disabled={busy} onClick={() => setPlainEditor(!plainEditor)} className="workspace-editor-mode">Plain text</button>}
+              <button type="button" aria-expanded={agentsOpen} aria-controls="workspace-coaches" className="workspace-editor-mode workspace-coach-trigger workspace-desktop-trigger" onClick={(event) => toggleCoaches(event.currentTarget)}><MessagesSquare size={16} aria-hidden="true" />Coaches</button>
+              <Button size="sm" variant="secondary" type="button" onClick={onRun} disabled={busy || locked || !code.trim()} aria-keyshortcuts="Control+Enter Meta+Enter" title="Run · Ctrl/⌘ + Enter"><Play size={15} aria-hidden="true" />{editorAction === "run" ? "Running…" : "Run"}</Button>
+              <Button size="sm" type="button" onClick={onSubmit} disabled={busy || locked || !code.trim()} aria-keyshortcuts="Control+Shift+Enter Meta+Shift+Enter" title="Submit · Ctrl/⌘ + Shift + Enter"><Send size={15} aria-hidden="true" />{editorAction === "submit" ? "Checking…" : "Submit"}</Button>
             </div>
-            <div className="ml-auto flex gap-2">
-              <Button size="sm" variant="secondary" onClick={onRun} disabled={busy || locked}>
-                Run
-              </Button>
-              <Button size="sm" onClick={onSubmit} disabled={busy || locked}>
-                Submit
-              </Button>
-              <Button size="sm" variant="secondary" className="lg:hidden" onClick={() => setAgentsOpen(true)}>
-                Agents
-              </Button>
-            </div>
-          </div>
+          </header>
 
-          <div className="relative min-h-[240px] flex-1">
-            {locked && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/55 p-6 text-center backdrop-blur-[2px]">
-                <div className="max-w-sm animate-rise rounded-lg border border-white/15 bg-[#161b22] p-4 text-sm text-white">
-                  <p className="font-semibold">Editor unlocks after Predict</p>
-                  <p className="mt-2 text-white/70">
-                    Finish See → Predict on Learn path. Stuck? Ask Hint or Predict in Agents — not for the full answer.
-                  </p>
-                  <Button className="mt-3" size="sm" onClick={() => setLeftTab("path")}>
-                    Open learn path
-                  </Button>
-                </div>
+          <div className="workspace-editor-body" onKeyDownCapture={(event) => {
+            if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+              event.preventDefault();
+              event.stopPropagation();
+              if (event.shiftKey) void onSubmit();
+              else void onRun();
+            }
+          }}>
+            {locked ? (
+              <div className="workspace-editor-lock">
+                <Lock size={23} aria-hidden="true" />
+                <div><p className="font-semibold">Editor unlocks after Predict</p><p>Watch the demo and finish the predictions before writing code.</p></div>
+                <Button size="sm" variant="secondary" type="button" onClick={() => { setLeftTab("path"); setMobilePane("problem"); }}>Open learn path</Button>
               </div>
+            ) : plainEditor ? (
+              <textarea ref={plainEditorRef} className="workspace-plain-code font-mono" aria-label="Python code editor" value={code} readOnly={busy} spellCheck={false} autoCapitalize="off" autoCorrect="off" onChange={(event) => onCodeChange(event.target.value)} />
+            ) : (
+              <Monaco
+                height="100%"
+                defaultLanguage="python"
+                loading={<EditorLoading />}
+                theme="vs-dark"
+                value={code}
+                onChange={onCodeChange}
+                onMount={(editor) => { editorRef.current = editor; }}
+                options={{
+                  ariaLabel: "Python code editor",
+                  readOnly: busy,
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  padding: { top: 14 },
+                  tabSize: 4,
+                  fontFamily: "ui-monospace, monospace",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
             )}
-            <Monaco
-              height="100%"
-              defaultLanguage="python"
-              loading={<EditorLoading />}
-              theme="vs-dark"
-              value={code}
-              onChange={onCodeChange}
-              onMount={(editor) => { editorRef.current = editor; }}
-              options={{
-                ariaLabel: "Python code editor",
-                readOnly: locked || busy,
-                minimap: { enabled: false },
-                fontSize: 13,
-                fontFamily: "ui-monospace, monospace",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
-            />
           </div>
 
-          <div className="flex min-h-[180px] flex-[0.4] flex-col border-t border-white/10 bg-[#0f1419]">
-            <div className="border-b border-white/10 px-3 py-1.5 text-xs font-semibold text-white/70">Testcases</div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-3 text-sm text-[#d7dee7]">
-              {testMsg && <p role="status" className="mb-3 font-medium text-white">{testMsg}</p>}
-              {testResults.length === 0 && !testMsg && (
-                <p className="text-white/70">Run checks the demo. Submit checks every case. Your code is saved when you run or submit.</p>
-              )}
-              <ul className="flex flex-col gap-2">
-                {testResults.map((r) => (
-                  <li
-                    key={r.index}
-                    className={`rounded border px-3 py-2 font-mono text-xs ${
-                      r.passed ? "border-emerald-500/40 bg-emerald-500/10" : "border-rose-500/40 bg-rose-500/10"
-                    }`}
-                  >
-                    <div className="font-sans font-semibold">
-                      {r.passed ? "Passed" : "Failed"} ·{" "}
-                      {r.visible ? `Example ${r.index + 1}` : r.index >= 2000 ? `Edge case ${r.index - 1999}` : `Hidden case ${r.index - 999}`}
-                    </div>
-                    {r.visible && (
-                      <>
-                        <div className="mt-1 opacity-80">in: {JSON.stringify(r.input)}</div>
-                        <div className="opacity-80">expected: {JSON.stringify(r.expected)}</div>
-                        <div className="opacity-80">got: {JSON.stringify(r.got)}</div>
-                      </>
-                    )}
-                    {r.error && <div className="text-rose-300">{r.error}</div>}
-                  </li>
-                ))}
-              </ul>
-              {run?.ast_insights?.[0] && <p className="mt-3 text-xs text-white/50">AST: {run.ast_insights[0]}</p>}
-            </div>
-          </div>
+          {!locked && <WorkspaceConsole
+            tab={consoleTab}
+            open={consoleOpen}
+            note={consoleTab === "output" ? runNotice : testMsg}
+            run={studentRun?.response ?? null}
+            tests={testResults}
+            stale={consoleTab === "output" ? Boolean(studentRun && studentRun.code !== code) : code !== savedCode}
+            onTab={(tab) => { setConsoleTab(tab); setConsoleOpen(true); }}
+            onToggle={() => setConsoleOpen(!consoleOpen)}
+          />}
         </section>
 
-        <aside className="hidden min-h-0 flex-col border-l border-[var(--line)] bg-[#0f1419] p-2 lg:flex">
-          <AgentDock
-            topic={problem.topic}
-            problemId={problem.id}
-            stage={stage}
-            code={code}
-            lastRun={lastRun}
-            suggestedAgent={agentForStage(resolved)}
-          />
-        </aside>
-
-        {agentsOpen && (
-          <div className="absolute inset-0 z-30 flex lg:hidden">
-            <button
-              type="button"
-              className="flex-1 bg-black/50"
-              aria-label="Close agents"
-              onClick={() => setAgentsOpen(false)}
-            />
-            <div className="flex h-full w-[min(100%,380px)] flex-col bg-[#0f1419] p-2 shadow-2xl">
-              <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-white/60">Agents</span>
-                <Button size="sm" variant="secondary" onClick={() => setAgentsOpen(false)}>
-                  Close
-                </Button>
-              </div>
-              <div className="min-h-0 flex-1">
-                <AgentDock
-                  topic={problem.topic}
-                  problemId={problem.id}
-                  stage={stage}
-                  code={code}
-                  lastRun={lastRun}
-                  suggestedAgent={agentForStage(resolved)}
-                />
-              </div>
-            </div>
+        <aside id="workspace-coaches" ref={coachPanelRef} tabIndex={-1} aria-labelledby="workspace-coaches-title" hidden={!agentsOpen} className="workspace-coach-panel">
+          <div className="workspace-coach-heading"><h2 id="workspace-coaches-title">Practice coaches</h2><button type="button" className="workspace-editor-mode" onClick={() => toggleCoaches()}>Hide coaches</button></div>
+          <div className="min-h-0 flex-1">
+            <AgentDock topic={problem.topic} problemId={problem.id} stage={stage} code={code} lastRun={lastRun} suggestedAgent={agentForStage(resolved)} />
           </div>
-        )}
+        </aside>
       </div>
     </div>
   );

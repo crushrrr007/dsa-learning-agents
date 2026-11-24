@@ -2,7 +2,24 @@
 
 from __future__ import annotations
 
+from app.config import get_settings
 from app.runner.sandbox import run_student_code
+
+
+def test_python_print_does_not_interrupt_result():
+    raw = run_student_code('print("loaded")\ndef double(n):\n    print(n)\n    return n * 2', "double", args=[3])
+    assert raw["ok"] is True
+    assert raw["result"] == 6
+    assert raw["stdout"] == "loaded\n3\n"
+
+
+def test_stdout_remains_bounded_when_python_raises():
+    limit = get_settings().run_max_output_chars
+    code = f'def fail():\n    print("x" * {limit + 10})\n    raise ValueError("example error")'
+    raw = run_student_code(code, "fail")
+    assert raw["ok"] is False
+    assert "ValueError: example error" in raw["error"]
+    assert raw["stdout"] == "x" * limit
 
 
 def test_stack_and_queue_land_in_sequence():

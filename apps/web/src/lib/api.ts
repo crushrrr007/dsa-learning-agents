@@ -299,18 +299,20 @@ export async function submitPredict(problemId: string, stepIndex: number, answer
   });
 }
 
+export type WorkspaceTestCase = {
+  index: number;
+  passed: boolean;
+  input: unknown;
+  expected: unknown;
+  got: unknown;
+  error: string | null;
+  visible?: boolean;
+};
+
 export async function runTests(problemId: string, code: string) {
   return request<{
     passed_all: boolean;
-    results: {
-      index: number;
-      passed: boolean;
-      input: unknown;
-      expected: unknown;
-      got: unknown;
-      error: string | null;
-      visible?: boolean;
-    }[];
+    results: WorkspaceTestCase[];
     viva: { id: string; prompt: string }[];
     ast_insights: string[];
     stage: number;

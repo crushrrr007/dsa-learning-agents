@@ -17,7 +17,7 @@ const preparation = [
 export default function AgentsPage() {
   return (
     <div className="learn-main coach-page">
-      <PageHeading label="The teaching team" title="One problem. Different kinds of help." copy="Pointer Lab gives you a different kind of help when you’re learning a pattern, reading a trace, debugging code, or explaining your reasoning." />
+      <PageHeading label="The teaching team" title="Meet the teaching agents." copy="Follow a Two Pointers problem to see who helps, what they look at, and why the coordinator chose them." />
       <CoachingWalkthrough />
       <section className="learn-chapters" aria-labelledby="coach-prep">
         <div className="learn-section-heading"><div><p className="learn-kicker">Before practice</p><h2 id="coach-prep" className="font-serif">How a chapter gets personal</h2></div></div>

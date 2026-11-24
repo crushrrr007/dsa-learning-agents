@@ -270,6 +270,64 @@ body:has(.learn-topbar) { background: var(--study-page); }
 .coach-outcome { display: flex; flex-direction: column; gap: .7rem; padding: clamp(1rem, 2vw, 1.5rem); }
 .coach-architecture { max-width: 75ch; }
 
+.coach-example-mode { border-top: 1px solid color-mix(in srgb, var(--ink) 66%, var(--surface)); padding-top: .65rem; }
+
+:root { --workspace-code: #1e1e1e; --workspace-strip: color-mix(in srgb, var(--ink) 80%, var(--workspace-code)); }
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .65rem; min-height: 0; flex: 1; padding: .65rem; }
+.workspace-problem, .workspace-editor, .workspace-coach-panel { border-radius: .65rem; overflow: hidden; }
+.workspace-mobile-nav { display: flex; flex-wrap: wrap; gap: .35rem; padding: .55rem .75rem; border-bottom: 1px solid var(--line); background: var(--surface); }
+.workspace-mobile-nav button, .workspace-trace-controls button { display: inline-flex; align-items: center; gap: .35rem; border-radius: .35rem; min-height: 2.1rem; padding: .3rem .55rem; color: var(--muted); font-size: .875rem; font-weight: 750; }
+.workspace-mobile-nav button[aria-pressed="true"], .workspace-mobile-nav button[aria-expanded="true"], .workspace-trace-controls button:hover:not(:disabled) { background: var(--study-tint); color: var(--accent); }
+.workspace-trace-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .45rem; font-size: .875rem; color: var(--muted); }
+.workspace-trace-controls button { justify-content: center; border: 1px solid var(--line); }
+.workspace-trace-controls button:disabled { opacity: .45; }
+.workspace-editor { display: flex; flex-direction: column; min-width: 0; min-height: 0; color: var(--surface); background: var(--workspace-code); border: 1px solid var(--ink); }
+.workspace-editor-toolbar, .workspace-coach-heading, .workspace-console-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .6rem; padding: .65rem .75rem; background: var(--workspace-strip); border-bottom: 1px solid color-mix(in srgb, var(--ink) 76%, var(--surface)); }
+.workspace-editor-title { display: flex; align-items: center; gap: .5rem; flex: none; font-size: .875rem; }
+.workspace-editor-title p, .workspace-console-note { color: color-mix(in srgb, var(--surface) 74%, var(--ink)); font-size: .8rem; }
+.workspace-editor-actions, .workspace-console-tabs { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
+.workspace-editor-mode, .workspace-console-tabs button, .workspace-console-toggle { display: inline-flex; align-items: center; gap: .35rem; min-height: 2rem; padding: .3rem .5rem; border-radius: .35rem; font-size: .8rem; font-weight: 750; color: var(--surface); }
+.workspace-desktop-trigger { display: none; }
+.workspace-editor-mode:hover, .workspace-editor-mode[aria-pressed="true"], .workspace-editor-mode[aria-expanded="true"], .workspace-console-tabs button[aria-pressed="true"], .workspace-console-toggle:hover { background: color-mix(in srgb, var(--accent) 54%, var(--ink)); }
+.workspace-editor-mode:disabled { opacity: .45; }
+.workspace-editor-body { position: relative; flex: 1; min-height: 0; height: clamp(15rem, 48dvh, 27rem); }
+.workspace-plain-code { display: block; width: 100%; height: 100%; resize: none; padding: 1rem; background: var(--workspace-code); color: var(--surface); tab-size: 4; font-size: .875rem; line-height: 1.6; }
+.workspace-editor button:focus-visible, .workspace-coach-panel button:focus-visible, .workspace-plain-code:focus-visible { outline: 2px solid var(--study-tint); outline-offset: -2px; }
+.workspace-editor-lock { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: .75rem; height: 100%; padding: clamp(1.25rem, 5vw, 2.5rem); color: var(--study-tint); }
+.workspace-editor-lock p + p { margin-top: .35rem; font-size: .875rem; }
+.workspace-console { min-height: 0; display: flex; flex-direction: column; background: var(--ink); }
+.workspace-console-bar { padding: .35rem .65rem; border-top: 1px solid color-mix(in srgb, var(--ink) 65%, var(--surface)); }
+.workspace-console-content { overflow: auto; padding: .7rem; max-height: clamp(9rem, 26dvh, 16rem); color: var(--study-tint); font-size: .875rem; }
+.workspace-console-status { font-weight: 750; margin-bottom: .65rem; }
+.workspace-console-note { margin-bottom: .45rem; }
+.workspace-case, .workspace-test-group, .workspace-output { border: 1px solid color-mix(in srgb, var(--ink) 76%, var(--surface)); border-radius: .35rem; }
+.workspace-case summary, .workspace-test-group { padding: .45rem .6rem; }
+.workspace-case summary { cursor: pointer; }
+.workspace-case summary span + span { margin-left: .6rem; color: var(--study-tint); }
+.workspace-case-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); gap: .55rem; padding: .5rem .6rem; }
+.workspace-case-values dd, .workspace-output pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.workspace-case-values dd { font-family: ui-monospace, monospace; font-size: .825rem; }
+.workspace-case-values dt { font-weight: 750; }
+.workspace-test-group { display: flex; align-items: center; justify-content: space-between; gap: .45rem; }
+.workspace-output { padding: .55rem .65rem; }
+.workspace-output pre { margin-top: .35rem; }
+.workspace-coach-panel:not([hidden]) { display: flex; flex-direction: column; background: var(--ink); color: var(--surface); min-height: 23rem; min-width: 0; }
+.workspace-coach-panel[hidden] { display: none; }
+.workspace-coach-heading h2 { font-size: 1rem; font-weight: 670; }
+.workspace-coach-panel > div:last-child { padding: .35rem; }
+
+@media (min-width: 64rem) {
+  .workspace-grid { grid-template-columns: minmax(15rem, .86fr) minmax(0, 1.75fr); }
+  .workspace-grid[data-coaches="open"] { grid-template-columns: minmax(14rem, .82fr) minmax(17rem, 1.4fr) minmax(15rem, .83fr); }
+  .workspace-editor-body { height: auto; }
+  .workspace-mobile-nav { display: none; }
+  .workspace-desktop-trigger { display: inline-flex; }
+}
+@media (max-width: 63.999rem) {
+  .workspace-grid[data-mobile-pane="problem"] > .workspace-editor, .workspace-grid[data-mobile-pane="editor"] > .workspace-problem { display: none; }
+  .workspace-coach-panel:not([hidden]) { height: min(70dvh, 34rem); }
+}
+
 @media (max-width: 53rem) {
   .coach-step-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

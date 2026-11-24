@@ -27,7 +27,21 @@ args = payload.get("args", [])
 max_output = int(payload.get("max_output_chars", 4000))
 
 events = []
-stdout_chunks = []
+
+class CapturedOutput:
+    def __init__(self, limit):
+        self.limit = max(0, limit)
+        self.chunks = []
+
+    def write(self, text):
+        if self.limit:
+            chunk = text[:self.limit]
+            self.chunks.append(chunk)
+            self.limit -= len(chunk)
+        return len(text)
+
+    def flush(self):
+        pass
 
 class Limit(Exception):
     pass
@@ -197,7 +211,10 @@ student_mod.__dict__["__builtins__"] = __builtins__
 
 err = None
 result = None
+worker_stdout = sys.stdout
+captured = CapturedOutput(max_output)
 try:
+    sys.stdout = captured
     compiled = compile(code, "<student>", "exec")
     sys.settrace(tracer)
     exec(compiled, student_mod.__dict__)
@@ -218,6 +235,7 @@ except Exception:
     err = traceback.format_exc(limit=3)
 finally:
     sys.settrace(None)
+    sys.stdout = worker_stdout
 
 # JSON-serialize result
 def encode(v):
@@ -232,9 +250,9 @@ out = {
     "result": encode(result) if err is None else None,
     "error": err,
     "events": events,
-    "stdout": "".join(stdout_chunks)[:max_output],
+    "stdout": "".join(captured.chunks),
 }
-sys.stdout.write(json.dumps(out))
+worker_stdout.write(json.dumps(out))
 '''
 )
 
