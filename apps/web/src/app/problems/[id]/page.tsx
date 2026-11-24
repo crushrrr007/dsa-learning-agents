@@ -16,11 +16,13 @@ import {
 import {
   completeSee,
   fetchProblem,
+  fetchProblems,
   runCode,
   runTests,
   submitPredict,
   submitViva,
   type ProblemDetail,
+  type ProblemSummary,
   type RunResponse,
   type TraceEvent,
   type VivaQuestionResult,
@@ -92,6 +94,7 @@ export default function ProblemWorkspacePage() {
   const [leftTab, setLeftTab] = useState<LeftTab>("path");
   const [agentsOpen, setAgentsOpen] = useState(false);
   const [uiStage, setUiStage] = useState<WorkspaceStageId>("see");
+  const [related, setRelated] = useState<ProblemSummary[]>([]);
 
   useEffect(() => {
     fetchProblem(id)
@@ -116,6 +119,9 @@ export default function ProblemWorkspacePage() {
         if (p.mastered || testsOk) setLeftTab("path");
         else if (s >= 3) setLeftTab("description");
         else setLeftTab("path");
+        void fetchProblems(undefined, p.pattern_id || undefined)
+          .then((list) => setRelated(list.filter((x) => x.id !== p.id).slice(0, 5)))
+          .catch(() => setRelated([]));
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -357,6 +363,15 @@ export default function ProblemWorkspacePage() {
             Mastered
           </span>
         )}
+        <span className="hidden rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--ws-muted)] sm:inline">
+          Python lab
+        </span>
+        <Link
+          href={`/problems?pattern=${encodeURIComponent(problem.pattern_id || "")}`}
+          className="hidden rounded-md border border-teal-400/20 bg-teal-400/10 px-2 py-0.5 text-[10px] font-bold text-teal-200 hover:bg-teal-400/20 sm:inline"
+        >
+          {problem.pattern}
+        </Link>
         <div className="ml-auto hidden md:block">
           <StageRail
             tone="dark"
@@ -463,6 +478,37 @@ export default function ProblemWorkspacePage() {
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--ws-muted)]">
                       {problem.constraints.map((c, i) => (
                         <li key={i}>{c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {problem.mastered && related[0] && (
+                  <div className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-200">Mastered — what&apos;s next</p>
+                    <Link
+                      href={`/problems/${related[0].id}`}
+                      className="mt-2 inline-flex text-sm font-bold text-white hover:underline"
+                    >
+                      Continue with {related[0].title} →
+                    </Link>
+                  </div>
+                )}
+                {related.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ws-muted)]">
+                      Same pattern
+                    </h3>
+                    <ul className="mt-2 space-y-1">
+                      {related.map((r) => (
+                        <li key={r.id}>
+                          <Link
+                            href={`/problems/${r.id}`}
+                            className="flex items-center justify-between rounded-lg border border-[var(--ws-line)] px-3 py-2 text-sm text-[var(--ws-text)] hover:border-teal-400/30 hover:bg-teal-400/5"
+                          >
+                            <span className="font-medium">{r.title}</span>
+                            <span className="text-[10px] font-bold uppercase text-[var(--ws-muted)]">{r.difficulty}</span>
+                          </Link>
+                        </li>
                       ))}
                     </ul>
                   </div>

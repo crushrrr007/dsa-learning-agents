@@ -1,0 +1,34 @@
+{
+  "id": "pointer-lab-core",
+  "title": "Pointer Lab Core",
+  "subtitle": "Curated sheet for demos and interview patterns \u2014 practice with agents, not solution dumps.",
+  "inspired_by": [
+    "NeetCode 150",
+    "Striver A2Z",
+    "AlgoMaster patterns"
+  ],
+  "problem_ids": [
+    "best-time-buy-sell-stock",
+    "contains-duplicate",
+    "move-zeros",
+    "squares-of-sorted-array",
+    "two-sum-sorted",
+    "valid-palindrome",
+    "container-with-most-water",
+    "max-sum-subarray-k",
+    "maximum-average-subarray",
+    "longest-repeating-character-replacement",
+    "binary-search",
+    "search-insert-position",
+    "valid-parentheses",
+    "daily-temperatures",
+    "find-middle",
+    "has-cycle",
+    "balanced-binary-tree",
+    "diameter-of-binary-tree",
+    "bfs-shortest-path",
+    "count-components",
+    "climb-stairs",
+    "fibonacci-dp"
+  ]
+}

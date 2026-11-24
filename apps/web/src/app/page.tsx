@@ -108,6 +108,12 @@ function HomeInner() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
+                href="/problems"
+                className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
+              >
+                Open practice sheet
+              </Link>
+              <Link
                 href="/progress"
                 className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
               >

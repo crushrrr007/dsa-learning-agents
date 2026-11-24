@@ -37,7 +37,25 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   href="/"
                   className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
                 >
+                  Home
+                </Link>
+                <Link
+                  href="/problems"
+                  className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
+                >
                   Sheet
+                </Link>
+                <Link
+                  href="/patterns"
+                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] sm:inline"
+                >
+                  Patterns
+                </Link>
+                <Link
+                  href="/sheets/pointer-lab-core"
+                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] md:inline"
+                >
+                  Core
                 </Link>
                 <Link
                   href="/topics/two-pointers"

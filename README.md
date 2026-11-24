@@ -2,13 +2,24 @@
 
 University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
+## Product shape (NeetCode × TakeYouForward × AlgoMaster × agents)
+
+| Borrow | Where in Pointer Lab |
+|--------|----------------------|
+| NeetCode list + editor | `/problems` sheet + dark `/problems/[id]` workspace |
+| TakeYouForward ordered sheet/progress | Topic diagnose→plan, Core sheet, Progress % |
+| AlgoMaster patterns | `/patterns` explore + sheet filters + related problems |
+| **Our flavor** | Five coaches + See→Predict→Code→Test→Viva (no solution dumps) |
+
+See **[PLATFORM.md](./PLATFORM.md)** for the full completion roadmap (P0–P5).
+
 ## Pilot path (start here)
 
-1. Open **Home** → **Start Two Pointers** (or nav **Pilot**).
+1. Open **Home** → **Start Two Pointers** (or nav **Demo**).
 2. **Diagnose** → soft plan → brief overview.
 3. Open the **recommended problem** (usually **Valid Palindrome**).
 4. Finish the locked loop: **See → Predict → Code → Test → Viva**.
-5. Use **Progress → Reset session** before a fresh demo.
+5. Browse **Sheet** (`/problems`) or **Core** curated list; use **Progress → Reset** before a fresh demo.
 
 Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
 
