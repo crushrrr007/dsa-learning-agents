@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight, Sparkles } from "lucide-react";
 import {
   fetchPatterns,
   fetchProblems,
@@ -77,251 +77,236 @@ function HomeInner() {
   const topics = roadmap?.topics || [];
   const activePattern = patterns.find((p) => p.id === patternFilter);
   const pilotTopic = topics.find((t) => t.slug === PILOT_TOPIC);
-  const pilotProblems = byTopic.get(PILOT_TOPIC) || [];
-  const pilotNext =
-    pilotProblems.find((p) => !p.mastered)?.id ||
-    pilotTopic?.next_problem_id ||
-    pilotProblems[0]?.id;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <header className="animate-rise mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">Pattern practice sheet</p>
-        <h1 className="display mt-2 text-4xl font-semibold sm:text-5xl">Pointer Lab</h1>
-        <p className="mt-3 max-w-xl text-base text-[var(--muted)] sm:text-lg">
-          NeetCode-style problems, TakeYouForward-style ordered paths, AlgoMaster-style patterns — plus five teaching
-          agents and a locked See → Predict → Code → Test → Viva loop that never dumps the solution.
-        </p>
-
-        <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--accent)]/30 bg-gradient-to-br from-white via-white to-[var(--accent)]/10 shadow-[var(--shadow)]">
-          <div className="grid gap-0 md:grid-cols-[1.2fr_0.8fr]">
-            <div className="p-5 sm:p-7">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--accent)]">Start here</p>
-              <h2 className="display mt-2 text-2xl font-semibold sm:text-3xl">Two Pointers pilot</h2>
-              <p className="mt-2 max-w-md text-sm text-[var(--muted)]">
-                One topic. One door. Diagnose → soft plan → overview → recommended problem → finish the full stage loop.
-              </p>
-              <ol className="mt-4 grid gap-2 text-sm text-[var(--ink)] sm:grid-cols-5">
-                {["Diagnose", "Plan", "Overview", "Practice", "Viva"].map((label, i) => (
-                  <li
-                    key={label}
-                    className="rounded-lg border border-[var(--line)] bg-white/80 px-2.5 py-2 text-center text-xs font-semibold"
-                  >
-                    <span className="block text-[10px] font-bold text-[var(--accent)]">{i + 1}</span>
-                    {label}
-                  </li>
-                ))}
-              </ol>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href={`/topics/${PILOT_TOPIC}`}
-                  className="inline-flex h-11 items-center rounded-md bg-[var(--accent)] px-5 text-sm font-bold text-white transition hover:brightness-110"
-                >
-                  {pilotTopic?.has_plan ? "Continue Two Pointers" : "Start Two Pointers"}
-                </Link>
-                {pilotNext && (
-                  <Link
-                    href={`/problems/${pilotNext}`}
-                    className="inline-flex h-11 items-center rounded-md border border-[var(--line)] bg-white px-4 text-sm font-semibold text-[var(--ink)] hover:border-[var(--accent)]"
-                  >
-                    Jump to a problem
-                  </Link>
-                )}
-              </div>
-            </div>
-            <div className="border-t border-[var(--line)] bg-[var(--accent)]/[0.06] p-5 md:border-l md:border-t-0 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">Session</p>
-              <p className="mt-2 text-3xl font-semibold tabular-nums">
-                {mastered}
-                <span className="text-base font-medium text-[var(--muted)]">/{problems.length || "—"}</span>
-              </p>
-              <p className="text-sm text-[var(--muted)]">problems mastered this guest session</p>
+    <div className="pb-16">
+      {/* Full-bleed brand hero */}
+      <section className="mesh-hero relative overflow-hidden text-white">
+        <div className="pointer-events-none absolute inset-0 opacity-30">
+          <div className="absolute -left-20 top-10 h-64 w-64 rounded-full bg-teal-400/30 blur-3xl" />
+          <div className="absolute bottom-0 right-10 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl" />
+        </div>
+        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+          <div className="animate-rise max-w-3xl">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-teal-100 backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5" />
+              Multi-agent DSA lab
+            </p>
+            <h1 className="display mt-5 text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-7xl">
+              Pointer Lab
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
+              Pattern sheets and a LeetCode-like editor — with coaches that teach through See, Predict, Code, Test, and
+              Viva instead of dumping answers.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href={`/topics/${PILOT_TOPIC}`}
+                className="inline-flex h-12 items-center gap-2 rounded-xl bg-teal-400 px-6 text-sm font-bold text-[#042f2e] transition hover:bg-teal-300"
+              >
+                {pilotTopic?.has_plan ? "Continue demo path" : "Start Two Pointers demo"}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
               <Link
                 href="/progress"
-                className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)] hover:underline"
+                className="inline-flex h-12 items-center rounded-xl border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/10"
               >
-                Progress &amp; reset →
+                {loading ? "…" : `${mastered}/${problems.length || "—"}`} mastered
               </Link>
-              <p className="mt-6 text-xs leading-relaxed text-[var(--muted)]">
-                Tip: if you get stuck, use Hint / Predict / Debug. Coaches are stage-aware and blocked from pasting full
-                solutions.
-              </p>
             </div>
           </div>
-        </div>
-      </header>
 
-      {loading && <div className="panel rounded-xl p-6 text-[var(--muted)]">Loading roadmap…</div>}
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-red-800">
-          Could not reach the API. Start it on port 8417, then refresh.
-          <pre className="mt-2 text-xs opacity-80">{error}</pre>
-        </div>
-      )}
-
-      {!loading && !error && (
-        <>
-          <section className="animate-rise-delay mb-10">
-            <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">How a problem works</h2>
-                <p className="mt-1 text-sm text-[var(--muted)]">Same five stages on every problem — viva unlocks only on a full test pass.</p>
-              </div>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-5">
-              {[
-                { n: "1", t: "See", d: "Watch the slow demo" },
-                { n: "2", t: "Predict", d: "Name the next state" },
-                { n: "3", t: "Code", d: "Editor unlocks" },
-                { n: "4", t: "Test", d: "Examples + hidden" },
-                { n: "5", t: "Viva", d: "Defend to master" },
-              ].map((s) => (
-                <div key={s.n} className="rounded-xl border border-[var(--line)] bg-white/85 px-3 py-3">
-                  <p className="text-[10px] font-bold text-[var(--accent)]">{s.n}</p>
-                  <p className="font-semibold">{s.t}</p>
-                  <p className="text-xs text-[var(--muted)]">{s.d}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {graph && (
-            <section className="mb-8">
-              <div className="mb-2">
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Your learning graph</h2>
-                <p className="text-xs text-[var(--muted)]">
-                  Topics → patterns. Amber = weak, green = mastered. Optional — pilots can ignore this and use Start above.
-                </p>
-              </div>
-              <RoadmapGraphView graph={graph} />
-            </section>
-          )}
-
-          <section className="mb-6">
-            <h2 className="mb-2 text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Explore patterns</h2>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/"
-                className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                  !patternFilter ? "bg-[var(--accent)] text-white" : "border border-[var(--line)] bg-white text-[var(--muted)]"
-                }`}
+          <div className="animate-rise-delay mt-10 grid gap-3 sm:grid-cols-5">
+            {[
+              { t: "See", d: "Watch the slow path fail" },
+              { t: "Predict", d: "Name the next state" },
+              { t: "Code", d: "Editor unlocks" },
+              { t: "Test", d: "Hidden cases gate viva" },
+              { t: "Viva", d: "Defend to master" },
+            ].map((s, i) => (
+              <div
+                key={s.t}
+                className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 backdrop-blur-sm"
               >
-                All
-              </Link>
-              {patterns.map((pat) => (
+                <p className="text-[10px] font-bold uppercase tracking-wider text-teal-200/80">0{i + 1}</p>
+                <p className="mt-1 font-bold">{s.t}</p>
+                <p className="mt-0.5 text-xs text-white/55">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        {loading && (
+          <div className="panel mt-8 rounded-2xl p-6 text-[var(--muted)]">Loading practice sheet…</div>
+        )}
+        {error && (
+          <div className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-800">
+            Could not reach the API on port 8417.
+            <pre className="mt-2 text-xs opacity-80">{error}</pre>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {graph && (
+              <section className="animate-rise-late mt-10">
+                <div className="mb-3 flex items-end justify-between gap-3">
+                  <div>
+                    <h2 className="display text-2xl font-bold">Pattern roadmap</h2>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      Topics → patterns. Amber weak, green mastered — click a node to jump in.
+                    </p>
+                  </div>
+                </div>
+                <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-white/90 shadow-[var(--shadow)]">
+                  <RoadmapGraphView graph={graph} />
+                </div>
+              </section>
+            )}
+
+            <section className="mt-10">
+              <h2 className="display text-2xl font-bold">Patterns</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Filter the sheet the way AlgoMaster filters by idea.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
                 <Link
-                  key={pat.id}
-                  href={`/?pattern=${encodeURIComponent(pat.id)}`}
-                  className={`rounded-md px-3 py-1 text-xs font-semibold ${
-                    patternFilter === pat.id
-                      ? "bg-[var(--accent)] text-white"
+                  href="/"
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                    !patternFilter
+                      ? "bg-[var(--ink)] text-white"
                       : "border border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--accent)]"
                   }`}
                 >
-                  {pat.title} ({pat.problems_total})
+                  All
                 </Link>
-              ))}
-            </div>
-            {activePattern && (
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                Filtering by <strong>{activePattern.title}</strong> —{" "}
-                <Link href="/" className="text-[var(--accent)] hover:underline">
-                  clear
-                </Link>
-              </p>
-            )}
-          </section>
-
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--muted)]">Practice sheet</h2>
-                <p className="text-xs text-[var(--muted)]">Topic rows like a curated sheet — expand for problems, or open the path.</p>
-              </div>
-            </div>
-            {topics.map((topic) => {
-              const list = byTopic.get(topic.slug) || [];
-              if (patternFilter && list.length === 0) return null;
-              const isOpen = open[topic.slug];
-              const isPilot = topic.slug === PILOT_TOPIC;
-              const pct = topic.problems_total
-                ? Math.round((topic.problems_mastered / topic.problems_total) * 100)
-                : 0;
-              return (
-                <div
-                  key={topic.slug}
-                  className={`overflow-hidden rounded-xl border bg-white/90 ${
-                    isPilot ? "border-[var(--accent)]/40 ring-1 ring-[var(--accent)]/15" : "border-[var(--line)]"
-                  }`}
-                >
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-black/[0.02]"
-                    onClick={() => setOpen((o) => ({ ...o, [topic.slug]: !isOpen }))}
+                {patterns.map((pat) => (
+                  <Link
+                    key={pat.id}
+                    href={`/?pattern=${encodeURIComponent(pat.id)}`}
+                    className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                      patternFilter === pat.id
+                        ? "bg-[var(--accent)] text-white"
+                        : "border border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--accent)]"
+                    }`}
                   >
-                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: topic.color }} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold">{topic.title}</span>
-                        {isPilot && (
-                          <span className="rounded bg-[var(--accent)]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--accent)]">
-                            Demo path
-                          </span>
-                        )}
-                        {topic.has_plan ? (
-                          <span className="text-[11px] font-semibold text-emerald-600">Plan ready</span>
-                        ) : (
-                          <span className="text-[11px] font-semibold text-[var(--muted)]">No plan yet</span>
-                        )}
-                      </div>
-                      <p className="truncate text-xs text-[var(--muted)]">{topic.summary}</p>
-                      <div className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-black/5">
-                        <div
-                          className="h-full rounded-full bg-[var(--accent)] transition-all"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="text-xs font-medium tabular-nums text-[var(--muted)]">
-                      {topic.problems_mastered}/{topic.problems_total}
-                    </span>
-                    <Link
-                      href={`/topics/${topic.slug}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="rounded-md border border-[var(--line)] px-2 py-1 text-xs font-semibold text-[var(--accent)] hover:bg-[var(--accent)]/5"
-                    >
-                      {topic.has_plan ? "Continue" : "Diagnose"}
-                    </Link>
-                    <span className="text-xs text-[var(--muted)]">{isOpen ? "▾" : "▸"}</span>
-                  </button>
-                  {isOpen && (
-                    <ul className="border-t border-[var(--line)]">
-                      {list.map((p) => (
-                        <li key={p.id} className="border-t border-[var(--line)]/70 first:border-t-0">
-                          <Link
-                            href={`/problems/${p.id}`}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-[var(--accent)]/[0.04]"
-                          >
-                            {p.mastered ? (
-                              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                            ) : (
-                              <Circle className="h-4 w-4 shrink-0 text-[var(--muted)]" />
-                            )}
-                            <span className="min-w-0 flex-1 font-medium">{p.title}</span>
-                            <span className={`w-14 text-right text-xs font-bold uppercase ${diffColor(p.difficulty)}`}>
-                              {p.difficulty}
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                    {pat.title}
+                    <span className="ml-1 opacity-60">{pat.problems_total}</span>
+                  </Link>
+                ))}
+              </div>
+              {activePattern && (
+                <p className="mt-3 text-sm text-[var(--muted)]">
+                  Showing <strong className="text-[var(--ink)]">{activePattern.title}</strong> —{" "}
+                  <Link href="/" className="font-semibold text-[var(--accent)] hover:underline">
+                    clear filter
+                  </Link>
+                </p>
+              )}
+            </section>
+
+            <section className="mt-10">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <h2 className="display text-2xl font-bold">Practice sheet</h2>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    Ordered topics — expand a row or open the diagnose → plan path.
+                  </p>
                 </div>
-              );
-            })}
-          </div>
-        </>
-      )}
+                <p className="text-xs font-semibold tabular-nums text-[var(--muted)]">
+                  {problems.length} problems · {topics.length} topics
+                </p>
+              </div>
+
+              <div className="space-y-2.5">
+                {topics.map((topic) => {
+                  const list = byTopic.get(topic.slug) || [];
+                  if (patternFilter && list.length === 0) return null;
+                  const isOpen = open[topic.slug];
+                  const isPilot = topic.slug === PILOT_TOPIC;
+                  const pct = topic.problems_total
+                    ? Math.round((topic.problems_mastered / topic.problems_total) * 100)
+                    : 0;
+                  return (
+                    <div
+                      key={topic.slug}
+                      className={`sheet-row overflow-hidden rounded-2xl border bg-white/95 ${
+                        isPilot ? "border-teal-500/40 shadow-[0_0_0_1px_rgba(20,184,166,0.12)]" : "border-[var(--line)]"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
+                        onClick={() => setOpen((o) => ({ ...o, [topic.slug]: !isOpen }))}
+                      >
+                        <span
+                          className="h-3 w-3 shrink-0 rounded-full ring-4 ring-black/[0.03]"
+                          style={{ background: topic.color }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-bold text-[var(--ink)]">{topic.title}</span>
+                            {isPilot && (
+                              <span className="rounded-md bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-700">
+                                Demo
+                              </span>
+                            )}
+                            {topic.has_plan ? (
+                              <span className="text-[11px] font-semibold text-emerald-600">Plan ready</span>
+                            ) : null}
+                          </div>
+                          <p className="mt-0.5 truncate text-xs text-[var(--muted)]">{topic.summary}</p>
+                          <div className="mt-2.5 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-slate-100">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-teal-600 to-teal-400 transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        <span className="hidden text-xs font-bold tabular-nums text-[var(--muted)] sm:inline">
+                          {topic.problems_mastered}/{topic.problems_total}
+                        </span>
+                        <Link
+                          href={`/topics/${topic.slug}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-xs font-bold text-[var(--accent)] transition hover:bg-teal-50"
+                        >
+                          {topic.has_plan ? "Continue" : "Start"}
+                        </Link>
+                        <span className="text-sm text-[var(--muted)]">{isOpen ? "▾" : "▸"}</span>
+                      </button>
+                      {isOpen && (
+                        <ul className="border-t border-[var(--line)] bg-slate-50/60">
+                          {list.map((p) => (
+                            <li key={p.id} className="border-t border-[var(--line)]/60 first:border-t-0">
+                              <Link
+                                href={`/problems/${p.id}`}
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm transition hover:bg-white sm:px-5"
+                              >
+                                {p.mastered ? (
+                                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                                ) : (
+                                  <Circle className="h-4 w-4 shrink-0 text-slate-300" />
+                                )}
+                                <span className="min-w-0 flex-1 font-medium">{p.title}</span>
+                                <span
+                                  className={`w-14 text-right text-[11px] font-bold uppercase tracking-wide ${diffColor(p.difficulty)}`}
+                                >
+                                  {p.difficulty}
+                                </span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }

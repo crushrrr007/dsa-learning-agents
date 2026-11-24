@@ -177,21 +177,20 @@ export default function TopicPage() {
   const isPilot = slug === "two-pointers";
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
       <Link href="/" className="text-sm font-semibold text-[var(--accent)] hover:underline">
-        ← Home
+        ← Practice sheet
       </Link>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <h1 className="display text-3xl font-semibold">{title}</h1>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <h1 className="display text-4xl font-extrabold tracking-tight">{title}</h1>
         {isPilot && (
-          <span className="rounded-md bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--accent)]">
-            Pilot path
+          <span className="rounded-lg bg-teal-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-teal-700">
+            Demo path
           </span>
         )}
       </div>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        One door for this topic: diagnose → soft plan → short overview → practice. Skip only if you already know the
-        pattern.
+        One door: diagnose → soft plan → overview → practice. Skip only if you already own the pattern.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Topic steps">
@@ -214,12 +213,12 @@ export default function TopicPage() {
                 if (s.id === "overview" && planOut?.has_plan) void onLoadOverview();
                 if (s.id === "practice") setStep("practice");
               }}
-              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${
+              className={`rounded-xl px-3.5 py-2 text-xs font-bold transition ${
                 step === s.id
-                  ? "bg-[var(--accent)] text-white"
+                  ? "bg-[var(--ink)] text-white shadow-sm"
                   : unlocked
-                    ? "bg-black/5 text-[var(--muted)] hover:bg-black/10"
-                    : "cursor-not-allowed bg-black/[0.03] text-[var(--muted)] opacity-50"
+                    ? "border border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--accent)]"
+                    : "cursor-not-allowed border border-transparent bg-black/[0.03] text-[var(--muted)] opacity-50"
               }`}
             >
               <span className="opacity-70">{i + 1} · </span>
@@ -229,12 +228,12 @@ export default function TopicPage() {
         })}
       </div>
 
-      {error && <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
+      {error && <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
       {step === "diagnose" && (
-        <section className="panel mt-6 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Diagnostic agent</p>
-          <h2 className="mt-1 text-xl font-semibold">Prerequisite check</h2>
+        <section className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Diagnostic agent</p>
+          <h2 className="display mt-1 text-2xl font-bold">Prerequisite check</h2>
           {prereqs.length > 0 && (
             <p className="mt-2 text-sm text-[var(--muted)]">Helpful background: {prereqs.join(" · ")}</p>
           )}
@@ -268,9 +267,9 @@ export default function TopicPage() {
       )}
 
       {step === "plan" && plan && (
-        <section className="panel mt-6 space-y-4 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Plan agent</p>
-          <h2 className="text-xl font-semibold">Your soft learning plan</h2>
+        <section className="mt-6 space-y-4 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Plan agent</p>
+          <h2 className="display text-2xl font-bold">Your soft learning plan</h2>
           <p className="text-sm leading-relaxed text-[var(--muted)]">{plan.review_notes}</p>
           <p className="text-xs text-[var(--muted)]">Emphasis: {plan.emphasis || "balanced"} · guidance only — nothing is locked</p>
           <BeforeYouCode reviews={plan.micro_reviews || []} />
@@ -299,9 +298,9 @@ export default function TopicPage() {
       )}
 
       {step === "overview" && (
-        <section className="panel mt-6 space-y-4 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Teach agent</p>
-          <h2 className="text-xl font-semibold">Brief topic overview</h2>
+        <section className="mt-6 space-y-4 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Teach agent</p>
+          <h2 className="display text-2xl font-bold">Brief topic overview</h2>
           <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink)]">
             {overview || "Loading…"}
           </div>
@@ -319,7 +318,7 @@ export default function TopicPage() {
               <Link
                 href={`/problems/${nextId}`}
                 onClick={() => void completeTopicOverview(slug)}
-                className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white"
+                className="inline-flex h-11 items-center rounded-xl bg-[var(--accent)] px-5 text-sm font-bold text-white shadow-sm"
               >
                 Start recommended problem
               </Link>
@@ -332,11 +331,11 @@ export default function TopicPage() {
       )}
 
       {step === "practice" && (
-        <section className="panel mt-6 rounded-xl p-5">
+        <section className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Practice</p>
-              <h2 className="text-xl font-semibold">Problems</h2>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Practice</p>
+              <h2 className="display text-2xl font-bold">Problems</h2>
               <p className="text-sm text-[var(--muted)]">Open any problem — badges are soft recommendations only.</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {Array.from(new Map(orderedProblems.map((p) => [p.pattern_id || p.pattern, p.pattern])).entries()).map(
@@ -360,7 +359,7 @@ export default function TopicPage() {
             {nextId && (
               <Link
                 href={`/problems/${nextId}`}
-                className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white shadow-sm"
+                className="inline-flex h-11 items-center rounded-xl bg-[var(--accent)] px-5 text-sm font-bold text-white shadow-sm"
               >
                 Open recommended →
               </Link>

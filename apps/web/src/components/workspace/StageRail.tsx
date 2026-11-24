@@ -56,6 +56,7 @@ type Props = {
   vivaReady: boolean;
   mastered: boolean;
   onSelect: (id: WorkspaceStageId) => void;
+  tone?: "light" | "dark";
 };
 
 export function StageRail({
@@ -65,7 +66,9 @@ export function StageRail({
   vivaReady,
   mastered,
   onSelect,
+  tone = "light",
 }: Props) {
+  const dark = tone === "dark";
   return (
     <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Practice stages">
       {WORKSPACE_STAGES.map((s, i) => {
@@ -82,7 +85,15 @@ export function StageRail({
           <div key={s.id} className="flex items-center gap-1.5">
             {i > 0 && (
               <span
-                className={`hidden h-px w-3 sm:block ${done || isActive ? "bg-[var(--accent)]/40" : "bg-[var(--line)]"}`}
+                className={`hidden h-px w-3 sm:block ${
+                  done || isActive
+                    ? dark
+                      ? "bg-teal-400/40"
+                      : "bg-[var(--accent)]/40"
+                    : dark
+                      ? "bg-white/10"
+                      : "bg-[var(--line)]"
+                }`}
                 aria-hidden
               />
             )}
@@ -92,14 +103,20 @@ export function StageRail({
               disabled={!unlocked}
               onClick={() => unlocked && onSelect(s.id)}
               title={unlocked ? s.hint : "Locked — finish the previous stage first"}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition ${
+              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
                 isActive
-                  ? "bg-[var(--accent)] text-white shadow-sm"
+                  ? "bg-teal-500 text-[#042f2e] shadow-sm"
                   : done
-                    ? "border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]"
+                    ? dark
+                      ? "border border-teal-400/30 bg-teal-400/10 text-teal-200"
+                      : "border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]"
                     : unlocked
-                      ? "border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--accent)]"
-                      : "cursor-not-allowed bg-black/5 text-[var(--muted)] opacity-55"
+                      ? dark
+                        ? "border border-white/10 bg-white/5 text-white/80 hover:border-teal-400/40"
+                        : "border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--accent)]"
+                      : dark
+                        ? "cursor-not-allowed bg-white/5 text-white/30"
+                        : "cursor-not-allowed bg-black/5 text-[var(--muted)] opacity-55"
               }`}
             >
               <span className="tabular-nums opacity-70">{i + 1}.</span> {s.label}
