@@ -2,13 +2,13 @@
 
 University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
-## Pilot path (start here)
+## Start learning
 
-1. Open **Home** → **Start Two Pointers** (or nav **Pilot**).
-2. **Diagnose** → soft plan → brief overview.
-3. Open the **recommended problem**.
-4. Finish the locked loop: **See → Predict → Code → Test → Viva**.
-5. Use **Progress → Reset session** before a fresh demo.
+- **Today** recommends a first chapter, a problem from your plan, or the practice you left unfinished.
+- **Learn** offers an ordered Foundations path and an Interview Patterns path, with an optional graph view.
+- **Practice** lets you search the whole catalog and share filters by URL. **Progress** distinguishes Solved from Mastered.
+
+To run the existing sample, choose **Today → Try the Two Pointers sample → Take the diagnostic**. Build the soft plan, read the overview, then open the recommended problem and finish **See → Predict → Code → Test → Viva**. For a fresh demo, use **Progress → Reset guest progress**.
 
 Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
 

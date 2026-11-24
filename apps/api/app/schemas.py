@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,7 @@ class TopicOut(BaseModel):
     has_plan: bool = False
     next_problem_id: str | None = None
     plan_emphasis: str | None = None
+    prerequisites: list[str] = Field(default_factory=list)
 
 
 class PhaseOut(BaseModel):
@@ -44,6 +45,25 @@ class ProblemSummary(BaseModel):
     stage: int = 0
     mastered: bool = False
     plan_badge: str | None = None
+    solved: bool = False
+
+
+class DashboardAction(BaseModel):
+    kind: Literal["lesson", "resume", "recommended", "complete"]
+    title: str
+    reason: str
+    topic: str | None = None
+    problem_id: str | None = None
+    stage: int | None = None
+
+
+class DashboardOut(BaseModel):
+    action: DashboardAction
+    problems_total: int
+    problems_solved: int
+    problems_mastered: int
+    topics_total: int
+    patterns_total: int
 
 
 class ProblemDetail(BaseModel):

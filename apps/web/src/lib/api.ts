@@ -45,6 +45,7 @@ export type Topic = {
   has_plan?: boolean;
   next_problem_id?: string | null;
   plan_emphasis?: string | null;
+  prerequisites?: string[];
 };
 
 export type Phase = {
@@ -73,6 +74,23 @@ export type ProblemSummary = {
   stage: number;
   mastered: boolean;
   plan_badge?: string | null;
+  solved: boolean;
+};
+
+export type LearnerDashboard = {
+  action: {
+    kind: "lesson" | "resume" | "recommended" | "complete";
+    title: string;
+    reason: string;
+    topic: string | null;
+    problem_id: string | null;
+    stage: number | null;
+  };
+  problems_total: number;
+  problems_solved: number;
+  problems_mastered: number;
+  topics_total: number;
+  patterns_total: number;
 };
 
 export type PatternInfo = {
@@ -125,7 +143,7 @@ export type TopicPlan = {
   } | null;
 };
 
-export type ProblemDetail = ProblemSummary & {
+export type ProblemDetail = Omit<ProblemSummary, "solved"> & {
   statement: string;
   examples: { input: string; output: string }[];
   constraints: string[];
@@ -164,6 +182,10 @@ export type RunResponse = {
   ast_insights: string[];
   performance: { n: number; ms: number; ok: boolean; error?: string }[];
 };
+
+export async function fetchLearnerDashboard() {
+  return request<LearnerDashboard>(`/progress/dashboard?session_id=${encodeURIComponent(getSessionId())}`);
+}
 
 export async function fetchRoadmap() {
   const sid = getSessionId();

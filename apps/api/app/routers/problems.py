@@ -3,22 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import get_problem, list_patterns, list_problems, public_problem
 from app.db import get_db
-from app.progress_service import get_or_create_progress, get_topic_plan, next_prediction_index, parse_plan_json
+from app.progress_service import build_problem_summaries, get_or_create_progress, next_prediction_index
 from app.schemas import PatternOut, ProblemDetail, ProblemSummary
 
 router = APIRouter(prefix="/problems", tags=["problems"])
-
-
-def _badge_map(plan: dict | None) -> dict[str, str]:
-    if not plan:
-        return {}
-    out: dict[str, str] = {}
-    for key in ("review_first", "recommended", "optional"):
-        for item in plan.get(key) or []:
-            pid = item.get("id")
-            if pid:
-                out[pid] = item.get("badge") or key
-    return out
 
 
 @router.get("/patterns", response_model=list[PatternOut])
@@ -33,54 +21,7 @@ async def problems(
     session_id: str = "guest",
     db: AsyncSession = Depends(get_db),
 ):
-    items = list_problems(topic, pattern)
-    plan_row = await get_topic_plan(db, session_id, topic) if topic else None
-    badges = _badge_map(parse_plan_json(plan_row))
-    if not topic:
-        badges = {}
-        seen: set[str] = set()
-        for p in items:
-            if p["topic"] in seen:
-                continue
-            seen.add(p["topic"])
-            row = await get_topic_plan(db, session_id, p["topic"])
-            badges.update(_badge_map(parse_plan_json(row)))
-
-    out: list[ProblemSummary] = []
-    for p in items:
-        try:
-            row = await get_or_create_progress(db, session_id, p["id"], p["topic"])
-            stage = max(row.stage, 1)
-            out.append(
-                ProblemSummary(
-                    id=p["id"],
-                    title=p["title"],
-                    topic=p["topic"],
-                    difficulty=p["difficulty"],
-                    pattern=p["pattern"],
-                    pattern_id=p.get("pattern_id") or "",
-                    sources=list(p.get("sources") or []),
-                    variant=bool(p.get("variant", False)),
-                    stage=stage,
-                    mastered=bool(row.mastered),
-                    plan_badge=badges.get(p["id"]),
-                )
-            )
-        except Exception:
-            out.append(
-                ProblemSummary(
-                    id=p["id"],
-                    title=p["title"],
-                    topic=p["topic"],
-                    difficulty=p["difficulty"],
-                    pattern=p["pattern"],
-                    pattern_id=p.get("pattern_id") or "",
-                    sources=list(p.get("sources") or []),
-                    variant=bool(p.get("variant", False)),
-                    plan_badge=badges.get(p["id"]),
-                )
-            )
-    return out
+    return await build_problem_summaries(db, session_id, list_problems(topic, pattern))
 
 
 @router.get("/{problem_id}", response_model=ProblemDetail)

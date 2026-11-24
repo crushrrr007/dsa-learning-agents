@@ -337,7 +337,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
     : null;
 
   return (
-    <div className="flex flex-col bg-[var(--bg)] lg:h-[calc(100dvh-3.25rem)] lg:min-h-[620px]">
+    <div className="flex flex-col bg-[var(--bg)] lg:h-[calc(100dvh-var(--topbar-height))] lg:min-h-[620px]">
       <header className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-3 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">

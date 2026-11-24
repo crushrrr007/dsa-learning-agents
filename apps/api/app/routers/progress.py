@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
-from app.progress_service import build_progress_snapshot, reset_session_progress
-from app.schemas import ProgressOut
+from app.progress_service import build_learner_dashboard, build_progress_snapshot, reset_session_progress
+from app.schemas import DashboardOut, ProgressOut
 
 router = APIRouter(prefix="/progress", tags=["progress"])
 
@@ -17,6 +17,11 @@ class ResetRequest(BaseModel):
 async def progress(session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> ProgressOut:
     snap = await build_progress_snapshot(db, session_id)
     return ProgressOut(**snap)
+
+
+@router.get("/dashboard", response_model=DashboardOut)
+async def dashboard(session_id: str = "guest", db: AsyncSession = Depends(get_db)) -> DashboardOut:
+    return DashboardOut(**await build_learner_dashboard(db, session_id))
 
 
 @router.post("/reset")

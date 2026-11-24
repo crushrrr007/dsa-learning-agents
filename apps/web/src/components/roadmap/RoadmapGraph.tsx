@@ -141,7 +141,7 @@ export function RoadmapGraph({ graph }: { graph: GraphPayload }) {
             return;
           }
           if (node.type === "pattern" && d.pattern_id) {
-            router.push(`/?pattern=${encodeURIComponent(d.pattern_id)}`);
+            router.push(`/practice?pattern=${encodeURIComponent(d.pattern_id)}`);
           }
         }}
       >
