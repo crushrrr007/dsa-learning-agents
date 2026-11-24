@@ -19,10 +19,10 @@ import {
 type Step = "diagnose" | "plan" | "overview" | "practice";
 
 const STEPS: { id: Step; label: string }[] = [
-  { id: "diagnose", label: "1 · Diagnose" },
-  { id: "plan", label: "2 · Your plan" },
-  { id: "overview", label: "3 · Overview" },
-  { id: "practice", label: "4 · Practice" },
+  { id: "diagnose", label: "Diagnose" },
+  { id: "plan", label: "Your plan" },
+  { id: "overview", label: "Overview" },
+  { id: "practice", label: "Practice" },
 ];
 
 function badgeLabel(b?: string | null) {
@@ -174,35 +174,59 @@ export default function TopicPage() {
 
   if (loading) return <div className="p-8 text-[var(--muted)]">Loading topic pipeline…</div>;
 
+  const isPilot = slug === "two-pointers";
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <Link href="/" className="text-sm font-semibold text-[var(--accent)] hover:underline">
-        ← Problems
+        ← Home
       </Link>
-      <h1 className="display mt-3 text-3xl font-semibold">{title}</h1>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <h1 className="display text-3xl font-semibold">{title}</h1>
+        {isPilot && (
+          <span className="rounded-md bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--accent)]">
+            Pilot path
+          </span>
+        )}
+      </div>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Per-topic path: diagnose prerequisites → soft plan → brief teach → LeetCode-style practice. Problems stay
-        openable anytime.
+        One door for this topic: diagnose → soft plan → short overview → practice. Skip only if you already know the
+        pattern.
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-2">
-        {STEPS.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => {
-              if (s.id === "diagnose") setStep("diagnose");
-              if (s.id === "plan" && planOut?.has_plan) setStep("plan");
-              if (s.id === "overview" && planOut?.has_plan) void onLoadOverview();
-              if (s.id === "practice") setStep("practice");
-            }}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-              step === s.id ? "bg-[var(--accent)] text-white" : "bg-black/5 text-[var(--muted)]"
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
+      <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Topic steps">
+        {STEPS.map((s, i) => {
+          const unlocked =
+            s.id === "diagnose" ||
+            s.id === "practice" ||
+            (s.id === "plan" && planOut?.has_plan) ||
+            (s.id === "overview" && planOut?.has_plan);
+          return (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={step === s.id}
+              disabled={!unlocked && s.id !== "practice"}
+              onClick={() => {
+                if (s.id === "diagnose") setStep("diagnose");
+                if (s.id === "plan" && planOut?.has_plan) setStep("plan");
+                if (s.id === "overview" && planOut?.has_plan) void onLoadOverview();
+                if (s.id === "practice") setStep("practice");
+              }}
+              className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${
+                step === s.id
+                  ? "bg-[var(--accent)] text-white"
+                  : unlocked
+                    ? "bg-black/5 text-[var(--muted)] hover:bg-black/10"
+                    : "cursor-not-allowed bg-black/[0.03] text-[var(--muted)] opacity-50"
+              }`}
+            >
+              <span className="opacity-70">{i + 1} · </span>
+              {s.label}
+            </button>
+          );
+        })}
       </div>
 
       {error && <p className="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
@@ -288,20 +312,21 @@ export default function TopicPage() {
           )}
           <BeforeYouCode reviews={plan?.micro_reviews || []} />
           <p className="text-xs font-medium text-[var(--muted)]">
-            Evaluator: continue to the recommended problem after a quick skim of the cards above.
+            Skim the cards above, then open the recommended problem and finish See → Predict → Code → Test → Viva.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={onCompleteOverview} disabled={busy}>
-              Mark overview done → practice
-            </Button>
-            {nextId && (
+            {nextId ? (
               <Link
                 href={`/problems/${nextId}`}
+                onClick={() => void completeTopicOverview(slug)}
                 className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white"
               >
                 Start recommended problem
               </Link>
-            )}
+            ) : null}
+            <Button variant="secondary" onClick={onCompleteOverview} disabled={busy}>
+              Mark overview done → practice list
+            </Button>
           </div>
         </section>
       )}
@@ -328,16 +353,16 @@ export default function TopicPage() {
               </div>
               {nextId && (
                 <p className="mt-1 text-xs font-medium text-[var(--accent)]">
-                  Evaluator: continue to recommended problem →
+                  Next: open the recommended problem and complete the full stage loop.
                 </p>
               )}
             </div>
             {nextId && (
               <Link
                 href={`/problems/${nextId}`}
-                className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white"
+                className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white shadow-sm"
               >
-                Recommended →
+                Open recommended →
               </Link>
             )}
           </div>

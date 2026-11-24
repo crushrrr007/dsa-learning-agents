@@ -2,20 +2,38 @@
 
 University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
+## Pilot path (start here)
+
+1. Open **Home** → **Start Two Pointers** (or nav **Pilot**).
+2. **Diagnose** → soft plan → brief overview.
+3. Open the **recommended problem**.
+4. Finish the locked loop: **See → Predict → Code → Test → Viva**.
+5. Use **Progress → Reset session** before a fresh demo.
+
+Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
+
 ## Curriculum
 
-**Phase I — Linear structures**
-- Arrays, Two Pointers, Sliding Window, Linked Lists
+**73 problems** across 9 topics:
 
-**Phase II — Trees, Graphs & DP**
-- Trees, Graphs, Dynamic Programming
+| Topic | Problems |
+|-------|----------|
+| Arrays | 12 |
+| Two Pointers | 7 |
+| Sliding Window | 7 |
+| Linked Lists | 8 |
+| Stack | 5 |
+| Trees | 10 |
+| Graphs | 8 |
+| Dynamic Programming | 10 |
+| Binary Search | 6 |
 
-Flow for every topic:
-0. Learn (notes + traced demo + quiz unlock)  
-1. See the problem  
+Flow for every problem:
+1. See (brute demo)  
 2. Predict steps  
 3. Code and trace  
-4. Test edge cases + viva  
+4. Test (examples + hidden)  
+5. Viva → mastery  
 
 ## Stack
 
@@ -66,33 +84,18 @@ export DSA_USE_DOCKER=1
 export DSA_DOCKER_IMAGE=python:3.12-slim
 ```
 
-## Content
-
-20 problems across 7 topics (3 each except graphs with 2). Solutions stay server-side.
-
 ## Product shape
 
-- **Visual pattern roadmap** — React Flow graph of topics → patterns (personalized from a SQLite knowledge graph)  
-- **Pattern explore** — filter problems by pattern chips; no Phase I/II chrome  
-- **Per-topic adaptive path** — Diagnose → soft Plan → Teach → Practice  
-- **Workspace** — description | editor + testcases | persistent **skinned** agents sidebar  
-- **KG memory** — diagnostic/attempt/mastery edges inform future plans and the home graph
-
-## Evaluator demo script (Two Pointers)
-
-Reset first so the path is clean: open **/progress** → **Reset session** (clears plans + mastery).
-
-1. Home → click **Demo this: Two Pointers** (or **Diagnose** on Two Pointers).  
-2. Answer the prereq check (intentionally miss one MCQ to show micro-reviews) → **Build my soft plan**.  
-3. Skim **Before you code** cards → **Continue to overview** → Teach Agent brief.  
-4. **Start recommended problem** (usually an easy two-pointers item; **Valid Palindrome** is ideal if listed).  
-5. Workspace: **See** → **Predict** → **Code** with the right-hand agents panel — try **Hint** then **Debug**.  
-6. **Submit** → viva if prompted → **/progress** to show mastery → **Reset session** before the next evaluator.
+- **One-door topic path** — Diagnose → soft Plan → Teach overview → Practice  
+- **Problem workspace** — description | editor + tests | stage rail + next-action banner | skinned agents  
+- **Visual pattern roadmap** — React Flow graph (optional; pilots can ignore)  
+- **KG memory** — diagnostic/attempt/mastery edges inform plans and the home graph  
+- **Solution privacy** — public problem payload strips reference solutions; LangGraph guard blocks leaky coach replies  
 
 ## Tests
 
 ```bash
-cd apps/api && uv run pytest tests/test_platform_smoke.py -q
+cd apps/api && uv run pytest -q
 ```
 
 ## Repo layout

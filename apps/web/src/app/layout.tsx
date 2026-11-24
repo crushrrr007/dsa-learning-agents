@@ -27,12 +27,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Link href="/" className="flex items-baseline gap-2">
                 <span className="display text-xl font-semibold tracking-tight text-[var(--ink)]">Pointer Lab</span>
                 <span className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] sm:inline">
-                  Pattern roadmap
+                  Guest lab
                 </span>
               </Link>
-              <nav className="flex items-center gap-4 text-sm font-semibold text-[var(--muted)]">
+              <nav className="flex items-center gap-3 text-sm font-semibold text-[var(--muted)] sm:gap-4">
                 <Link href="/" className="transition hover:text-[var(--accent)]">
-                  Problems
+                  Home
+                </Link>
+                <Link
+                  href="/topics/two-pointers"
+                  className="rounded-md bg-[var(--accent)]/10 px-2 py-1 text-[var(--accent)] transition hover:bg-[var(--accent)]/15"
+                >
+                  Pilot
                 </Link>
                 <Link href="/progress" className="transition hover:text-[var(--accent)]">
                   Progress

@@ -94,9 +94,19 @@ type Props = {
   code: string;
   lastRun?: Record<string, unknown> | null;
   defaultAgent?: AgentId;
+  /** Soft highlight for the coach that matches the current workspace stage. */
+  suggestedAgent?: AgentId;
 };
 
-export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent }: Props) {
+export function AgentDock({
+  topic,
+  problemId,
+  stage,
+  code,
+  lastRun,
+  defaultAgent,
+  suggestedAgent,
+}: Props) {
   const initial = defaultAgent || AGENTS[Math.min(Math.max(stage, 0), 4)].id;
   const [active, setActive] = useState<AgentId>(initial);
   const meta = useMemo(() => AGENTS.find((a) => a.id === active) || AGENTS[0], [active]);
@@ -111,6 +121,7 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [llmMode, setLlmMode] = useState<string | null>(null);
+  const recommend = suggestedAgent || defaultAgent;
 
   function switchAgent(id: AgentId) {
     const next = AGENTS.find((a) => a.id === id) || AGENTS[0];
@@ -196,25 +207,35 @@ export function AgentDock({ topic, problemId, stage, code, lastRun, defaultAgent
       </div>
 
       <div className="flex gap-1 overflow-x-auto border-b border-white/10 px-2 py-2">
-        {AGENTS.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => switchAgent(a.id)}
-            className="shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
-            style={
-              active === a.id
-                ? { background: a.accent, color: "#fff" }
-                : { background: "rgba(255,255,255,0.06)", color: "#b7c2ce" }
-            }
-          >
-            {a.short}
-          </button>
-        ))}
+        {AGENTS.map((a) => {
+          const isRec = recommend === a.id;
+          return (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => switchAgent(a.id)}
+              className="relative shrink-0 rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
+              style={
+                active === a.id
+                  ? { background: a.accent, color: "#fff" }
+                  : isRec
+                    ? { background: a.accentSoft, color: "#e7ecf1", boxShadow: `inset 0 0 0 1px ${a.accent}` }
+                    : { background: "rgba(255,255,255,0.06)", color: "#b7c2ce" }
+              }
+              title={isRec ? "Suggested for this stage" : a.blurb}
+            >
+              {a.short}
+              {isRec && active !== a.id && (
+                <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full" style={{ background: a.accent }} />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <p className="border-b border-white/10 px-3 py-2 text-[11px]" style={{ color: "#a8b4c0" }}>
         {meta.blurb}
+        {recommend === active ? " · Best fit for your current stage." : null}
       </p>
 
       <div className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
