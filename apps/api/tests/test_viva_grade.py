@@ -195,6 +195,19 @@ def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch
     ]
     assert len(answers) == len(viva)
 
+    # Viva is gated behind a full /test pass.
+    for sid in ("viva_ok", "viva_bad"):
+        unlock = client.post(
+            "/test",
+            json={
+                "session_id": sid,
+                "problem_id": "two-sum",
+                "code": problem["reference_solution"],
+            },
+        )
+        assert unlock.status_code == 200
+        assert unlock.json()["passed_all"] is True
+
     ok = client.post(
         "/viva",
         json={"session_id": "viva_ok", "problem_id": "two-sum", "answers": answers},
