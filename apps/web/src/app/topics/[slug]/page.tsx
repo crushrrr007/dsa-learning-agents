@@ -22,12 +22,12 @@ import {
 
 type Step = "lesson" | "diagnose" | "plan" | "overview" | "practice";
 
-const STEPS: { id: Step; label: string }[] = [
-  { id: "lesson", label: "Lesson" },
-  { id: "diagnose", label: "Diagnostic" },
-  { id: "plan", label: "Your plan" },
-  { id: "overview", label: "Overview" },
-  { id: "practice", label: "Practice" },
+const STEPS: { id: Step; label: string; role: string; detail: string }[] = [
+  { id: "lesson", label: "Lesson", role: "Chapter notes", detail: "Read the main idea or try a guided dry run." },
+  { id: "diagnose", label: "Diagnose", role: "Diagnostic agent", detail: "Find which concepts are worth reviewing." },
+  { id: "plan", label: "Plan", role: "Plan agent", detail: "Choose from review, recommended, and optional problems." },
+  { id: "overview", label: "Teach", role: "Teach agent", detail: "Read a short pattern overview and a guiding question." },
+  { id: "practice", label: "Practice", role: "Workspace coaches", detail: "See → Predict → Code → Test → Viva with five specialists." },
 ];
 
 function badgeLabel(b?: string | null) {
@@ -177,39 +177,36 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
   return (
     <div className="learn-main chapter-page">
       <div className="flex flex-wrap justify-between gap-3"><Link href="/learn" className="learn-text-link">← Learning roadmap</Link><LearningLink href={`/problems?topic=${encodeURIComponent(slug)}`}>Practice sheet</LearningLink></div>
-      <PageHeading label={slug === "two-pointers" ? "Chapter · Demo path" : "Chapter"} title={data.lesson.title} copy="Read the core idea, try a dry run, or take an optional diagnostic for a tailored practice plan." />
+      <PageHeading label={slug === "two-pointers" ? "Agentic learning path · Demo" : "Agentic learning path"} title={data.lesson.title} copy="Read the core idea, try a dry run, or take an optional diagnostic for a tailored practice plan." />
       <Prerequisites items={prereqs} />
+      <p className="text-sm font-semibold text-[var(--muted)]">{problems.filter((problem) => problem.mastered).length}/{problems.length} mastered in this chapter</p>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Chapter sections">
-        {STEPS.map((s) => {
-          const unlocked =
-            s.id === "lesson" || s.id === "diagnose" || s.id === "practice" ||
-            (s.id === "plan" && planOut?.has_plan) ||
-            (s.id === "overview" && planOut?.has_plan);
+      <ol className="flex flex-col gap-2" aria-label="Chapter sections">
+        {STEPS.map((s, index) => {
+          const unlocked = s.id === "lesson" || s.id === "diagnose" || s.id === "practice" || planOut.has_plan;
+          const done = (s.id === "diagnose" || s.id === "plan") ? planOut.has_plan : s.id === "overview" ? planOut.overview_completed : s.id === "practice" && problems.length > 0 && problems.every((problem) => problem.mastered);
+          const active = step === s.id;
           return (
-            <button
-              key={s.id}
-              type="button"
-              aria-pressed={step === s.id}
-              disabled={!unlocked || busy}
-              onClick={() => {
-                setError(null);
-                if (s.id === "overview") void onLoadOverview();
-                else setStep(s.id);
-              }}
-              className={`rounded-xl border border-[var(--line)] px-3.5 py-2 text-sm font-bold transition ${
-                step === s.id
-                  ? "bg-[var(--ink)] text-white shadow-sm"
-                  : unlocked
-                    ? "border border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--accent)]"
-                    : "cursor-not-allowed border border-transparent bg-black/[0.03] text-[var(--muted)] opacity-50"
-              }`}
-            >
-              {s.label}
-            </button>
+            <li key={s.id}>
+              <button
+                type="button"
+                aria-current={active ? "step" : undefined}
+                disabled={!unlocked || busy}
+                onClick={() => {
+                  setError(null);
+                  if (s.id === "overview") void onLoadOverview();
+                  else setStep(s.id);
+                }}
+                className={`flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition ${active ? "border-[var(--accent)] bg-[var(--study-tint)]" : "border-[var(--line)] bg-[var(--surface)]"} disabled:opacity-55`}
+              >
+                <span aria-hidden="true" className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--study-tint)] text-sm font-bold text-[var(--accent)]">{index + 1}</span>
+                <span className="flex min-w-0 flex-1 flex-col"><span className="text-sm font-bold text-[var(--ink)]">{s.label} · {s.role}</span><span className="text-sm text-[var(--muted)]">{s.detail}</span></span>
+                {done && <span className="text-xs font-bold text-[var(--accent)]">Done</span>}
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
       {error && <p role="alert" className="rounded-md border border-[var(--bad)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--bad)]">{error}</p>}
 
@@ -287,6 +284,7 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
             <Button onClick={onLoadOverview} disabled={busy}>
               Continue to overview
             </Button>
+            {nextId && <LearningLink href={`/problems/${nextId}`}>Jump to recommended</LearningLink>}
             <Button variant="secondary" onClick={() => setStep("practice")}>
               Skip to practice
             </Button>
@@ -361,7 +359,7 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
               const b = p.plan_badge || (plan?.review_first || []).find((x) => x.id === p.id)?.badge;
               return (
                 <li key={p.id}>
-                  <Link href={`/problems/${p.id}`} className="flex flex-wrap items-center gap-3 py-3 text-sm hover:bg-[var(--study-page)]">
+                  <Link href={`/problems/${p.id}`} className={`flex flex-wrap items-center gap-3 py-3 text-sm hover:bg-[var(--study-page)] ${p.id === nextId ? "rounded-lg bg-[var(--study-tint)] px-2" : ""}`}>
                     {b && (
                       <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${badgeClass(b)}`}>
                         {badgeLabel(b)}

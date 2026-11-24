@@ -83,6 +83,7 @@ class ProblemDetail(BaseModel):
     sources: list[str] = Field(default_factory=list)
     variant: bool = False
     viva: list[dict[str, Any]] = Field(default_factory=list)
+    demo_preview: list[Any] | None = None
     stage: int = 0
     mastered: bool = False
     last_code: str = ""

@@ -18,6 +18,8 @@ Pointer Lab is not a clone. Borrow the **navigation habits** people already know
 - Pattern explore page + related problems in workspace
 - Workspace meta: difficulty, pattern chip, Python lab, stage rail, agent dock
 - Guest session ID in the browser; plans, attempts, and progress in SQLite — no auth required for demos
+- Visual tab with input previews, synchronized code and state, and contextual Demo Coach prompts
+- Agentic topic timeline: Lesson → Diagnose → Plan → Teach → Practice
 
 ## Roadmap to “complete” (priority order)
 

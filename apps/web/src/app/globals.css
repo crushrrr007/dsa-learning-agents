@@ -396,6 +396,11 @@ body:has(.learn-topbar) { background: var(--study-page); }
 .trace-cells { display: flex; width: max-content; align-items: flex-end; gap: .42rem; padding: .1rem .18rem .3rem; }
 .trace-cells li { position: relative; display: flex; min-width: 2.4rem; max-width: 8rem; flex-direction: column; gap: .16rem; align-items: stretch; text-align: center; }
 .trace-cells strong { display: grid; place-items: center; min-height: 2.3rem; border: 1px solid var(--line); border-radius: .4rem; background: var(--surface); color: var(--ink); padding: .2rem .4rem; overflow-wrap: anywhere; font: 750 .875rem ui-monospace, monospace; }
+.trace-magnitude { display: flex; align-items: flex-end; justify-content: center; height: 2.7rem; padding-inline: .3rem; }
+.trace-magnitude > span { width: 100%; border-radius: .25rem .25rem 0 0; background: var(--study-border); }
+.trace-cells li[data-pointer="true"] .trace-magnitude > span { background: var(--accent); }
+.trace-cells li[data-linked="true"] strong { border-radius: 1.4rem; }
+.trace-matrix td[data-visited="true"] { background: var(--study-tint); }
 .trace-cells li[data-window="true"] strong { background: var(--study-tint); }
 .trace-cells li[data-pointer="true"] strong, .trace-matrix td[data-active="true"] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
 .trace-cells li[data-changed="true"] strong, .trace-aux-values li[data-changed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; }

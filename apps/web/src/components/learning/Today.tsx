@@ -51,7 +51,7 @@ export function Today() {
   const { data, error, mutate } = useSWR<LearnerDashboard, Error>("learner-dashboard", fetchLearnerDashboard, { revalidateOnMount: true });
   return (
     <div className="learn-main today-main">
-      <PageHeading label="Your study desk" title="Your next move." copy="Five specialized coaches help you see, predict, code, test, and explain your reasoning—without giving away the solution." />
+      <PageHeading label="Your study desk" title="Your next move." copy="A personalized path, interactive Python visuals, and five specialized coaches help you see, predict, code, test, and explain your reasoning—without a paywall or solution dumps." />
       <div className="today-feature">
         {data ? <NextAction action={data.action} /> : <LoadState error={error} retry={() => void mutate()} loading="Finding your next step…" />}
         <TracePreview />

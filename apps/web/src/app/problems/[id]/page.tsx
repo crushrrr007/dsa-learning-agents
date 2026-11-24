@@ -194,6 +194,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       setCoachPrompt(null);
       setEventIdx(0);
       setTraceOrigin({ mode: "demo", args: args ?? problem.demo_args, custom: Boolean(args) });
+      setPlaying(!args && res.events.length > 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
       setStage(res.stage);
       setSelectedStage(null);
       setLeftTab("trace");
@@ -472,9 +473,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
           <div className="flex gap-1 border-b border-[var(--line)] px-2 pt-1">
             {(
               [
-                ["description", "Description"],
                 ["path", "Learn path"],
                 ["trace", "Visual"],
+                ["description", "Problem"],
               ] as const
             ).map(([idTab, label]) => (
               <button
@@ -653,7 +654,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
 
             {leftTab === "trace" && <TraceExplorer
               visual={problem.visual} events={events} index={eventIdx} playing={playing} speed={traceSpeed} busy={busy}
-              origin={traceOrigin} demoArgs={problem.demo_args}
+              origin={traceOrigin} demoArgs={problem.demo_args} demoPreview={problem.demo_preview}
               onSeek={(index) => { setPlaying(false); setCoachPrompt(null); setEventIdx(index); }}
               onPlay={() => { setCoachPrompt(null); if (!playing && eventIdx === events.length - 1) setEventIdx(0); setPlaying(!playing); }}
               onSpeed={setTraceSpeed} onDemo={() => void onSee()}

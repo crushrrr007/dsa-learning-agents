@@ -62,12 +62,19 @@ export function TraceState({ visual, frame, previous, args }: {
   if (matrix) {
     const rowPointer = position(focus.r) ?? position(focus.i);
     const columnPointer = position(focus.c) ?? position(focus.j);
+    const visited = new Set((Array.isArray(focus.seen) ? focus.seen : []).flatMap((cell: unknown) => {
+      if (Array.isArray(cell) && cell.length === 2) return [`${cell[0]},${cell[1]}`];
+      const pair = typeof cell === "string" ? cell.match(/(-?\d+)\s*,\s*(-?\d+)/) : null;
+      return pair ? [`${pair[1]},${pair[2]}`] : [];
+    }));
     return <div className="trace-scroll"><table className="trace-matrix"><caption>{typeof focus.grid_name === "string" ? focus.grid_name : live ? "Table state" : "Input grid preview"}</caption><tbody>
-      {matrix.slice(0, 30).map((row, r) => <tr key={r}>{(Array.isArray(row) ? row : [row]).slice(0, 30).map((value, c) => <td key={c} data-active={rowPointer === r && columnPointer === c} aria-label={`Row ${r}, column ${c}: ${traceValue(value)}`}>{traceValue(value)}</td>)}</tr>)}
+      {matrix.slice(0, 30).map((row, r) => <tr key={r}>{(Array.isArray(row) ? row : [row]).slice(0, 30).map((value, c) => <td key={c} data-active={rowPointer === r && columnPointer === c} data-visited={visited.has(`${r},${c}`)} aria-label={`Row ${r}, column ${c}: ${traceValue(value)}${visited.has(`${r},${c}`) ? ", visited" : ""}`}>{traceValue(value)}</td>)}</tr>)}
     </tbody></table></div>;
   }
   if (!sequence) return <p className="trace-empty">No collection on this frame. The variable view still shows the recorded state.</p>;
   const label = live ? typeof name === "string" ? name : "Recorded collection" : "Input preview";
+  const showBars = visual !== "linkedlist" && sequence.length > 0 && sequence.length <= 16 && sequence.every((value) => typeof value === "number" && Number.isFinite(value));
+  const scale = showBars ? Math.max(1, ...sequence.map((value) => Math.abs(Number(value)))) : 1;
   return <div className="trace-structure">
     <div className="trace-state-label"><strong>{label}</strong><span>{sequence.length > 40 ? "First 40 values" : `${sequence.length} ${sequence.length === 1 ? "value" : "values"}`}</span></div>
     {sequence.length === 0 ? <p className="trace-empty">Empty collection</p> : <div className="trace-scroll" tabIndex={0} aria-label="Scrollable recorded values"><ol className="trace-cells" aria-label="Recorded values">
@@ -75,7 +82,8 @@ export function TraceState({ visual, frame, previous, args }: {
         const pointers = live ? pointerNames.filter((key) => position(focus[key]) === index) : [];
         const changed = Boolean(previous && prior && (index >= prior.length || traceValue(prior[index]) !== traceValue(value)));
         const window = visual === "window" && live && begin !== undefined && end !== undefined && index >= begin && index <= end;
-        return <li key={index} data-pointer={pointers.length > 0} data-changed={changed} data-window={Boolean(window)}>
+        return <li key={index} data-pointer={pointers.length > 0} data-changed={changed} data-window={Boolean(window)} data-linked={visual === "linkedlist"}>
+          {showBars && <span className="trace-magnitude" aria-hidden="true"><span style={{ height: `${Math.max(4, 100 * Math.abs(Number(value)) / scale)}%` }} /></span>}
           <span className="trace-cell-pointer">{pointers.join(" · ")}</span><strong title={traceValue(value)}>{traceValue(value)}</strong><span className="trace-cell-index" aria-label={`Index ${index}`}>{index}</span>
           {visual === "linkedlist" && index < sequence.length - 1 && <ArrowRight size={15} className="trace-node-arrow" aria-hidden="true" />}
         </li>;
@@ -85,6 +93,6 @@ export function TraceState({ visual, frame, previous, args }: {
       {(values as unknown[]).slice(0, 40).map((value, index) => <li key={index} data-changed={Boolean(previous && traceValue(previousAuxiliary[key]?.[index]) !== traceValue(value))}>{traceValue(value)}</li>)}
       {values.length === 0 && <li>Empty</li>}
     </ol></div></div>)}
-    {live && <p className="trace-key"><span>Named pointers mark positions</span><span>Outlined values changed</span></p>}
+    {(live || showBars) && <p className="trace-key">{showBars && <span>Bar height shows magnitude</span>}{live && <><span>Named pointers mark positions</span><span>Outlined values changed</span></>}</p>}
   </div>;
 }

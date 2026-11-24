@@ -51,8 +51,8 @@ function TraceInputs({ args, busy, student, onRun }: { args: unknown[]; busy: bo
   </details>;
 }
 
-export function TraceExplorer({ visual, events, index, playing, speed, busy, origin, demoArgs, onSeek, onPlay, onSpeed, onDemo, onTraceCode, onCustom, onCoach }: {
-  visual: string; events: TraceEvent[]; index: number; playing: boolean; speed: number; busy: boolean; origin: TraceOrigin; demoArgs: unknown[];
+export function TraceExplorer({ visual, events, index, playing, speed, busy, origin, demoArgs, demoPreview, onSeek, onPlay, onSpeed, onDemo, onTraceCode, onCustom, onCoach }: {
+  visual: string; events: TraceEvent[]; index: number; playing: boolean; speed: number; busy: boolean; origin: TraceOrigin; demoArgs: unknown[]; demoPreview?: unknown[] | null;
   onSeek: (index: number) => void; onPlay: () => void; onSpeed: (speed: number) => void; onDemo: () => void; onTraceCode?: () => void; onCustom: (args: unknown[]) => void; onCoach: () => void;
 }) {
   const frame = events[index] ?? null;
@@ -72,14 +72,15 @@ export function TraceExplorer({ visual, events, index, playing, speed, busy, ori
       <div className="trace-scrubber"><span>{events.length ? `Frame ${index + 1} of ${events.length}` : "Not started"}</span><input type="range" aria-label="Trace frame" min={0} max={Math.max(0, events.length - 1)} value={index} disabled={events.length < 2} onChange={(event) => onSeek(Number(event.target.value))} /></div>
     </div>
     <div className="trace-stage" aria-label="Data structure state">
-      <TraceState visual={visual} frame={frame} previous={previous} args={origin.args} />
-      {!frame && <div className="flex flex-wrap items-center gap-2"><button type="button" className="learn-button" disabled={busy} onClick={onDemo}>Run lesson demo</button>{onTraceCode && <button type="button" className="learn-text-link" disabled={busy} onClick={onTraceCode}>Trace my code</button>}</div>}
+      <TraceState visual={visual} frame={frame} previous={previous} args={!frame && origin.mode === "demo" && !origin.custom && demoPreview ? [demoPreview] : origin.args} />
+      <div className="flex flex-wrap items-center gap-2"><button type="button" className={frame ? "learn-text-link" : "learn-button"} disabled={busy} onClick={onDemo}>{frame ? "Re-run lesson demo" : "Run lesson demo"}</button>{!frame && onTraceCode && <button type="button" className="learn-text-link" disabled={busy} onClick={onTraceCode}>Trace my code</button>}</div>
     </div>
     {frame && <div className="trace-frame-bar"><div><strong>{eventLabels[frame.event] ?? frame.event}</strong><span> · Line {frame.line}</span>{changed.length > 0 && <p>Changed since last frame: {changed.map(([name]) => name).join(", ")}</p>}</div><button type="button" className="learn-text-link" onClick={onCoach}><MessagesSquare size={17} aria-hidden="true" />Ask about this frame</button></div>}
     <div className="trace-inspector">
       <section aria-label="Source inspection"><h3>Source</h3><CodeFrame code={origin.code} activeLine={frame?.line} /></section>
       <section aria-label="Variable inspection"><h3>Variables</h3>{variables.length ? <dl className="trace-variables">{variables.map(([name, value]) => <div key={name} data-changed={changed.some(([key]) => key === name)}><dt title={name}>{name}</dt><dd title={traceValue(value)}>{traceValue(value)}</dd></div>)}</dl> : <p className="trace-empty">No local variables on this frame.</p>}</section>
     </div>
+    {frame && <details className="trace-inputs"><summary>Raw frame details</summary><pre className="mt-2 max-h-56 overflow-auto font-mono text-xs">{JSON.stringify(frame, null, 2)}</pre></details>}
     <TraceInputs key={JSON.stringify(demoArgs)} args={demoArgs} busy={busy} student={Boolean(onTraceCode)} onRun={onCustom} />
   </section>;
 }

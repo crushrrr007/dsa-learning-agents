@@ -40,6 +40,11 @@ Used on `/topics/[slug]` before a problem:
 2. **Stage lock** — you cannot skip straight to coding without seeing and predicting.
 3. **No answer dump** — guard + rubric viva force understanding for “mastered.”
 4. **Shared facts** — coaches see the same runner/trace context as the editor.
+5. **AlgoMaster-style visuals** — free step animation of arrays/pointers/trees (paid elsewhere) tied to Demo Coach.
+
+## Learning path (topic)
+
+`Diagnose → Plan → Teach → Practice` maps to Diagnostic / Plan / Teach agents, then workspace coaches.
 
 ## Where to look in code
 

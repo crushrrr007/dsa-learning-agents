@@ -157,6 +157,8 @@ export type ProblemDetail = Omit<ProblemSummary, "solved"> & {
   next_predict_index: number;
   demo_args: unknown[];
   pattern_id?: string;
+  /** Demo input as a sequence for the AlgoMaster-style canvas before first run. */
+  demo_preview?: unknown[] | null;
 };
 
 export type VivaQuestionResult = {

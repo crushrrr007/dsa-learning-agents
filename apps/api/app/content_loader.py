@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import get_settings
+from app.runner.problem_args import normalize_demo_args
 
 
 def _content_dir() -> Path:
@@ -181,8 +182,23 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
         "variant": bool(problem.get("variant", False)),
         # Questions only — never expose expected_points / min_points.
         "viva": [{"question": str(item.get("question") or "")} for item in (problem.get("viva") or [])],
+        # Safe preview seed for AlgoMaster-style canvas (demo input only — no solution).
+        "demo_preview": _demo_preview(problem),
     }
     return out
+
+
+def _demo_preview(problem: dict[str, Any]) -> list[Any] | None:
+    """Turn demo_input into a linear sequence the canvas can show before first run."""
+    visual = (problem.get("visual") or "array").lower()
+    if visual in ("graph", "dp"):
+        return None
+    for arg in normalize_demo_args(problem):
+        if isinstance(arg, list):
+            return arg[:40]
+        if isinstance(arg, str) and visual in ("array", "window", "linkedlist"):
+            return list(arg[:40])
+    return None
 
 
 def load_notes(topic: str) -> str:

@@ -253,6 +253,12 @@ def test_problem_content_file(path: Path):
     # demo_input normalizes to the declared arity
     demo_args = normalize_demo_args(problem)
     assert len(demo_args) == arity, f"{pid}: demo_input arity {len(demo_args)} != {arity}"
+    preview = pub["demo_preview"]
+    if preview is not None:
+        assert len(preview) <= 40
+        assert any(isinstance(arg, (list, str)) and list(arg[:40]) == preview for arg in demo_args)
+        if problem["visual"] == "grid":
+            assert all(isinstance(row, list) for row in preview)
     demo = run_student_code(problem["brute_force_code"], fn, args=demo_args)
     assert demo["ok"] and demo["events"], f"{pid}: missing executable demo trace: {demo.get('error')}"
     assert all(event["line"] >= 1 for event in demo["events"]), f"{pid}: invalid trace source line"
