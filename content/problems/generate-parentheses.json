@@ -107,17 +107,7 @@
       ]
     }
   ],
-  "edge_cases": [
-    [
-      0
-    ],
-    [
-      1
-    ],
-    [
-      2
-    ]
-  ],
+  "edge_cases": [0, 1, 2],
   "reference_solution": "def generate_parentheses(n):\n    cur = [\"\"]\n    for _ in range(2 * n):\n        nxt = []\n        for s in cur:\n            opens = s.count(\"(\")\n            closes = s.count(\")\")\n            if opens < n:\n                nxt.append(s + \"(\")\n            if closes < opens:\n                nxt.append(s + \")\")\n        cur = nxt\n    return sorted(cur)\n",
   "sources": [
     "blind75",

@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from app.content_loader import clear_content_cache, public_problem
-from app.runner.problem_args import normalize_demo_args, problem_arity
+from app.runner.problem_args import edge_case_args, normalize_demo_args, problem_arity
 from app.runner.sandbox import run_student_code
 
 CONTENT_PROBLEMS = Path(__file__).resolve().parents[3] / "content" / "problems"
@@ -187,6 +187,12 @@ def test_problem_content_file(path: Path):
         assert raw["result"] == case["expected"], (
             f"{pid} hidden[{i}]: got {raw['result']!r} expected {case['expected']!r}"
         )
+
+    for i, edge in enumerate(problem["edge_cases"]):
+        args = edge_case_args(problem, edge)
+        assert len(args) == arity, f"{pid} edge[{i}] arity mismatch"
+        raw = run_student_code(problem["reference_solution"], fn, args=args)
+        assert raw["ok"], f"{pid} edge[{i}] reference error: {raw.get('error')}"
 
     # Brute force must match visible examples
     for i, ex in enumerate(problem["examples"]):

@@ -61,18 +61,16 @@ async def get_topic_progress(db: AsyncSession, session_id: str, topic: str) -> T
     return row
 
 
-async def set_stage(db: AsyncSession, session_id: str, problem_id: str, topic: str, stage: int) -> Progress:
-    row = await get_or_create_progress(db, session_id, problem_id, topic)
-    row.stage = max(row.stage, stage)
-    await db.commit()
-    await db.refresh(row)
-    return row
-
-
-async def save_code(db: AsyncSession, session_id: str, problem_id: str, topic: str, code: str) -> None:
-    row = await get_or_create_progress(db, session_id, problem_id, topic)
-    row.last_code = code
-    await db.commit()
+async def next_prediction_index(db: AsyncSession, row: Progress, step_count: int) -> int:
+    if row.stage >= 3:
+        return step_count
+    answers = set((await db.scalars(select(Attempt.detail).where(
+        Attempt.session_id == row.session_id,
+        Attempt.problem_id == row.problem_id,
+        Attempt.stage == 2,
+        Attempt.success == 1,
+    ))).all())
+    return next((i for i in range(step_count) if f"predict:{i}" not in answers), step_count)
 
 
 async def mark_mastered(db: AsyncSession, session_id: str, problem_id: str, topic: str) -> Progress:

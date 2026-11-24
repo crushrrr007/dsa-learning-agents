@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import get_problem, list_patterns, list_problems, public_problem
 from app.db import get_db
-from app.progress_service import get_or_create_progress, get_topic_plan, parse_plan_json
+from app.progress_service import get_or_create_progress, get_topic_plan, next_prediction_index, parse_plan_json
 from app.schemas import PatternOut, ProblemDetail, ProblemSummary
 
 router = APIRouter(prefix="/problems", tags=["problems"])
@@ -100,4 +100,5 @@ async def problem_detail(problem_id: str, session_id: str = "guest", db: AsyncSe
         stage=stage,
         mastered=bool(row.mastered),
         last_code=row.last_code or problem["starter_code"],
+        next_predict_index=await next_prediction_index(db, row, len(pub["predict_steps"])),
     )

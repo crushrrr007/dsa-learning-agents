@@ -66,6 +66,7 @@ class ProblemDetail(BaseModel):
     stage: int = 0
     mastered: bool = False
     last_code: str = ""
+    next_predict_index: int = 0
 
 
 class PatternOut(BaseModel):
@@ -131,6 +132,7 @@ class RunResponse(BaseModel):
     duration_ms: float = 0.0
     ast_insights: list[str] = Field(default_factory=list)
     performance: list[dict[str, Any]] = Field(default_factory=list)
+    stage: int = 0
 
 
 class PredictRequest(BaseModel):
@@ -144,6 +146,7 @@ class PredictResponse(BaseModel):
     correct: bool
     hint: str | None = None
     stage: int
+    next_predict_index: int
 
 
 class QuizSubmit(BaseModel):

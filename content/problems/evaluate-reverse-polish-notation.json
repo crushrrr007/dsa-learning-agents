@@ -144,27 +144,7 @@
       "expected": 2
     }
   ],
-  "edge_cases": [
-    [
-      [
-        "3"
-      ]
-    ],
-    [
-      [
-        "4",
-        "2",
-        "+"
-      ]
-    ],
-    [
-      [
-        "7",
-        "3",
-        "/"
-      ]
-    ]
-  ],
+  "edge_cases": [["3"], ["4", "2", "+"], ["7", "3", "/"]],
   "reference_solution": "def eval_rpn(tokens):\n    stack = []\n    for tok in tokens:\n        if tok in '+-*/':\n            b = stack.pop(); a = stack.pop()\n            if tok == '+': stack.append(a + b)\n            elif tok == '-': stack.append(a - b)\n            elif tok == '*': stack.append(a * b)\n            else: stack.append(int(a / b))\n        else:\n            stack.append(int(tok))\n    return stack[-1]\n",
   "sources": [
     "neetcode150",

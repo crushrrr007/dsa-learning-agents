@@ -1,25 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Manrope } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
+
 export const metadata: Metadata = {
-  title: "Pointer Lab — Multi-Agent DSA",
-  description:
-    "NeetCode-style DSA practice with LeetCode-like coding and built-in teaching agents.",
+  title: "Pointer Lab — Guided DSA Practice",
+  description: "Learn data structures and algorithms with interactive Python traces, staged practice, and teaching coaches.",
 };
+
+export const viewport: Viewport = { themeColor: "#eef3f1" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">
+    <html lang="en" className={`bg-[var(--bg)] ${manrope.variable} ${fraunces.variable}`}>
+      <body className="font-sans antialiased">
         <div className="relative min-h-screen">
           <div className="pointer-events-none absolute inset-0 grid-fade opacity-50" />
           <header className="relative z-10 border-b border-[var(--line)]/80 bg-white/70 backdrop-blur-md">

@@ -6,7 +6,7 @@
     "dev": "next dev -p 3417",
     "build": "next build",
     "start": "next start -p 3417",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -17,6 +17,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reactflow": "^11.11.4",
+    "swr": "^2.5.1",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {

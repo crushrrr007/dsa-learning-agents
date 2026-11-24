@@ -63,6 +63,10 @@ def test_quiz_unlock_and_predict(client: TestClient):
     assert problem.status_code == 200
     assert problem.json()["stage"] >= 1
 
+    demo = client.post("/run", json={"session_id": sid, "problem_id": "valid-palindrome", "mode": "brute"})
+    assert demo.status_code == 200
+    assert demo.json()["stage"] >= 2
+
     pred = client.post(
         "/predict",
         json={

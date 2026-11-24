@@ -150,24 +150,7 @@
       ]
     }
   ],
-  "edge_cases": [
-    [
-      [
-        0
-      ]
-    ],
-    [
-      [
-        -1
-      ]
-    ],
-    [
-      [
-        1,
-        2
-      ]
-    ]
-  ],
+  "edge_cases": [[0], [-1], [1, 2]],
   "reference_solution": "def sorted_squares(nums):\n    n = len(nums)\n    out = [0] * n\n    left, right = 0, n - 1\n    for i in range(n - 1, -1, -1):\n        if abs(nums[left]) >= abs(nums[right]):\n            out[i] = nums[left] * nums[left]\n            left += 1\n        else:\n            out[i] = nums[right] * nums[right]\n            right -= 1\n    return out\n",
   "sources": [
     "neetcode150",

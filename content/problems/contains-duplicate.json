@@ -118,26 +118,7 @@
       "expected": false
     }
   ],
-  "edge_cases": [
-    [
-      [
-        1
-      ]
-    ],
-    [
-      [
-        2,
-        2
-      ]
-    ],
-    [
-      [
-        1,
-        2,
-        3
-      ]
-    ]
-  ],
+  "edge_cases": [[1], [2, 2], [1, 2, 3]],
   "reference_solution": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n",
   "sources": [
     "blind75",

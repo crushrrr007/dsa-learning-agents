@@ -50,17 +50,19 @@ Flow for every problem:
 
 ```bash
 cd apps/api
-uv sync
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8417
+uv sync --locked
+uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8417
 ```
 
 ### Web (port 3417)
 
 ```bash
 cd apps/web
-npm install
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8417 npm run dev
+npm ci
+npm run dev
 ```
+
+Open `http://localhost:3417`. The web app forwards lab requests to `http://127.0.0.1:8417` by default. Set `LAB_API_URL` in the Next.js server environment if the backend runs elsewhere. Keep the default subprocess runner for trusted local practice only; do not rely on it as a public execution boundary.
 
 Optional LLM (OpenAI-compatible; **Groq free tier** is the default host):
 
