@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, type ReactNode } from "react";
+import { useId, useMemo, type ReactNode } from "react";
 import type { TraceEvent } from "@/lib/api";
 
 type Props = {
@@ -292,27 +292,28 @@ function TreeViz({ values }: { values: unknown[] }) {
       </div>
     );
   }
-  const depth = Math.floor(Math.log2(values.length)) + 1;
+  const links: { i: number; parent: number | null; depth: number; slot: number }[] = [{ i: 0, parent: null, depth: 0, slot: 0 }];
+  let next = 1;
+  for (let head = 0; head < links.length && next < values.length; head++) {
+    const current = links[head];
+    for (let side = 0; side < 2 && next < values.length; side++, next++) {
+      if (values[next] != null) links.push({ i: next, parent: current.i, depth: current.depth + 1, slot: current.slot * 2 + side });
+    }
+  }
+  const depth = links.at(-1)!.depth + 1;
   const width = Math.max(320, Math.min(640, 48 * 2 ** Math.min(depth, 4)));
   const height = 40 + depth * 72;
-  const nodes: { i: number; x: number; y: number; v: unknown }[] = [];
-  for (let i = 0; i < values.length; i++) {
-    if (values[i] === null || values[i] === undefined) continue;
-    const d = Math.floor(Math.log2(i + 1));
-    const indexInLevel = i - (2 ** d - 1);
-    const levelCount = 2 ** d;
-    const x = ((indexInLevel + 0.5) / levelCount) * width;
-    const y = 28 + d * 72;
-    nodes.push({ i, x, y, v: values[i] });
-  }
+  const nodes = links.map(({ i, parent, depth: level, slot }) => ({
+    i, parent, x: 24 + ((slot + 0.5) / 2 ** level) * (width - 48), y: 28 + level * 72, v: values[i],
+  }));
   const byIndex = new Map(nodes.map((n) => [n.i, n]));
 
   return (
     <div className="flex h-full min-h-[220px] items-center justify-center overflow-auto p-2">
-      <svg width={width} height={height} className="max-w-full">
+      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="max-w-full" role="img" aria-label="Binary tree state">
         {nodes.map((n) => {
-          if (n.i === 0) return null;
-          const parent = byIndex.get(Math.floor((n.i - 1) / 2));
+          if (n.parent === null) return null;
+          const parent = byIndex.get(n.parent);
           if (!parent) return null;
           return (
             <line
@@ -384,6 +385,7 @@ function GridViz({ focus }: { focus: Record<string, unknown> }) {
 }
 
 function GraphViz({ focus }: { focus: Record<string, unknown> }) {
+  const markerId = useId();
   const graph = (focus.graph || {}) as Record<string, unknown[]>;
   const edgesRaw = (focus.edges || []) as unknown[];
   const ids = new Set<string>();
@@ -396,6 +398,10 @@ function GraphViz({ focus }: { focus: Record<string, unknown> }) {
       ids.add(String(e[0]));
       ids.add(String(e[1]));
     }
+  }
+  const count = pointerIndex(focus, "n");
+  if (count !== null && Number.isInteger(count) && count >= 0 && count <= 30) {
+    for (let index = 0; index < count; index++) ids.add(String(index));
   }
   const nodeIds = Array.from(ids);
   const active = new Set(
@@ -432,12 +438,16 @@ function GraphViz({ focus }: { focus: Record<string, unknown> }) {
 
   return (
     <div className="flex h-full min-h-[220px] items-center justify-center">
-      <svg width={320} height={260}>
+      <svg width={320} height={280} viewBox="0 0 320 280" className="max-w-full" role="img" aria-label="Graph state">
+        <defs><marker id={markerId} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="#94a3b8" /></marker></defs>
         {edges.map(([a, b], i) => {
           const pa = byId.get(a);
           const pb = byId.get(b);
           if (!pa || !pb) return null;
-          return <line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke="#94a3b8" strokeWidth={2} />;
+          const length = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+          if (length < 1) return null;
+          const offset = Math.min(24, length / 3);
+          return <line key={i} x1={pa.x} y1={pa.y} x2={pb.x - (pb.x - pa.x) * offset / length} y2={pb.y - (pb.y - pa.y) * offset / length} stroke="#94a3b8" strokeWidth={2} markerEnd={`url(#${markerId})`} />;
         })}
         {pos.map((p) => {
           const isA = active.has(p.id);
@@ -473,17 +483,8 @@ function GraphViz({ focus }: { focus: Record<string, unknown> }) {
 export const VISUAL_MODES = ["array", "window", "linkedlist", "tree", "graph", "dp", "grid"] as const;
 
 export function VisualCanvas({ visual, event, fallbackSequence, caption, frameLabel }: Props) {
-  const stickySequence = useRef<unknown[]>([]);
   const focus = useMemo(() => (event?.focus || {}) as Record<string, unknown>, [event]);
-  const sequence = useMemo(() => {
-    const parsed = parseSequence(focus, fallbackSequence);
-    if (parsed.length) {
-      stickySequence.current = parsed;
-      return parsed;
-    }
-    if (stickySequence.current.length) return stickySequence.current;
-    return parsed;
-  }, [focus, fallbackSequence]);
+  const sequence = useMemo(() => parseSequence(focus, fallbackSequence), [focus, fallbackSequence]);
 
   const pointers = useMemo(() => collectPointers(focus, sequence.length), [focus, sequence.length]);
   const stepText = caption || focusCaption(focus, visual);

@@ -103,7 +103,10 @@ def llm_status() -> dict[str, Any]:
 def summarize_facts(facts: dict[str, Any], code: str = "") -> dict[str, Any]:
     """Compact runner/AST/trace context for agent prompts."""
     events = facts.get("events") or []
-    last_event = events[-1] if isinstance(events, list) and events else None
+    selected_frame = facts.get("active_frame")
+    active_frame = selected_frame if isinstance(selected_frame, dict) else events[-1] if isinstance(events, list) and events else None
+    count = facts.get("event_count")
+    event_count = count if isinstance(count, int) and count >= 0 else len(events) if isinstance(events, list) else 0
     return {
         "ast_insights": (facts.get("ast_insights") or [])[:5],
         "error": facts.get("error"),
@@ -111,8 +114,8 @@ def summarize_facts(facts: dict[str, Any], code: str = "") -> dict[str, Any]:
         "ok": facts.get("ok"),
         "passed": facts.get("passed"),
         "failed_case": facts.get("failed_case"),
-        "event_count": len(events) if isinstance(events, list) else 0,
-        "last_event": last_event,
+        "event_count": event_count,
+        "active_frame": active_frame,
         "code_excerpt": (code or "")[:500],
     }
 
@@ -163,8 +166,6 @@ def mock_agent_reply(
 ) -> dict[str, str]:
     """Deterministic replies when no LLM key is configured."""
     facts = facts or {}
-    topic_hint = TOPIC_HINTS.get(topic, "Focus on the core invariant.")
-    stage_hint = STAGE_HINTS.get(stage, STAGE_HINTS[3])
     role = AGENT_ROLES.get(agent, "Teaching agent")
 
     if agent == "concept_tutor":
@@ -175,20 +176,25 @@ def mock_agent_reply(
         )
         return {
             "reply": (
-                f"[{role}] From the {topic} notes: {concept} {topic_hint} "
-                f"You asked: “{message[:160]}”. I will not paste a full solution — state the invariant first."
+                f"[{role}] From the chapter notes: {concept} "
+                "Before writing code, say in your own words what has to stay true as the algorithm advances."
             ),
             "guiding_question": _topic_question(topic),
         }
 
     if agent == "demo_coach":
         n = facts.get("event_count") or 0
-        last = facts.get("last_event")
-        last_bit = f" Last frame locals: {last.get('locals')}" if isinstance(last, dict) and last.get("locals") else ""
+        frame = facts.get("active_frame")
+        variables = frame.get("locals") if isinstance(frame, dict) else None
+        frame_bit = ""
+        if isinstance(variables, dict) and variables:
+            sample = ", ".join(f"{str(name)[:32]} = {str(value)[:45]}" for name, value in list(variables.items())[:4])
+            frame_bit = f" Current frame variables: {sample}."
+        intro = f"This trace has {n} {'frame' if n == 1 else 'frames'}." if n else "Run the demo to see the recorded Python frames."
         return {
             "reply": (
-                f"[{role}] Demo trace has {n} frames. {stage_hint} "
-                f"Watch which indices/nodes change each step.{last_bit} {topic_hint}"
+                f"[{role}] {intro}{frame_bit} "
+                "Compare two adjacent frames and name the first variable that changes."
             ),
             "guiding_question": "In the next frame, which variable should change — and why?",
         }
@@ -196,24 +202,26 @@ def mock_agent_reply(
     if agent == "predict_coach":
         return {
             "reply": (
-                f"[{role}] Compare your prediction with the traced locals before moving on. "
-                f"{stage_hint} About “{message[:120]}”: name the next state change only. {topic_hint}"
+                f"[{role}] Pause before the next update. Use the current values to decide what should change first. "
+                "Write down the next state and why you expect it before checking your prediction."
             ),
-            "guiding_question": "What are left/right (or current node) *after* this step?",
+            "guiding_question": _topic_question(topic),
         }
 
     if agent == "code_mentor":
         error = facts.get("error")
         insights = facts.get("ast_insights") or []
         if error:
-            reply = f"[{role}] Runner error: {str(error)[:240]}. {stage_hint} {topic_hint}"
+            detail = str(error).strip().rsplit("\n", 1)[-1][:180] or "Unknown runtime error."
+            action = "Check which index first goes out of range, then look at the update immediately before it." if detail.startswith("IndexError") else "Find the first failing operation and inspect the values it received."
+            reply = f"[{role}] The runner reported: {detail} {action}"
+        elif isinstance(case := facts.get("failed_case"), dict):
+            expected, got = str(case.get("expected"))[:100], str(case.get("got"))[:100]
+            reply = f"[{role}] A visible example expected {expected}, but your code returned {got}. Trace the first point where those results diverge."
         elif insights:
-            reply = f"[{role}] Code fact: {insights[0]} {stage_hint} Fix the smallest broken part. {topic_hint}"
+            reply = f"[{role}] Code observation: {insights[0]} Use it to choose one line to check before changing the code."
         else:
-            reply = (
-                f"[{role}] {stage_hint} Re-run and compare expected vs your result. "
-                f"About “{message[:120]}”. {topic_hint}"
-            )
+            reply = f"[{role}] Run your code on one visible example. Compare what it returns with what you expected, then inspect the first difference."
         return {
             "reply": reply.strip(),
             "guiding_question": "Which single line implements (or breaks) the invariant?",
@@ -222,9 +230,8 @@ def mock_agent_reply(
     # viva_agent
     return {
         "reply": (
-            f"[{role}] {stage_hint} Defend your approach for {topic}: complexity, "
-            f"one edge case, and what would break if the invariant slipped. "
-            f"You said: “{message[:120]}”."
+            f"[{role}] Explain your approach without reading the code. "
+            "Name the rule it preserves, the work it does as input grows, and one edge case that tests your reasoning."
         ),
         "guiding_question": {
             "trees": "What is the base case, and what is the recurrence?",

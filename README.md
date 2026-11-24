@@ -4,26 +4,16 @@ University-lab workspace for learning DSA with **real Python tracing** and **tea
 
 ## Goal
 
-**Showcase a multi-agent DSA lab:** specialized coaches (Concept, Demo, Predict, Code, Viva) improve learning vs a single chatbot that dumps answers. See **[AGENTS.md](./AGENTS.md)** for how routing and the solution guard work.
+Showcase how specialized coaches support learning without dumping solutions. See [AGENTS.md](./AGENTS.md) for routing and the solution guard, and [PLATFORM.md](./PLATFORM.md) for the roadmap.
 
-## Product shape (NeetCode × TakeYouForward × AlgoMaster × agents)
+## Start learning
 
-| Borrow | Where in Pointer Lab |
-|--------|----------------------|
-| NeetCode list + editor | `/problems` sheet + dark `/problems/[id]` workspace |
-| TakeYouForward ordered sheet/progress | Topic diagnose→plan, Core sheet, Progress % |
-| AlgoMaster patterns | `/patterns` explore + sheet filters + related problems |
-| **Our flavor** | Five coaches + See→Predict→Code→Test→Viva (no solution dumps) |
+- **Today** recommends a chapter, a problem from your plan, or the practice you left unfinished.
+- **Learn** offers Foundations and Interview Patterns; `/patterns` adds searchable pattern mastery.
+- **Practice** offers shareable catalog filters. `/problems` is the full sheet and `/sheets/pointer-lab-core` is the curated Core track.
+- **Agents** demonstrates the live coach router. **Progress** distinguishes Solved from Mastered and tracks completed overviews.
 
-See **[PLATFORM.md](./PLATFORM.md)** for the full completion roadmap (P0–P5).
-
-## Pilot path (start here)
-
-1. Open **Home** → **Start Two Pointers** (or nav **Demo**).
-2. **Diagnose** → soft plan → brief overview.
-3. Open the **recommended problem** (usually **Valid Palindrome**).
-4. Finish the locked loop: **See → Predict → Code → Test → Viva**.
-5. Browse **Sheet** (`/problems`) or **Core** curated list; use **Progress → Reset** before a fresh demo.
+For the sample, choose **Today → Try the Two Pointers sample → Take the diagnostic**. Open the recommended problem and finish **See → Predict → Code → Test → Viva**. For a fresh demo, use **Progress → Reset guest progress**.
 
 Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
 
@@ -33,8 +23,8 @@ Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked fr
 
 | Beat | Show |
 |------|------|
-| 1. Positioning | Home: practice sheet + pattern graph. Pitch: NeetCode workspace + ordered path + **multi-agent coaches** that refuse solution dumps. |
-| 2. Path | **Pilot** → Two Pointers diagnose (miss one MCQ) → soft plan + Before you code → overview → **recommended problem**. |
+| 1. Positioning | Today: practice sheet, Core and pattern exploration, plus **multi-agent coaches** that refuse solution dumps. |
+| 2. Path | **Two Pointers sample** → diagnostic → soft plan + Before you code → overview → **recommended problem**. |
 | 3. Stages | Workspace stage rail. **See** brute demo + Visual tab. **Predict** steps → editor unlocks. |
 | 4. Agents | Ask **Hint** / **Predict** / **Debug** with Groq live. Point out stage-suggested coach + no full solution. |
 | 5. Submit | Paste a correct solution (or finish coding). Fail once if you want gating; then full pass → **Viva**. |
@@ -80,17 +70,19 @@ Flow for every problem:
 
 ```bash
 cd apps/api
-uv sync
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8417
+uv sync --locked
+uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8417
 ```
 
 ### Web (port 3417)
 
 ```bash
 cd apps/web
-npm install
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8417 npm run dev
+npm ci
+npm run dev
 ```
+
+Open `http://localhost:3417`. The web app forwards lab requests to `http://127.0.0.1:8417` by default. Set `LAB_API_URL` in the Next.js server environment if the backend runs elsewhere. Keep the default subprocess runner for trusted local practice only; do not rely on it as a public execution boundary.
 
 Optional LLM (OpenAI-compatible; **Groq free tier** is the default host):
 
@@ -118,8 +110,8 @@ export DSA_DOCKER_IMAGE=python:3.12-slim
 
 - **One-door topic path** — Diagnose → soft Plan → Teach overview → Practice  
 - **Problem workspace** — description | editor + tests | stage rail + next-action banner | skinned agents  
-- **Visual pattern roadmap** — React Flow graph (optional; pilots can ignore)  
-- **KG memory** — diagnostic/attempt/mastery edges inform plans and the home graph  
+- **Learning roadmap** — ordered chapters and a browsable pattern library
+- **KG memory** — diagnostic, attempt, and mastery signals inform plans independently of the UI
 - **Solution privacy** — public problem payload strips reference solutions; LangGraph guard blocks leaky coach replies  
 
 ## Tests

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import get_settings
+from app.runner.problem_args import normalize_demo_args
 
 
 def _content_dir() -> Path:
@@ -189,31 +190,14 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
 
 def _demo_preview(problem: dict[str, Any]) -> list[Any] | None:
     """Turn demo_input into a linear sequence the canvas can show before first run."""
-    demo = problem.get("demo_input")
     visual = (problem.get("visual") or "array").lower()
-    if demo is None:
+    if visual in ("graph", "dp"):
         return None
-    if isinstance(demo, str):
-        if visual in ("array", "window", "dp", "linkedlist"):
-            return list(demo)
-        return [demo]
-    if isinstance(demo, list):
-        # multi-arg demos: prefer first list/string arg as the sequence
-        for item in demo:
-            if isinstance(item, list):
-                return item[:40]
-            if isinstance(item, str) and visual in ("array", "window", "dp", "linkedlist"):
-                return list(item)
-        if demo and all(isinstance(x, (int, float, str, bool, type(None))) for x in demo[:8]):
-            return demo[:40]
-    if isinstance(demo, dict):
-        for key in ("s", "nums", "arr", "values", "heights", "prices"):
-            if key in demo:
-                val = demo[key]
-                if isinstance(val, str):
-                    return list(val)
-                if isinstance(val, list):
-                    return val[:40]
+    for arg in normalize_demo_args(problem):
+        if isinstance(arg, list):
+            return arg[:40]
+        if isinstance(arg, str) and visual in ("array", "window", "linkedlist"):
+            return list(arg[:40])
     return None
 
 

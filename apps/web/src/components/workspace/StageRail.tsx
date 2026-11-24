@@ -17,24 +17,17 @@ export const WORKSPACE_STAGES: {
 /** Map persisted backend stage (1–4) + UI flags → active workspace step. */
 export function resolveActiveStage(opts: {
   stage: number;
-  testsPassed: boolean;
   vivaReady: boolean;
   mastered: boolean;
+  hasTestResults: boolean;
 }): WorkspaceStageId {
-  if (opts.mastered) return "viva";
-  if (opts.vivaReady || opts.testsPassed) return "viva";
-  // After Predict unlocks the editor, land on Code — not Test.
-  if (opts.stage >= 3) return "code";
+  if (opts.mastered || opts.vivaReady) return "viva";
+  if (opts.stage >= 3) return opts.hasTestResults ? "test" : "code";
   if (opts.stage >= 2) return "predict";
   return "see";
 }
 
-export function stageUnlocked(
-  id: WorkspaceStageId,
-  stage: number,
-  testsPassed: boolean,
-  vivaReady: boolean,
-): boolean {
+function stageUnlocked(id: WorkspaceStageId, stage: number, vivaReady: boolean): boolean {
   switch (id) {
     case "see":
       return true;
@@ -45,96 +38,60 @@ export function stageUnlocked(
     case "test":
       return stage >= 3;
     case "viva":
-      return testsPassed || vivaReady || stage >= 4;
+      return vivaReady;
   }
 }
 
 type Props = {
   stage: number;
   active: WorkspaceStageId;
-  testsPassed: boolean;
   vivaReady: boolean;
   mastered: boolean;
   onSelect: (id: WorkspaceStageId) => void;
-  tone?: "light" | "dark";
 };
 
-export function StageRail({
-  stage,
-  active,
-  testsPassed,
-  vivaReady,
-  mastered,
-  onSelect,
-  tone = "light",
-}: Props) {
-  const dark = tone === "dark";
+export function StageRail({ stage, active, vivaReady, mastered, onSelect }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5" role="list" aria-label="Practice stages">
-      {WORKSPACE_STAGES.map((s, i) => {
-        const unlocked = stageUnlocked(s.id, stage, testsPassed, vivaReady) || s.id === "see";
-        const isActive = active === s.id;
+    <ol className="flex flex-wrap items-center gap-1.5" aria-label="Practice stages">
+      {WORKSPACE_STAGES.map((step, i) => {
+        const unlocked = stageUnlocked(step.id, stage, vivaReady || mastered);
+        const isActive = active === step.id && unlocked;
         const done =
-          (s.id === "see" && stage >= 2) ||
-          (s.id === "predict" && stage >= 3) ||
-          (s.id === "code" && stage >= 3) ||
-          (s.id === "test" && (testsPassed || vivaReady || stage >= 4)) ||
-          (s.id === "viva" && mastered);
-
+          (step.id === "see" && stage >= 2) ||
+          (step.id === "predict" && stage >= 3) ||
+          ((step.id === "code" || step.id === "test") && (vivaReady || mastered)) ||
+          (step.id === "viva" && mastered);
         return (
-          <div key={s.id} className="flex items-center gap-1.5">
-            {i > 0 && (
-              <span
-                className={`hidden h-px w-3 sm:block ${
-                  done || isActive
-                    ? dark
-                      ? "bg-teal-400/40"
-                      : "bg-[var(--accent)]/40"
-                    : dark
-                      ? "bg-white/10"
-                      : "bg-[var(--line)]"
-                }`}
-                aria-hidden
-              />
-            )}
+          <li key={step.id}>
             <button
               type="button"
-              role="listitem"
+              aria-current={isActive ? "step" : undefined}
               disabled={!unlocked}
-              onClick={() => unlocked && onSelect(s.id)}
-              title={unlocked ? s.hint : "Locked — finish the previous stage first"}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
+              onClick={() => onSelect(step.id)}
+              title={unlocked ? step.hint : "Finish the previous stage first"}
+              className={`flex min-h-9 items-center gap-1 rounded-md border px-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] ${
                 isActive
-                  ? "bg-teal-500 text-[#042f2e] shadow-sm"
+                  ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--surface)]"
                   : done
-                    ? dark
-                      ? "border border-teal-400/30 bg-teal-400/10 text-teal-200"
-                      : "border border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]"
+                    ? "border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]"
                     : unlocked
-                      ? dark
-                        ? "border border-white/10 bg-white/5 text-white/80 hover:border-teal-400/40"
-                        : "border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--accent)]"
-                      : dark
-                        ? "cursor-not-allowed bg-white/5 text-white/30"
-                        : "cursor-not-allowed bg-black/5 text-[var(--muted)] opacity-55"
+                      ? "border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] hover:border-[var(--accent)]"
+                      : "cursor-not-allowed border-transparent bg-[var(--bg)] text-[var(--muted)]"
               }`}
             >
-              <span className="tabular-nums opacity-70">{i + 1}.</span> {s.label}
+              <span aria-hidden="true" className="text-xs tabular-nums opacity-75">{i + 1}.</span> {step.label}
+              <span className="sr-only">{!unlocked ? " (locked)" : done ? " (completed)" : ""}</span>
             </button>
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }
 
 export function nextActionCopy(opts: {
   active: WorkspaceStageId;
-  stage: number;
-  testsPassed: boolean;
-  vivaReady: boolean;
   mastered: boolean;
-  predictDone: boolean;
 }): { title: string; body: string; cta?: string } {
   if (opts.mastered) {
     return {
@@ -142,37 +99,36 @@ export function nextActionCopy(opts: {
       body: "You finished See → Predict → Code → Test → Viva. Pick another problem or reset for a fresh demo.",
     };
   }
-  if (opts.active === "viva" || opts.vivaReady || opts.testsPassed || opts.stage >= 4) {
+  if (opts.active === "viva") {
     return {
       title: "Viva unlocked",
-      body: "Answer the oral checks on the Stages tab. Coaches hint — they never paste a full solution.",
+      body: "Answer the oral checks in Learn path. Agents won’t dump a full solution — defend your approach.",
       cta: "Open viva",
     };
   }
-  if (opts.stage < 2) {
+  if (opts.active === "see") {
     return {
       title: "Start with See",
       body: "Run the brute-force demo so you can watch the slow approach fail before you code.",
       cta: "Run demo",
     };
   }
-  if (opts.stage < 3 || !opts.predictDone) {
+  if (opts.active === "predict") {
     return {
       title: "Predict next",
       body: "Fill in each prediction step. The editor stays locked until you finish them.",
       cta: "Go to predict",
     };
   }
-  if (opts.active === "test") {
+  if (opts.active === "code" || opts.active === "test") {
     return {
-      title: "Submit tests",
-      body: "Submit runs examples + hidden cases. Viva unlocks only when every case passes.",
+      title: "Code, then Submit",
+      body: "Run for a quick check. Submit runs examples + hidden tests. You only unlock viva on a full pass.",
       cta: "Focus editor",
     };
   }
   return {
-    title: "Code your approach",
-    body: "Write the solution, Run for a quick check, then Submit. Ask Debug if a test fails.",
-    cta: "Focus editor",
+    title: "Keep going",
+    body: "Follow the stage rail left to right. Ask Hint if you stall — not for the full answer.",
   };
 }

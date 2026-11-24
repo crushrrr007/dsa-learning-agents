@@ -125,26 +125,7 @@
       "expected": 2
     }
   ],
-  "edge_cases": [
-    [
-      [
-        1
-      ]
-    ],
-    [
-      [
-        2,
-        1
-      ]
-    ],
-    [
-      [
-        1,
-        2,
-        3
-      ]
-    ]
-  ],
+  "edge_cases": [[1], [2, 1], [1, 2, 3]],
   "reference_solution": "def max_profit(nums):\n    best = 0\n    low = nums[0]\n    for x in nums:\n        if x < low:\n            low = x\n        profit = x - low\n        if profit > best:\n            best = profit\n    return best\n",
   "sources": [
     "blind75",

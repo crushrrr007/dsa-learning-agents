@@ -11,7 +11,7 @@ from typing import Any
 import pytest
 
 from app.content_loader import clear_content_cache, public_problem
-from app.runner.problem_args import normalize_demo_args, problem_arity
+from app.runner.problem_args import edge_case_args, normalize_demo_args, problem_arity
 from app.runner.sandbox import run_student_code
 
 CONTENT_PROBLEMS = Path(__file__).resolve().parents[3] / "content" / "problems"
@@ -188,6 +188,12 @@ def test_problem_content_file(path: Path):
             f"{pid} hidden[{i}]: got {raw['result']!r} expected {case['expected']!r}"
         )
 
+    for i, edge in enumerate(problem["edge_cases"]):
+        args = edge_case_args(problem, edge)
+        assert len(args) == arity, f"{pid} edge[{i}] arity mismatch"
+        raw = run_student_code(problem["reference_solution"], fn, args=args)
+        assert raw["ok"], f"{pid} edge[{i}] reference error: {raw.get('error')}"
+
     # Brute force must match visible examples
     for i, ex in enumerate(problem["examples"]):
         args = parse_example_args(problem, ex["input"])
@@ -247,3 +253,12 @@ def test_problem_content_file(path: Path):
     # demo_input normalizes to the declared arity
     demo_args = normalize_demo_args(problem)
     assert len(demo_args) == arity, f"{pid}: demo_input arity {len(demo_args)} != {arity}"
+    preview = pub["demo_preview"]
+    if preview is not None:
+        assert len(preview) <= 40
+        assert any(isinstance(arg, (list, str)) and list(arg[:40]) == preview for arg in demo_args)
+        if problem["visual"] == "grid":
+            assert all(isinstance(row, list) for row in preview)
+    demo = run_student_code(problem["brute_force_code"], fn, args=demo_args)
+    assert demo["ok"] and demo["events"], f"{pid}: missing executable demo trace: {demo.get('error')}"
+    assert all(event["line"] >= 1 for event in demo["events"]), f"{pid}: invalid trace source line"

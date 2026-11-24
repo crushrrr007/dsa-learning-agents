@@ -1,6 +1,6 @@
 import { getSessionId } from "./utils";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8417";
+const API_BASE = "/lab-api";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController();
@@ -16,14 +16,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       cache: "no-store",
     });
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `Request failed: ${res.status}`);
+      const body: { detail?: unknown } | null = await res.json().catch(() => null);
+      if (typeof body?.detail === "string") throw new Error(body.detail);
+      throw new Error(res.status >= 500 ? "The lab service is unavailable. Try again shortly." : `Request failed (${res.status}).`);
     }
-    return res.json() as Promise<T>;
+    return await (res.json() as Promise<T>);
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new Error("Request timed out. Is the API running on port 8417?");
+      throw new Error("This took longer than expected. Try again in a moment.");
     }
+    if (err instanceof TypeError) throw new Error("Could not connect to the lab. Check your connection and try again.");
     throw err;
   } finally {
     clearTimeout(timeout);
@@ -43,6 +45,7 @@ export type Topic = {
   has_plan?: boolean;
   next_problem_id?: string | null;
   plan_emphasis?: string | null;
+  prerequisites?: string[];
 };
 
 export type Phase = {
@@ -71,6 +74,23 @@ export type ProblemSummary = {
   stage: number;
   mastered: boolean;
   plan_badge?: string | null;
+  solved: boolean;
+};
+
+export type LearnerDashboard = {
+  action: {
+    kind: "lesson" | "resume" | "recommended" | "complete";
+    title: string;
+    reason: string;
+    topic: string | null;
+    problem_id: string | null;
+    stage: number | null;
+  };
+  problems_total: number;
+  problems_solved: number;
+  problems_mastered: number;
+  topics_total: number;
+  patterns_total: number;
 };
 
 export type PatternInfo = {
@@ -99,23 +119,6 @@ export type SheetDetail = {
   problems: ProblemSummary[];
 };
 
-export type RoadmapGraph = {
-  session_id: string;
-  nodes: {
-    id: string;
-    kind: string;
-    label: string;
-    slug?: string;
-    pattern_id?: string;
-    color?: string;
-    status?: string;
-    position: { x: number; y: number };
-    problems_total?: number;
-  }[];
-  edges: { id: string; source: string; target: string; rel: string; style?: string }[];
-  signals: Record<string, string[]>;
-};
-
 export type MicroReview = {
   skill: string;
   title: string;
@@ -141,7 +144,7 @@ export type TopicPlan = {
   } | null;
 };
 
-export type ProblemDetail = ProblemSummary & {
+export type ProblemDetail = Omit<ProblemSummary, "solved"> & {
   statement: string;
   examples: { input: string; output: string }[];
   constraints: string[];
@@ -151,6 +154,8 @@ export type ProblemDetail = ProblemSummary & {
   predict_steps: { prompt: string; hint?: string }[];
   viva?: { question: string }[];
   last_code: string;
+  next_predict_index: number;
+  demo_args: unknown[];
   pattern_id?: string;
   /** Demo input as a sequence for the AlgoMaster-style canvas before first run. */
   demo_preview?: unknown[] | null;
@@ -177,9 +182,14 @@ export type RunResponse = {
   events: TraceEvent[];
   stdout: string;
   duration_ms: number;
+  stage: number;
   ast_insights: string[];
   performance: { n: number; ms: number; ok: boolean; error?: string }[];
 };
+
+export async function fetchLearnerDashboard() {
+  return request<LearnerDashboard>(`/progress/dashboard?session_id=${encodeURIComponent(getSessionId())}`);
+}
 
 export async function fetchRoadmap() {
   const sid = getSessionId();
@@ -290,11 +300,6 @@ export async function fetchPatterns() {
   return request<PatternInfo[]>(`/problems/patterns`);
 }
 
-export async function fetchRoadmapGraph() {
-  const sid = getSessionId();
-  return request<RoadmapGraph>(`/topics/roadmap/graph?session_id=${encodeURIComponent(sid)}`);
-}
-
 export async function fetchProblem(id: string) {
   const sid = getSessionId();
   return request<ProblemDetail>(`/problems/${id}?session_id=${encodeURIComponent(sid)}`);
@@ -312,16 +317,8 @@ export async function runCode(payload: {
   });
 }
 
-export async function completeSee(problemId: string) {
-  const sid = getSessionId();
-  return request<{ stage: number }>(
-    `/stage/see?session_id=${encodeURIComponent(sid)}&problem_id=${encodeURIComponent(problemId)}`,
-    { method: "POST" },
-  );
-}
-
 export async function submitPredict(problemId: string, stepIndex: number, answer: string) {
-  return request<{ correct: boolean; hint: string | null; stage: number }>(`/predict`, {
+  return request<{ correct: boolean; hint: string | null; stage: number; next_predict_index: number }>(`/predict`, {
     method: "POST",
     body: JSON.stringify({
       session_id: getSessionId(),
@@ -332,18 +329,20 @@ export async function submitPredict(problemId: string, stepIndex: number, answer
   });
 }
 
+export type WorkspaceTestCase = {
+  index: number;
+  passed: boolean;
+  input: unknown;
+  expected: unknown;
+  got: unknown;
+  error: string | null;
+  visible?: boolean;
+};
+
 export async function runTests(problemId: string, code: string) {
   return request<{
     passed_all: boolean;
-    results: {
-      index: number;
-      passed: boolean;
-      input: unknown;
-      expected: unknown;
-      got: unknown;
-      error: string | null;
-      visible?: boolean;
-    }[];
+    results: WorkspaceTestCase[];
     viva: { id: string; prompt: string }[];
     ast_insights: string[];
     stage: number;
@@ -388,6 +387,16 @@ export async function resetProgress() {
   });
 }
 
+export type AgentReply = {
+  agent: string;
+  agent_label: string | null;
+  reply: string;
+  guiding_question: string | null;
+  routing_reason: "requested" | "question" | "stage";
+  reply_source: "model" | "local" | "guard_fallback";
+  guard_triggered: boolean;
+};
+
 export async function chatAgent(payload: {
   problem_id?: string;
   topic?: string;
@@ -397,13 +406,7 @@ export async function chatAgent(payload: {
   last_run?: Record<string, unknown>;
   preferred_agent?: string;
 }) {
-  return request<{
-    agent: string;
-    agent_label: string | null;
-    reply: string;
-    guiding_question: string | null;
-    llm_mode: string | null;
-  }>(`/agents/chat`, {
+  return request<AgentReply>(`/agents/chat`, {
     method: "POST",
     body: JSON.stringify({ session_id: getSessionId(), ...payload }),
   });

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,7 @@ class TopicOut(BaseModel):
     has_plan: bool = False
     next_problem_id: str | None = None
     plan_emphasis: str | None = None
+    prerequisites: list[str] = Field(default_factory=list)
 
 
 class PhaseOut(BaseModel):
@@ -44,6 +45,25 @@ class ProblemSummary(BaseModel):
     stage: int = 0
     mastered: bool = False
     plan_badge: str | None = None
+    solved: bool = False
+
+
+class DashboardAction(BaseModel):
+    kind: Literal["lesson", "resume", "recommended", "complete"]
+    title: str
+    reason: str
+    topic: str | None = None
+    problem_id: str | None = None
+    stage: int | None = None
+
+
+class DashboardOut(BaseModel):
+    action: DashboardAction
+    problems_total: int
+    problems_solved: int
+    problems_mastered: int
+    topics_total: int
+    patterns_total: int
 
 
 class ProblemDetail(BaseModel):
@@ -67,6 +87,8 @@ class ProblemDetail(BaseModel):
     stage: int = 0
     mastered: bool = False
     last_code: str = ""
+    next_predict_index: int = 0
+    demo_args: list[Any] = Field(default_factory=list)
 
 
 class PatternOut(BaseModel):
@@ -85,24 +107,8 @@ class SheetSummary(BaseModel):
     problems_total: int = 0
 
 
-class SheetProblemRow(BaseModel):
-    id: str
-    title: str
-    topic: str
-    difficulty: str
-    pattern: str
-    pattern_id: str = ""
-    stage: int = 0
-    mastered: bool = False
-
-
-class SheetDetail(BaseModel):
-    id: str
-    title: str
-    subtitle: str = ""
-    inspired_by: list[str] = Field(default_factory=list)
-    problems_total: int = 0
-    problems: list[SheetProblemRow] = Field(default_factory=list)
+class SheetDetail(SheetSummary):
+    problems: list[ProblemSummary] = Field(default_factory=list)
     mastered_count: int = 0
 
 
@@ -141,7 +147,7 @@ class RunRequest(BaseModel):
     session_id: str
     problem_id: str
     code: str | None = None
-    mode: str = Field(description="student | brute | reference_hidden")
+    mode: Literal["student", "brute", "reference_hidden"]
     args: list[Any] | None = None
 
 
@@ -161,6 +167,7 @@ class RunResponse(BaseModel):
     duration_ms: float = 0.0
     ast_insights: list[str] = Field(default_factory=list)
     performance: list[dict[str, Any]] = Field(default_factory=list)
+    stage: int = 0
 
 
 class PredictRequest(BaseModel):
@@ -174,6 +181,7 @@ class PredictResponse(BaseModel):
     correct: bool
     hint: str | None = None
     stage: int
+    next_predict_index: int
 
 
 class QuizSubmit(BaseModel):
@@ -264,6 +272,8 @@ class AgentChatResponse(BaseModel):
     reply: str
     guiding_question: str | None = None
     llm_mode: str | None = None
+    routing_reason: Literal["requested", "question", "stage"] = "stage"
+    reply_source: Literal["model", "local", "guard_fallback"] = "local"
     guard_triggered: bool = False
     regenerated: bool = False
 

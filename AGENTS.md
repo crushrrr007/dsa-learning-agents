@@ -20,7 +20,7 @@ Each stage soft-locks the next. Agents **hint**; a **solution guard** blocks ful
 | **Code Mentor** | Debug | Code / Test | Next micro-fix from failures | AST, stderr, test diffs |
 | **Viva Agent** | Viva | Viva | Complexity / edge oral probes | Rubric viva after tests pass |
 
-**Routing:** the UI picks a coach (preferred). If you leave it open, LangGraph routes by stage and keywords (`choose_agent` in `apps/api/app/agents/coordinator.py`). After every reply, `guard_node` checks for leaked solutions and regenerates or falls back.
+**Routing:** Auto routes through LangGraph by question and stage (`route_agent` in `apps/api/app/agents/coordinator.py`). A learner can pick a specific coach or send a prepared prompt about a trace or failed test. After every reply, `guard_node` checks for leaked solutions and regenerates or falls back.
 
 **LLM:** Groq/OpenAI when a key is set; otherwise deterministic local coaches so demos still work.
 

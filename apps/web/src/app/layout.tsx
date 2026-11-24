@@ -1,84 +1,34 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Manrope } from "next/font/google";
 import Link from "next/link";
+import { Terminal } from "lucide-react";
+import { LearningNav } from "@/components/learning/LearningNav";
 import "./globals.css";
 
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
+
 export const metadata: Metadata = {
-  title: "Pointer Lab — Multi-Agent DSA",
-  description:
-    "Showcase how specialized coaching agents improve DSA learning: See → Predict → Code → Test → Viva — hints, not solution dumps.",
+  title: "Pointer Lab — Multi-Agent DSA Practice",
+  description: "Learn data structures and algorithms with interactive Python traces, staged practice, and specialized coaching agents that give hints instead of complete solutions.",
 };
+
+export const viewport: Viewport = { themeColor: "#eef3f1" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">
+    <html lang="en" className={`bg-[var(--bg)] ${manrope.variable} ${fraunces.variable}`}>
+      <body className="font-sans antialiased">
         <div className="relative min-h-screen">
-          <div className="pointer-events-none absolute inset-0 grid-fade opacity-60" />
-          <header className="relative z-20 border-b border-[var(--line)] bg-white/75 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
-              <Link href="/" className="group flex items-center gap-2.5">
-                <span className="brand-mark flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black text-white transition group-hover:scale-105">
-                  P
-                </span>
-                <span className="display text-lg font-bold tracking-tight text-[var(--ink)] sm:text-xl">
-                  Pointer Lab
-                </span>
-              </Link>
-              <nav className="flex items-center gap-1 text-sm font-semibold text-[var(--muted)] sm:gap-2">
-                <Link
-                  href="/"
-                  className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/#agents"
-                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] sm:inline"
-                >
-                  Coaches
-                </Link>
-                <Link
-                  href="/problems"
-                  className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
-                >
-                  Sheet
-                </Link>
-                <Link
-                  href="/patterns"
-                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] sm:inline"
-                >
-                  Patterns
-                </Link>
-                <Link
-                  href="/sheets/pointer-lab-core"
-                  className="hidden rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)] md:inline"
-                >
-                  Core
-                </Link>
-                <Link
-                  href="/topics/two-pointers"
-                  className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-white shadow-sm transition hover:brightness-110"
-                >
-                  Demo
-                </Link>
-                <Link
-                  href="/progress"
-                  className="rounded-lg px-3 py-1.5 transition hover:bg-black/[0.04] hover:text-[var(--ink)]"
-                >
-                  Progress
-                </Link>
-              </nav>
+          <a href="#main-content" className="learn-skip">Skip to content</a>
+          <header className="learn-topbar">
+            <div className="learn-topbar-inner">
+              <Link href="/" className="learn-brand"><span className="learn-brand-mark brand-mark"><Terminal size={19} aria-hidden="true" /></span><span className="font-serif">Pointer Lab</span></Link>
+              <LearningNav />
+              <span className="learn-guest">Guest lab</span>
             </div>
           </header>
-          <main className="relative z-10">{children}</main>
+          <main id="main-content" className="relative">{children}</main>
         </div>
       </body>
     </html>

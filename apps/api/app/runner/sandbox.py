@@ -27,7 +27,21 @@ args = payload.get("args", [])
 max_output = int(payload.get("max_output_chars", 4000))
 
 events = []
-stdout_chunks = []
+
+class CapturedOutput:
+    def __init__(self, limit):
+        self.limit = max(0, limit)
+        self.chunks = []
+
+    def write(self, text):
+        if self.limit:
+            chunk = text[:self.limit]
+            self.chunks.append(chunk)
+            self.limit -= len(chunk)
+        return len(text)
+
+    def flush(self):
+        pass
 
 class Limit(Exception):
     pass
@@ -76,6 +90,11 @@ def focus_from_locals(loc):
         "slow",
         "fast",
         "write",
+        "read",
+        "start",
+        "end",
+        "insert_pos",
+        "insertPos",
         "prev",
         "curr",
         "k",
@@ -96,19 +115,28 @@ def focus_from_locals(loc):
         if key in loc:
             val = loc[key]
             if isinstance(val, str):
-                focus["sequence"] = list(val)
+                focus["sequence"] = list(val[:40])
+                focus["sequence_name"] = key
             elif isinstance(val, list):
                 focus["sequence"] = val[:40]
+                focus["sequence_name"] = key
                 if key == "dp":
                     focus["dp"] = val[:40]
             elif hasattr(val, "val"):
                 focus["list_head"] = safe_repr(val)
+    for key in ("head", "l1", "l2", "curr"):
+        node = loc.get(key)
+        if hasattr(node, "val") and hasattr(node, "next"):
+            focus["list_head"] = safe_repr(node)
+            focus["list_name"] = key
+            break
     # Stack / queue / heap → sequence for linear canvas
     for key in ("stack", "queue", "heap"):
         if key in loc and "sequence" not in focus:
             val = loc[key]
             try:
                 focus["sequence"] = list(val)[:40]
+                focus["sequence_name"] = key
             except Exception:
                 focus["sequence"] = safe_repr(val)
             break
@@ -122,6 +150,7 @@ def focus_from_locals(loc):
                 else:
                     rows.append(row)
             focus["grid"] = rows
+            focus["grid_name"] = grid_key
             break
     # Binary tree node snapshot
     for key in ("root", "node"):
@@ -147,7 +176,18 @@ def focus_from_locals(loc):
                 continue
             if isinstance(val, list) and val and all(isinstance(x, (int, float, str, bool, type(None))) for x in val[:8]):
                 focus["sequence"] = val[:40]
+                focus["sequence_name"] = key
                 break
+    extras = {}
+    for key in ("non_zero", "zeros", "out", "result", "res", "ans", "stack", "queue", "heap"):
+        if key != focus.get("sequence_name") and isinstance(loc.get(key), list):
+            values = loc[key]
+            if all(isinstance(item, (str, int, float, bool, type(None))) for item in values[:40]):
+                extras[key] = values[:40]
+        if len(extras) == 3:
+            break
+    if extras:
+        focus["auxiliary"] = extras
     return focus
 
 
@@ -175,14 +215,14 @@ def tracer(frame, event, arg):
     if event not in ("line", "call", "return", "exception"):
         return tracer
     # Only trace student module frames
-    if frame.f_globals.get("__name__") != "student_mod":
+    if frame.f_globals.get("__name__") != "student_mod" or frame.f_lineno < 1:
         return tracer
     if len(events) >= MAX_STEPS:
         raise Limit("trace step limit exceeded")
     loc = {
         k: safe_repr(v)
         for k, v in frame.f_locals.items()
-        if not k.startswith("__") and k not in ("safe_repr", "focus_from_locals", "tracer")
+        if not k.startswith("__") and not isinstance(v, (types.ModuleType, types.FunctionType, type))
     }
     events.append({
         "line": frame.f_lineno,
@@ -197,7 +237,10 @@ student_mod.__dict__["__builtins__"] = __builtins__
 
 err = None
 result = None
+worker_stdout = sys.stdout
+captured = CapturedOutput(max_output)
 try:
+    sys.stdout = captured
     compiled = compile(code, "<student>", "exec")
     sys.settrace(tracer)
     exec(compiled, student_mod.__dict__)
@@ -218,6 +261,7 @@ except Exception:
     err = traceback.format_exc(limit=3)
 finally:
     sys.settrace(None)
+    sys.stdout = worker_stdout
 
 # JSON-serialize result
 def encode(v):
@@ -232,9 +276,9 @@ out = {
     "result": encode(result) if err is None else None,
     "error": err,
     "events": events,
-    "stdout": "".join(stdout_chunks)[:max_output],
+    "stdout": "".join(captured.chunks),
 }
-sys.stdout.write(json.dumps(out))
+worker_stdout.write(json.dumps(out))
 '''
 )
 

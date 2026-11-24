@@ -17,6 +17,7 @@ from app.db import get_db
 from app.kg_service import build_roadmap_graph, record_diagnostic_kg
 from app.progress_service import (
     build_progress_snapshot,
+    find_topic_progress,
     get_topic_plan,
     get_topic_progress,
     mark_overview_completed,
@@ -99,7 +100,7 @@ async def topic_learn(slug: str, session_id: str = "guest", db: AsyncSession = D
     topic = next((t for t in roadmap["topics"] if t["slug"] == slug), None)
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
-    tp = await get_topic_progress(db, session_id, slug)
+    tp = await find_topic_progress(db, session_id, slug)
     problems = list_problems(slug)
     preferred = {
         "arrays": "reverse-array",
@@ -116,7 +117,7 @@ async def topic_learn(slug: str, session_id: str = "guest", db: AsyncSession = D
         title=topic["title"],
         notes_markdown=load_notes(slug),
         quiz=public_quiz(slug),
-        learn_completed=bool(tp.learn_completed),
+        learn_completed=bool(tp and tp.learn_completed),
         demo_problem_id=demo["id"] if demo else None,
         demo_title=demo["title"] if demo else None,
         demo_visual=demo["visual"] if demo else None,

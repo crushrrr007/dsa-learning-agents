@@ -35,7 +35,7 @@ def test_normalize_and_edge_helpers_match_content():
     assert edge_case_args(three, [9, 8, 7]) == [9, 8, 7]
 
 
-def test_two_and_three_arg_through_run_and_test(monkeypatch):
+def test_two_and_three_arg_through_run_and_test(monkeypatch, unlock_code):
     clear_content_cache()
     two = get_problem("two-sum-sorted")
     three = {
@@ -74,6 +74,8 @@ def test_two_and_three_arg_through_run_and_test(monkeypatch):
     monkeypatch.setattr("app.routers.run.get_problem", _get)
 
     with TestClient(app) as client:
+        unlock_code(client, "arity_2", two)
+        unlock_code(client, "arity_3", three)
         # 2-arg: demo via /run (no args → demo_input)
         run2 = client.post(
             "/run",

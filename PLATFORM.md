@@ -17,9 +17,9 @@ Pointer Lab is not a clone. Borrow the **navigation habits** people already know
 - Curated **Pointer Lab Core** sheet (22 problems) with completion bar
 - Pattern explore page + related problems in workspace
 - Workspace meta: difficulty, pattern chip, Python lab, stage rail, agent dock
-- Guest session progress (localStorage) — no auth required for demos
-- **AlgoMaster-style** Visual tab (arrays/pointers/window/list/tree/graph/grid) + Demo Coach
-- Agentic topic path: Diagnose → Plan → Teach → Practice timeline
+- Guest session ID in the browser; plans, attempts, and progress in SQLite — no auth required for demos
+- Visual tab with input previews, synchronized code and state, and contextual Demo Coach prompts
+- Agentic topic timeline: Lesson → Diagnose → Plan → Teach → Practice
 
 ## Roadmap to “complete” (priority order)
 

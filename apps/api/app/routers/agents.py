@@ -38,13 +38,14 @@ async def agent_chat(body: AgentChatRequest) -> AgentChatResponse:
         problem_id=body.problem_id,
     )
     status = llm_status()
-    # Debug-only flags for eval logging; UI may ignore them.
     return AgentChatResponse(
         agent=result["agent"],
         agent_label=result.get("agent_label"),
         reply=result["reply"],
         guiding_question=result.get("guiding_question"),
         llm_mode=status["provider"],
+        routing_reason=result["routing_reason"],
+        reply_source=result["reply_source"],
         guard_triggered=bool(result.get("guard_triggered")),
         regenerated=bool(result.get("regenerated")),
     )

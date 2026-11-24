@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.content_loader import list_sheets, load_sheet
 from app.db import get_db
-from app.progress_service import get_or_create_progress
-from app.schemas import SheetDetail, SheetProblemRow, SheetSummary
+from app.progress_service import build_problem_summaries
+from app.schemas import SheetDetail, SheetSummary
 
 router = APIRouter(prefix="/sheets", tags=["sheets"])
 
@@ -21,30 +21,7 @@ async def sheet_detail(sheet_id: str, session_id: str = "guest", db: AsyncSessio
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Sheet not found") from exc
 
-    rows: list[SheetProblemRow] = []
-    mastered = 0
-    for item in raw["problems"]:
-        try:
-            prog = await get_or_create_progress(db, session_id, item["id"], item["topic"])
-            stage = max(prog.stage, 1)
-            is_mastered = bool(prog.mastered)
-        except Exception:
-            stage = 0
-            is_mastered = False
-        if is_mastered:
-            mastered += 1
-        rows.append(
-            SheetProblemRow(
-                id=item["id"],
-                title=item["title"],
-                topic=item["topic"],
-                difficulty=item["difficulty"],
-                pattern=item["pattern"],
-                pattern_id=item.get("pattern_id") or "",
-                stage=stage,
-                mastered=is_mastered,
-            )
-        )
+    rows = await build_problem_summaries(db, session_id, raw["problems"])
     return SheetDetail(
         id=raw["id"],
         title=raw["title"],
@@ -52,5 +29,5 @@ async def sheet_detail(sheet_id: str, session_id: str = "guest", db: AsyncSessio
         inspired_by=list(raw.get("inspired_by") or []),
         problems_total=len(rows),
         problems=rows,
-        mastered_count=mastered,
+        mastered_count=sum(row["mastered"] for row in rows),
     )

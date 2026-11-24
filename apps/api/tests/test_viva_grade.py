@@ -178,7 +178,7 @@ def test_grade_one_viva_fallback_without_key(monkeypatch):
     asyncio.run(_run())
 
 
-def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch):
+def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch, unlock_code):
     async def _none(system: str, user: str):
         return None
 
@@ -195,18 +195,11 @@ def test_viva_endpoint_mastered_only_if_all_pass(client: TestClient, monkeypatch
     ]
     assert len(answers) == len(viva)
 
-    # Viva is gated behind a full /test pass.
-    for sid in ("viva_ok", "viva_bad"):
-        unlock = client.post(
-            "/test",
-            json={
-                "session_id": sid,
-                "problem_id": "two-sum",
-                "code": problem["reference_solution"],
-            },
-        )
-        assert unlock.status_code == 200
-        assert unlock.json()["passed_all"] is True
+    for session_id in ("viva_ok", "viva_bad"):
+        unlock_code(client, session_id, problem)
+        grade = client.post("/test", json={"session_id": session_id, "problem_id": problem["id"], "code": problem["reference_solution"]})
+        assert grade.status_code == 200, grade.text
+        assert grade.json()["passed_all"] is True
 
     ok = client.post(
         "/viva",
