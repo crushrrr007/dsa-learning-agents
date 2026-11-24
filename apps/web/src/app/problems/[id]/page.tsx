@@ -166,6 +166,7 @@ export default function ProblemWorkspacePage() {
       setEventIdx(0);
       setPlaying(true);
       setLeftTab("trace");
+      setPlaying(true);
       const adv = await completeSee(problem.id);
       setStage(Math.max(stage, adv.stage, 2));
       setUiStage("predict");
@@ -449,9 +450,9 @@ export default function ProblemWorkspacePage() {
           <div className="flex gap-1 border-b border-[var(--ws-line)] px-2 pt-1">
             {(
               [
-                ["description", "Description"],
-                ["path", "Stages"],
+                ["path", "Learn"],
                 ["trace", "Visual"],
+                ["description", "Problem"],
               ] as const
             ).map(([idTab, label]) => (
               <button
@@ -671,31 +672,68 @@ export default function ProblemWorkspacePage() {
 
             {leftTab === "trace" && (
               <div className="space-y-3 animate-rise">
-                <div className="flex items-center justify-between text-xs text-[var(--ws-muted)]">
-                  <span>Trace frames</span>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      className="underline disabled:opacity-40"
-                      onClick={() => setPlaying((p) => !p)}
-                      disabled={!events.length}
-                    >
-                      {playing ? "Pause" : "Play"}
-                    </button>
-                    <span>{events.length ? `${eventIdx + 1}/${events.length}` : "No frames — run demo or code first"}</span>
-                  </div>
+                <div className="rounded-xl border border-teal-400/25 bg-teal-400/10 px-3 py-2 text-xs text-teal-100/90">
+                  <span className="font-bold text-teal-200">AlgoMaster-style visual</span>
+                  {" — "}
+                  watch pointers move on the structure. Ask <strong>Demo Coach</strong> what each frame means.
                 </div>
-                <div className="h-[360px] overflow-hidden rounded-xl border border-[var(--ws-line)] bg-white">
-                  <VisualCanvas visual={problem.visual} event={currentEvent} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setEventIdx((i) => Math.max(0, i - 1))}
+                    disabled={!events.length || eventIdx <= 0}
+                  >
+                    Prev
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setPlaying((p) => !p)}
+                    disabled={!events.length}
+                  >
+                    {playing ? "Pause" : "Play"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setEventIdx((i) => Math.min(events.length - 1, i + 1))}
+                    disabled={!events.length || eventIdx >= events.length - 1}
+                  >
+                    Next
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={onSee} disabled={busy}>
+                    {busy ? "…" : "Re-run demo"}
+                  </Button>
+                  <span className="ml-auto font-mono text-[11px] text-[var(--ws-muted)]">
+                    {events.length ? `${eventIdx + 1} / ${events.length}` : "Preview · run See to animate"}
+                  </span>
+                </div>
+                <div className="h-[400px] overflow-hidden rounded-xl border border-[var(--ws-line)] shadow-inner">
+                  <VisualCanvas
+                    visual={problem.visual}
+                    event={currentEvent}
+                    fallbackSequence={problem.demo_preview || undefined}
+                    frameLabel={events.length ? `step ${eventIdx + 1}/${events.length}` : "idle"}
+                    caption={
+                      currentEvent
+                        ? `line ${currentEvent.line}${currentEvent.event ? ` · ${currentEvent.event}` : ""}`
+                        : "Idle preview of the demo input — press Run demo / See to animate"
+                    }
+                  />
                 </div>
                 {currentEvent && (
-                  <pre className="overflow-x-auto rounded-md bg-[#0f1419] p-3 text-[11px] text-[#d7dee7]">
-                    {JSON.stringify(
-                      { line: currentEvent.line, focus: currentEvent.focus, locals: currentEvent.locals },
-                      null,
-                      2,
-                    )}
-                  </pre>
+                  <details className="rounded-lg border border-[var(--ws-line)] bg-[#0f1419] text-[11px] text-[#d7dee7]">
+                    <summary className="cursor-pointer px-3 py-2 font-semibold text-white/60">
+                      Frame locals (debug)
+                    </summary>
+                    <pre className="overflow-x-auto border-t border-white/10 p-3">
+                      {JSON.stringify(
+                        { line: currentEvent.line, focus: currentEvent.focus, locals: currentEvent.locals },
+                        null,
+                        2,
+                      )}
+                    </pre>
+                  </details>
                 )}
               </div>
             )}

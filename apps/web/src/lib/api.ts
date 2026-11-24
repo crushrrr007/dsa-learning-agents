@@ -152,6 +152,8 @@ export type ProblemDetail = ProblemSummary & {
   viva?: { question: string }[];
   last_code: string;
   pattern_id?: string;
+  /** Demo input as a sequence for the AlgoMaster-style canvas before first run. */
+  demo_preview?: unknown[] | null;
 };
 
 export type VivaQuestionResult = {

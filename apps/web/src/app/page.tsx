@@ -85,8 +85,8 @@ function HomeInner() {
               Pointer Lab
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-              Not another solution dump. Five specialized coaches walk you through See → Predict → Code → Test → Viva
-              so you learn the pattern — and can defend it.
+              Agentic DSA lab: personalized path, AlgoMaster-style visuals, and five coaches for See → Predict → Code →
+              Test → Viva — the guided learning other platforms put behind a paywall, without dumping solutions.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link

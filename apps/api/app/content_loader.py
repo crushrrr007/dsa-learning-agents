@@ -181,8 +181,40 @@ def public_problem(problem: dict[str, Any]) -> dict[str, Any]:
         "variant": bool(problem.get("variant", False)),
         # Questions only — never expose expected_points / min_points.
         "viva": [{"question": str(item.get("question") or "")} for item in (problem.get("viva") or [])],
+        # Safe preview seed for AlgoMaster-style canvas (demo input only — no solution).
+        "demo_preview": _demo_preview(problem),
     }
     return out
+
+
+def _demo_preview(problem: dict[str, Any]) -> list[Any] | None:
+    """Turn demo_input into a linear sequence the canvas can show before first run."""
+    demo = problem.get("demo_input")
+    visual = (problem.get("visual") or "array").lower()
+    if demo is None:
+        return None
+    if isinstance(demo, str):
+        if visual in ("array", "window", "dp", "linkedlist"):
+            return list(demo)
+        return [demo]
+    if isinstance(demo, list):
+        # multi-arg demos: prefer first list/string arg as the sequence
+        for item in demo:
+            if isinstance(item, list):
+                return item[:40]
+            if isinstance(item, str) and visual in ("array", "window", "dp", "linkedlist"):
+                return list(item)
+        if demo and all(isinstance(x, (int, float, str, bool, type(None))) for x in demo[:8]):
+            return demo[:40]
+    if isinstance(demo, dict):
+        for key in ("s", "nums", "arr", "values", "heights", "prices"):
+            if key in demo:
+                val = demo[key]
+                if isinstance(val, str):
+                    return list(val)
+                if isinstance(val, list):
+                    return val[:40]
+    return None
 
 
 def load_notes(topic: str) -> str:
