@@ -11,7 +11,8 @@ import { LearningChecklist } from "@/components/workspace/LearningChecklist";
 import { TraceExplorer, type TraceOrigin } from "@/components/workspace/TraceExplorer";
 import { WorkspaceConsole, type ConsoleTab } from "@/components/workspace/WorkspaceConsole";
 import { Button } from "@/components/ui/button";
-import { AgentDock, type AgentId } from "@/components/workspace/AgentDock";
+import { AgentDock } from "@/components/workspace/AgentDock";
+import { WORKSPACE_AGENTS, agentForWorkspaceStage, type AgentId } from "@/lib/agents";
 import {
   StageRail,
   WORKSPACE_STAGES,
@@ -21,6 +22,7 @@ import {
 } from "@/components/workspace/StageRail";
 import {
   fetchProblem,
+  fetchProblems,
   runCode,
   runTests,
   submitPredict,
@@ -57,22 +59,6 @@ function diffClass(d: string) {
   return "text-amber-700 bg-amber-50 border-amber-200";
 }
 
-function agentForStage(active: WorkspaceStageId): AgentId {
-  switch (active) {
-    case "see":
-      return "demo_coach";
-    case "predict":
-      return "predict_coach";
-    case "code":
-    case "test":
-      return "code_mentor";
-    case "viva":
-      return "viva_agent";
-    default:
-      return "concept_tutor";
-  }
-}
-
 export default function ProblemWorkspacePage() {
   const { id } = useParams<{ id: string }>();
   const { data, error, isValidating, mutate } = useSWR<ProblemDetail, Error>(
@@ -98,6 +84,9 @@ export default function ProblemWorkspacePage() {
 }
 
 function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
+  const pattern = problem.pattern_id || problem.pattern;
+  const { data: relatedProblems } = useSWR(["related-problems", pattern], () => fetchProblems(undefined, pattern));
+  const related = relatedProblems?.filter((item) => item.id !== problem.id).slice(0, 5) ?? [];
   const [mastered, setMastered] = useState(problem.mastered);
   const [stage, setStage] = useState(Math.max(1, problem.stage));
   const [code, setCode] = useState(problem.last_code || problem.starter_code);
@@ -276,6 +265,10 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
         setViva((problem.viva ?? []).map(({ question }, index) => ({ id: `q${index}`, prompt: question })));
       }
       setRunNotice(res.ok ? "Run completed." : `Runtime error: ${res.error?.trim().split("\n").at(-1) || "The run did not complete."}`);
+      if (!res.ok) {
+        setCoachPrompt({ text: "My last run failed. What should I inspect first?", agent: "code_mentor" });
+        setAgentsOpen(true);
+      }
     } catch (e) {
       const message = e instanceof Error ? e.message : "Run failed. Try again.";
       setRunNotice(message);
@@ -313,6 +306,9 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
       if (res.passed_all && !res.mastered) {
         setViva(res.viva);
         setLeftTab("path");
+      } else if (!res.passed_all) {
+        setCoachPrompt({ text: "I did not pass every case. Use the available evidence to suggest one debugging step without giving me the solution.", agent: "code_mentor" });
+        setAgentsOpen(true);
       }
       setRun((prev) => ({
         ...(prev || {
@@ -403,6 +399,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
   const locked = stage < 3;
   const step = problem.predict_steps[Math.min(predictIdx, problem.predict_steps.length - 1)];
   const stageMeta = WORKSPACE_STAGES.find((s) => s.id === resolved);
+  const coach = WORKSPACE_AGENTS.find((agent) => agent.id === agentForWorkspaceStage(resolved)) ?? WORKSPACE_AGENTS[0];
 
   const failedExample = testResults.find((test) => test.visible && !test.passed);
   const lastRun = run
@@ -419,10 +416,10 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
 
   return (
     <div className="flex flex-col bg-[var(--bg)] lg:h-[calc(100dvh-var(--topbar-height))] lg:min-h-[620px]">
-      <header className="border-b border-[var(--line)] bg-[var(--surface)] px-4 py-3 sm:px-6">
+      <header className="workspace-merged-heading border-b border-[var(--ws-line)] bg-[var(--ws-panel)] px-4 py-3 text-[var(--ws-text)] sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
-            <Link href={`/topics/${problem.topic}`} className="w-fit text-sm font-semibold capitalize text-[var(--accent)] hover:underline">
+            <Link href={`/topics/${problem.topic}`} className="w-fit text-sm font-semibold capitalize text-[var(--ws-muted)] hover:underline">
               ← {problem.topic.replace(/-/g, " ")}
             </Link>
             <div className="flex flex-wrap items-center gap-2">
@@ -430,9 +427,15 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
               <span className={`rounded border px-2 py-0.5 text-xs font-semibold capitalize ${diffClass(problem.difficulty)}`}>
                 {problem.difficulty}
               </span>
+              {mastered && <span className="workspace-heading-chip">Mastered</span>}
+              <span className="workspace-heading-chip">Python lab</span>
+              <Link href={`/problems?pattern=${encodeURIComponent(pattern)}`} className="workspace-heading-chip hover:underline">{problem.pattern}</Link>
             </div>
           </div>
-          <StageRail stage={stage} active={uiStage} vivaReady={vivaReady} mastered={mastered} onSelect={onSelectStage} />
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className="workspace-heading-chip" title={coach.job} aria-expanded={agentsOpen} aria-controls="workspace-coaches" onClick={(event) => toggleCoaches(event.currentTarget)}>On deck: {coach.title}</button>
+            <StageRail stage={stage} active={uiStage} vivaReady={vivaReady} mastered={mastered} onSelect={onSelectStage} />
+          </div>
         </div>
       </header>
 
@@ -519,6 +522,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
                     </ul>
                   </div>
                 )}
+                {related.length > 0 && <section aria-label="Related problems"><h3 className="text-sm font-bold">Related problems</h3><ul className="mt-2 flex flex-col gap-2">{related.map((item) => <li key={item.id}><Link href={`/problems/${item.id}`} className="learn-text-link">{item.title}</Link></li>)}</ul></section>}
               </div>
             )}
 
@@ -732,7 +736,7 @@ function ProblemWorkspace({ problem }: { problem: ProblemDetail }) {
         <aside id="workspace-coaches" ref={coachPanelRef} tabIndex={-1} aria-labelledby="workspace-coaches-title" hidden={!agentsOpen} className="workspace-coach-panel">
           <div className="workspace-coach-heading"><h2 id="workspace-coaches-title">Practice coaches</h2><button type="button" className="workspace-editor-mode" onClick={() => toggleCoaches()}>Hide coaches</button></div>
           <div className="min-h-0 flex-1">
-            <AgentDock topic={problem.topic} problemId={problem.id} stage={stage} code={code} lastRun={lastRun} suggestedAgent={agentForStage(resolved)} contextualPrompt={coachPrompt} />
+            <AgentDock topic={problem.topic} problemId={problem.id} stage={stage} code={code} lastRun={lastRun} suggestedAgent={coach.id} contextualPrompt={coachPrompt} />
           </div>
         </aside>
       </div>

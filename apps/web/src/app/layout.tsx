@@ -9,8 +9,8 @@ const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", displa
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Pointer Lab — Guided DSA Practice",
-  description: "Learn data structures and algorithms with interactive Python traces, staged practice, and teaching coaches.",
+  title: "Pointer Lab — Multi-Agent DSA Practice",
+  description: "Learn data structures and algorithms with interactive Python traces, staged practice, and specialized coaching agents that give hints instead of complete solutions.",
 };
 
 export const viewport: Viewport = { themeColor: "#eef3f1" };
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <a href="#main-content" className="learn-skip">Skip to content</a>
           <header className="learn-topbar">
             <div className="learn-topbar-inner">
-              <Link href="/" className="learn-brand"><span className="learn-brand-mark"><Terminal size={19} aria-hidden="true" /></span><span className="font-serif">Pointer Lab</span></Link>
+              <Link href="/" className="learn-brand"><span className="learn-brand-mark brand-mark"><Terminal size={19} aria-hidden="true" /></span><span className="font-serif">Pointer Lab</span></Link>
               <LearningNav />
               <span className="learn-guest">Guest lab</span>
             </div>

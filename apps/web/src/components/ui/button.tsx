@@ -3,19 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-hot)] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-[var(--accent)] text-white hover:brightness-110",
-        secondary: "bg-white/80 text-[var(--ink)] border border-[var(--line)] hover:bg-white",
-        ghost: "text-[var(--muted)] hover:bg-white/60 hover:text-[var(--ink)]",
+        default: "bg-[var(--accent)] text-white shadow-sm hover:brightness-110",
+        secondary:
+          "border border-[var(--line)] bg-white text-[var(--ink)] hover:border-[var(--accent)] hover:bg-[var(--accent)]/[0.04]",
+        ghost: "text-[var(--muted)] hover:bg-black/[0.04] hover:text-[var(--ink)]",
         danger: "bg-[var(--bad)] text-white hover:brightness-110",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-11 px-6",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-11 px-6 text-[15px]",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

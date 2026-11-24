@@ -29,7 +29,7 @@ function NextAction({ action }: { action: LearnerDashboard["action"] }) {
 
 function TracePreview() {
   return (
-    <figure className="today-trace">
+    <figure id="agents" className="today-trace mesh-hero">
       <figcaption><Code2 size={17} aria-hidden="true" /> Inside a guided practice</figcaption>
       <div className="today-trace-body">
         <p className="today-trace-title text-balance font-serif">See the pattern.<br /> Predict the move.</p>
@@ -51,7 +51,7 @@ export function Today() {
   const { data, error, mutate } = useSWR<LearnerDashboard, Error>("learner-dashboard", fetchLearnerDashboard, { revalidateOnMount: true });
   return (
     <div className="learn-main today-main">
-      <PageHeading label="Your study desk" title="Your next move." copy="Learn the pattern, work through it with a coach, then explain why your code works." />
+      <PageHeading label="Your study desk" title="Your next move." copy="Five specialized coaches help you see, predict, code, test, and explain your reasoning—without giving away the solution." />
       <div className="today-feature">
         {data ? <NextAction action={data.action} /> : <LoadState error={error} retry={() => void mutate()} loading="Finding your next step…" />}
         <TracePreview />
@@ -64,12 +64,13 @@ export function Today() {
             <div><h3 className="font-serif">Foundations</h3><p>Follow a chapter-by-chapter path from arrays to graphs and dynamic programming.</p></div>
             <ArrowRight size={19} aria-hidden="true" className="today-path-arrow" />
           </Link>
-          <Link href="/learn?path=patterns" className="learn-panel today-path">
+          <Link href="/patterns" className="learn-panel today-path">
             <span className="learn-icon"><GitBranch size={21} aria-hidden="true" /></span>
             <div><h3 className="font-serif">Interview Patterns</h3><p>Pick a technique to strengthen and find problems that use it.</p></div>
             <ArrowRight size={19} aria-hidden="true" className="today-path-arrow" />
           </Link>
         </div>
+        <div className="flex flex-wrap items-center gap-4"><LearningLink href="/sheets/pointer-lab-core">Open the Pointer Lab Core sheet</LearningLink><LearningLink href="/problems">Browse the full problem sheet</LearningLink></div>
       </section>
       <section className="learn-panel today-progress" aria-labelledby="today-progress">
         <div className="today-progress-title"><span className="learn-icon"><ChartNoAxesColumn size={20} aria-hidden="true" /></span><div><h2 id="today-progress" className="font-serif">Guest progress</h2><p>Saved in this browser session.</p></div></div>

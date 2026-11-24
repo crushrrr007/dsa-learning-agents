@@ -7,7 +7,7 @@ from app.agents import notes_store
 from app.config import get_settings
 from app.content_loader import clear_content_cache
 from app.db import init_db
-from app.routers import agents, problems, progress, run, topics
+from app.routers import agents, problems, progress, run, sheets, topics
 
 
 @asynccontextmanager
@@ -46,6 +46,7 @@ app.add_middleware(
 
 app.include_router(topics.router)
 app.include_router(problems.router)
+app.include_router(sheets.router)
 app.include_router(run.router)
 app.include_router(agents.router)
 app.include_router(progress.router)

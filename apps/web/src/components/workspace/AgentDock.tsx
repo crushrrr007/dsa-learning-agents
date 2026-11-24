@@ -6,80 +6,7 @@ import { Button } from "@/components/ui/button";
 import { chatAgent } from "@/lib/api";
 import { coachingNames, coachReplyText, replyLabels, routingLabels } from "@/lib/coaching";
 
-export type AgentId =
-  | "concept_tutor"
-  | "demo_coach"
-  | "predict_coach"
-  | "code_mentor"
-  | "viva_agent";
-
-const AGENTS: {
-  id: AgentId;
-  short: string;
-  title: string;
-  blurb: string;
-  starter: string;
-  accent: string;
-  accentSoft: string;
-  letter: string;
-  empty: string;
-}[] = [
-  {
-    id: "concept_tutor",
-    short: "Hint",
-    title: "Concept Tutor",
-    blurb: "Pattern & invariant — no full solutions.",
-    starter: "Explain the core pattern for this problem in plain words.",
-    accent: "#0b6e5f",
-    accentSoft: "rgba(11,110,95,0.18)",
-    letter: "H",
-    empty: "Ask what must stay true after each step.",
-  },
-  {
-    id: "demo_coach",
-    short: "Demo",
-    title: "Demo Coach",
-    blurb: "Walk through the brute-force / demo trace.",
-    starter: "What should I watch for in the demo trace?",
-    accent: "#1d4e89",
-    accentSoft: "rgba(29,78,137,0.18)",
-    letter: "D",
-    empty: "Run a demo, then ask which frame matters.",
-  },
-  {
-    id: "predict_coach",
-    short: "Predict",
-    title: "Predict Coach",
-    blurb: "Check your next-step predictions.",
-    starter: "Help me predict the next pointer move.",
-    accent: "#7c3aed",
-    accentSoft: "rgba(124,58,237,0.18)",
-    letter: "P",
-    empty: "Name the next state change before you peek.",
-  },
-  {
-    id: "code_mentor",
-    short: "Debug",
-    title: "Code Mentor",
-    blurb: "Debug from AST, errors, and failing tests.",
-    starter: "My last run failed — what should I inspect first?",
-    accent: "#b45309",
-    accentSoft: "rgba(180,83,9,0.18)",
-    letter: "X",
-    empty: "Paste a failure in your question after Run/Submit.",
-  },
-  {
-    id: "viva_agent",
-    short: "Viva",
-    title: "Viva Agent",
-    blurb: "Complexity & edge-case interview probes.",
-    starter: "Ask me a viva question about this approach.",
-    accent: "#9a3412",
-    accentSoft: "rgba(154,52,18,0.2)",
-    letter: "V",
-    empty: "Ready when you want to defend complexity or edges.",
-  },
-];
+import { WORKSPACE_AGENTS as AGENTS, type AgentId } from "@/lib/agents";
 
 type Msg = {
   role: "user" | "agent";
@@ -182,7 +109,7 @@ export function AgentDock({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: meta.accent }}>
-            {override ? "Selected coach" : "Suggested for this stage"}
+            {override ? `Selected coach · ${meta.stage}` : "Suggested for this stage"}
           </p>
           <p className="truncate text-sm font-semibold text-white">{meta.title}</p>
         </div>
@@ -220,7 +147,7 @@ export function AgentDock({
       </div>
 
       <p className="border-b border-white/10 px-3 py-2 text-[11px]" style={{ color: "#a8b4c0" }}>
-        {override ? meta.blurb : "Auto picks a specialist from your question and current stage."}
+        {override ? meta.job : "Auto picks a specialist from your question and current stage."}
       </p>
 
       <div ref={logRef} role="log" aria-label="Coach messages" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 py-3">
@@ -247,6 +174,7 @@ export function AgentDock({
             )}
           </div>
         ))}
+        {busy && <p role="status" className="text-xs text-white/70">Coach is thinking…</p>}
       </div>
 
       <div className="space-y-2 border-t border-white/10 p-3">

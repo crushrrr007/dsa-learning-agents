@@ -101,6 +101,24 @@ export type PatternInfo = {
   problem_ids: string[];
 };
 
+export type SheetSummary = {
+  id: string;
+  title: string;
+  subtitle: string;
+  inspired_by: string[];
+  problems_total: number;
+};
+
+export type SheetDetail = {
+  id: string;
+  title: string;
+  subtitle: string;
+  inspired_by: string[];
+  problems_total: number;
+  mastered_count: number;
+  problems: ProblemSummary[];
+};
+
 export type MicroReview = {
   skill: string;
   title: string;
@@ -265,6 +283,15 @@ export async function fetchProblems(topic?: string, pattern?: string) {
     .join("&");
   const suffix = q ? `&${q}` : "";
   return request<ProblemSummary[]>(`/problems?session_id=${encodeURIComponent(sid)}${suffix}`);
+}
+
+export async function fetchSheets() {
+  return request<SheetSummary[]>(`/sheets`);
+}
+
+export async function fetchSheet(id: string) {
+  const sid = getSessionId();
+  return request<SheetDetail>(`/sheets/${encodeURIComponent(id)}?session_id=${encodeURIComponent(sid)}`);
 }
 
 export async function fetchPatterns() {

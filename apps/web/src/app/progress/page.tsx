@@ -34,6 +34,7 @@ export default function ProgressPage() {
           <section className="learn-panel today-progress" aria-label="Session totals">
             <div className="today-progress-title"><div><h2 className="font-serif">Guest session</h2><p>Saved for this browser.</p></div></div>
             <dl className="today-counts">
+              <div><dt>Overviews done</dt><dd>{data.topics.filter((topic) => topic.learn_completed).length}<span>/{data.topics.length}</span></dd></div>
               <div><dt>Solved</dt><dd>{data.problems.filter((problem) => problem.solved).length}<span>/{data.problems.length}</span></dd></div>
               <div><dt>Mastered</dt><dd>{data.problems.filter((problem) => problem.mastered).length}<span>/{data.problems.length}</span></dd></div>
             </dl>
@@ -44,6 +45,7 @@ export default function ProgressPage() {
             {[...data.topics].sort((a, b) => a.order - b.order).map((topic) => (
               <details key={topic.slug} className="learn-panel progress-chapter">
                 <summary><span>{topic.title}</span><span>{topic.problems_mastered}/{topic.problems_total} mastered</span></summary>
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3"><progress className="w-40 max-w-full accent-[var(--accent)]" max={Math.max(topic.problems_total, 1)} value={topic.problems_mastered} aria-label={`${topic.title} mastery`} /><LearningLink href={`/topics/${topic.slug}`}>Open chapter</LearningLink></div>
                 <ul className="progress-problems">
                   {data.problems.filter((problem) => problem.topic === topic.slug).map((problem) => (
                     <li key={problem.id}><Link href={`/problems/${problem.id}`}><span>{problem.title}</span><ProblemStatus problem={problem} /></Link></li>

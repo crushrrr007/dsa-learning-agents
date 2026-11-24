@@ -141,3 +141,53 @@ def test_visible_examples_count_towards_viva(client, unlock_code, monkeypatch):
     assert not grade["passed_all"] and grade["stage"] == 3
     assert not grade["results"][0]["passed"]
     assert all(row["passed"] for row in grade["results"][1:])
+
+
+def test_viva_rejected_before_tests_pass(client, unlock_code):
+    sid = uuid4().hex
+    pid = "valid-palindrome"
+    unlock_code(client, sid, get_problem(pid))
+
+    blocked = client.post(
+        "/viva",
+        json={
+            "session_id": sid,
+            "problem_id": pid,
+            "answers": [
+                "Two pointers from opposite ends compare letters.",
+                "Time is linear O(n) and space is constant.",
+                "Skip non alphanumeric characters carefully.",
+            ],
+        },
+    )
+    assert blocked.status_code == 409
+
+
+def test_viva_allowed_after_full_pass(client, unlock_code):
+    sid = uuid4().hex
+    pid = "valid-palindrome"
+    problem = get_problem(pid)
+    unlock_code(client, sid, problem)
+    passed = client.post(
+        "/test",
+        json={"session_id": sid, "problem_id": pid, "code": problem["reference_solution"]},
+    )
+    assert passed.status_code == 200
+    assert passed.json()["passed_all"] is True
+
+    # Rubric-aligned answers (gate check — grading quality covered in test_viva_grade)
+    viva = client.post(
+        "/viva",
+        json={
+            "session_id": sid,
+            "problem_id": pid,
+            "answers": [
+                "left and right each move inward at most n times; every character is compared a constant number of times; extra memory stays constant; a mismatch can reject without scanning the center",
+                "those strings are vacuously palindromes; the pointers meet before any failing comparison; the correct answer is true; there is no pair of distinct positions to disagree",
+                "a mismatch already proves the string is not a palindrome; matched ends shrink the unchecked middle; the invariant is that every pair outside the pointers already matches; skipping a match would leave an unchecked outer pair",
+            ],
+        },
+    )
+    assert viva.status_code == 200
+    assert viva.json()["passed"] is True
+    assert viva.json()["mastered"] is True

@@ -26,6 +26,8 @@ def clear_content_cache() -> None:
     load_topic_quiz.cache_clear()
     load_diagnostic.cache_clear()
     list_patterns.cache_clear()
+    list_sheets.cache_clear()
+    load_sheet.cache_clear()
 
 
 @lru_cache
@@ -102,6 +104,58 @@ def list_patterns() -> tuple[dict[str, Any], ...]:
             }
         )
     return tuple(out)
+
+
+@lru_cache
+def list_sheets() -> tuple[dict[str, Any], ...]:
+    root = _content_dir() / "sheets"
+    if not root.exists():
+        return tuple()
+    out: list[dict[str, Any]] = []
+    for path in sorted(root.glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        out.append(
+            {
+                "id": data["id"],
+                "title": data.get("title") or data["id"],
+                "subtitle": data.get("subtitle") or "",
+                "inspired_by": list(data.get("inspired_by") or []),
+                "problems_total": len(data.get("problem_ids") or []),
+            }
+        )
+    return tuple(out)
+
+
+@lru_cache
+def load_sheet(sheet_id: str) -> dict[str, Any]:
+    path = _content_dir() / "sheets" / f"{sheet_id}.json"
+    if not path.exists():
+        raise KeyError(sheet_id)
+    data = json.loads(path.read_text(encoding="utf-8"))
+    problems = load_all_problems()
+    items = []
+    for pid in data.get("problem_ids") or []:
+        p = problems.get(pid)
+        if not p:
+            continue
+        items.append(
+            {
+                "id": p["id"],
+                "title": p["title"],
+                "topic": p["topic"],
+                "difficulty": p["difficulty"],
+                "pattern": p["pattern"],
+                "pattern_id": p.get("pattern_id") or "",
+            }
+        )
+    return {
+        "id": data["id"],
+        "title": data.get("title") or data["id"],
+        "subtitle": data.get("subtitle") or "",
+        "inspired_by": list(data.get("inspired_by") or []),
+        "problems": items,
+        "problems_total": len(items),
+    }
 
 
 def public_problem(problem: dict[str, Any]) -> dict[str, Any]:

@@ -62,7 +62,7 @@ function BeforeYouCode({ reviews }: { reviews: MicroReview[] }) {
                 href={`/topics/${r.prereq_topic}`}
                 className="mt-2 inline-block text-xs font-semibold text-[var(--accent)] hover:underline"
               >
-                Open {r.prereq_topic.replace(/-/g, " ")} lesson →
+                Review {r.prereq_topic.replace(/-/g, " ")} topic →
               </Link>
             ) : null}
           </li>
@@ -176,8 +176,8 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
 
   return (
     <div className="learn-main chapter-page">
-      <Link href="/learn" className="learn-text-link">← Learning roadmap</Link>
-      <PageHeading label={slug === "two-pointers" ? "Chapter · Sample path" : "Chapter"} title={data.lesson.title} copy="Read the core idea, try a dry run, or take an optional diagnostic for a tailored practice plan." />
+      <div className="flex flex-wrap justify-between gap-3"><Link href="/learn" className="learn-text-link">← Learning roadmap</Link><LearningLink href={`/problems?topic=${encodeURIComponent(slug)}`}>Practice sheet</LearningLink></div>
+      <PageHeading label={slug === "two-pointers" ? "Chapter · Demo path" : "Chapter"} title={data.lesson.title} copy="Read the core idea, try a dry run, or take an optional diagnostic for a tailored practice plan." />
       <Prerequisites items={prereqs} />
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Chapter sections">
@@ -197,12 +197,12 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
                 if (s.id === "overview") void onLoadOverview();
                 else setStep(s.id);
               }}
-              className={`rounded-md border border-[var(--line)] px-3 py-2 text-sm font-bold transition ${
+              className={`rounded-xl border border-[var(--line)] px-3.5 py-2 text-sm font-bold transition ${
                 step === s.id
-                  ? "bg-[var(--accent)] text-white"
+                  ? "bg-[var(--ink)] text-white shadow-sm"
                   : unlocked
-                    ? "bg-black/5 text-[var(--muted)] hover:bg-black/10"
-                    : "cursor-not-allowed bg-black/[0.03] text-[var(--muted)] opacity-50"
+                    ? "border border-[var(--line)] bg-white text-[var(--muted)] hover:border-[var(--accent)]"
+                    : "cursor-not-allowed border border-transparent bg-black/[0.03] text-[var(--muted)] opacity-50"
               }`}
             >
               {s.label}
@@ -228,9 +228,9 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
       )}
 
       {step === "diagnose" && (
-        <section className="panel mt-6 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Diagnostic agent</p>
-          <h2 className="mt-1 text-xl font-semibold">Prerequisite check</h2>
+        <section className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Diagnostic agent</p>
+          <h2 className="display mt-1 text-2xl font-bold">Prerequisite check</h2>
           {prereqs.length > 0 && (
             <p className="mt-2 text-sm text-[var(--muted)]">Helpful background: {prereqs.join(" · ")}</p>
           )}
@@ -264,9 +264,9 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
       )}
 
       {step === "plan" && plan && (
-        <section className="panel mt-6 space-y-4 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Plan agent</p>
-          <h2 className="text-xl font-semibold">Your soft learning plan</h2>
+        <section className="mt-6 space-y-4 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Plan agent</p>
+          <h2 className="display text-2xl font-bold">Your soft learning plan</h2>
           <p className="text-sm leading-relaxed text-[var(--muted)]">{plan.review_notes}</p>
           <p className="text-xs text-[var(--muted)]">Emphasis: {plan.emphasis || "balanced"} · guidance only — nothing is locked</p>
           <BeforeYouCode reviews={plan.micro_reviews || []} />
@@ -295,9 +295,9 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
       )}
 
       {step === "overview" && (
-        <section className="panel mt-6 space-y-4 rounded-xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Teach agent</p>
-          <h2 className="text-xl font-semibold">Brief topic overview</h2>
+        <section className="learn-panel flex flex-col gap-4 rounded-2xl p-6 shadow-[var(--shadow)]">
+          <p className="learn-kicker">Teach agent</p>
+          <h2 className="font-serif text-2xl font-bold">Brief topic overview</h2>
           <ChapterNotes text={overview || data.lesson.notes_markdown} />
           {guiding && (
             <p className="rounded-md border border-[var(--line)] bg-[#f7faf8] px-3 py-2 text-sm text-[var(--muted)]">
@@ -322,11 +322,11 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
       )}
 
       {step === "practice" && (
-        <section className="panel mt-6 rounded-xl p-5">
+        <section className="mt-6 rounded-2xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)]">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">Practice</p>
-              <h2 className="text-xl font-semibold">Problems</h2>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-teal-700">Practice</p>
+              <h2 className="display text-2xl font-bold">Problems</h2>
               <p className="text-sm text-[var(--muted)]">Open any problem — badges are soft recommendations only.</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {Array.from(new Map(orderedProblems.map((p) => [p.pattern_id || p.pattern, p.pattern])).entries()).map(
@@ -350,7 +350,7 @@ function Chapter({ slug, data }: { slug: string; data: Awaited<ReturnType<typeof
             {nextId && (
               <Link
                 href={`/problems/${nextId}`}
-                className="inline-flex h-10 items-center rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white shadow-sm"
+                className="inline-flex h-11 items-center rounded-xl bg-[var(--accent)] px-5 text-sm font-bold text-white shadow-sm"
               >
                 Open recommended →
               </Link>

@@ -98,6 +98,19 @@ class PatternOut(BaseModel):
     problem_ids: list[str] = Field(default_factory=list)
 
 
+class SheetSummary(BaseModel):
+    id: str
+    title: str
+    subtitle: str = ""
+    inspired_by: list[str] = Field(default_factory=list)
+    problems_total: int = 0
+
+
+class SheetDetail(SheetSummary):
+    problems: list[ProblemSummary] = Field(default_factory=list)
+    mastered_count: int = 0
+
+
 class RoadmapGraphOut(BaseModel):
     session_id: str
     nodes: list[dict[str, Any]] = Field(default_factory=list)

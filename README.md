@@ -2,16 +2,35 @@
 
 University-lab workspace for learning DSA with **real Python tracing** and **teaching agents** that hint instead of dumping solutions.
 
+## Goal
+
+Showcase how specialized coaches support learning without dumping solutions. See [AGENTS.md](./AGENTS.md) for routing and the solution guard, and [PLATFORM.md](./PLATFORM.md) for the roadmap.
+
 ## Start learning
 
-- **Today** recommends a first chapter, a problem from your plan, or the practice you left unfinished.
-- **Learn** offers an ordered Foundations path and an Interview Patterns library.
-- **Agents** shows what each specialist does and lets you try the actual coach router with a sample.
-- **Practice** lets you search the whole catalog and share filters by URL. **Progress** distinguishes Solved from Mastered.
+- **Today** recommends a chapter, a problem from your plan, or the practice you left unfinished.
+- **Learn** offers Foundations and Interview Patterns; `/patterns` adds searchable pattern mastery.
+- **Practice** offers shareable catalog filters. `/problems` is the full sheet and `/sheets/pointer-lab-core` is the curated Core track.
+- **Agents** demonstrates the live coach router. **Progress** distinguishes Solved from Mastered and tracks completed overviews.
 
-To run the existing sample, choose **Today → Try the Two Pointers sample → Take the diagnostic**. Build the soft plan, read the overview, then open the recommended problem and finish **See → Predict → Code → Test → Viva**. For a fresh demo, use **Progress → Reset guest progress**.
+For the sample, choose **Today → Try the Two Pointers sample → Take the diagnostic**. Open the recommended problem and finish **See → Predict → Code → Test → Viva**. For a fresh demo, use **Progress → Reset guest progress**.
 
 Viva unlocks only when **all** tests pass. Agents are stage-aware and blocked from pasting full solutions.
+
+## Professor demo script (~8–12 min)
+
+**Setup:** API `:8417`, web `:3417`, `GROQ_API_KEY` set, Progress → **Reset session**.
+
+| Beat | Show |
+|------|------|
+| 1. Positioning | Today: practice sheet, Core and pattern exploration, plus **multi-agent coaches** that refuse solution dumps. |
+| 2. Path | **Two Pointers sample** → diagnostic → soft plan + Before you code → overview → **recommended problem**. |
+| 3. Stages | Workspace stage rail. **See** brute demo + Visual tab. **Predict** steps → editor unlocks. |
+| 4. Agents | Ask **Hint** / **Predict** / **Debug** with Groq live. Point out stage-suggested coach + no full solution. |
+| 5. Submit | Paste a correct solution (or finish coding). Fail once if you want gating; then full pass → **Viva**. |
+| 6. Close | Mastered on Progress. Reset for the next visitor. |
+
+**Talking point:** Same LeetCode-like editor professors know — differentiated by See/Predict gates, viva rubrics, and LangGraph coaches with a solution-leak guard.
 
 ## Curriculum
 

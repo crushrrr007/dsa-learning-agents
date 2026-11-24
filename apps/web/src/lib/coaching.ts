@@ -1,12 +1,7 @@
 import type { AgentReply } from "@/lib/api";
+import { WORKSPACE_AGENTS } from "@/lib/agents";
 
-export const coachingNames: Record<string, string> = {
-  concept_tutor: "Concept Tutor",
-  demo_coach: "Demo Coach",
-  predict_coach: "Predict Coach",
-  code_mentor: "Code Mentor",
-  viva_agent: "Viva Agent",
-};
+export const coachingNames: Record<string, string> = Object.fromEntries(WORKSPACE_AGENTS.map(({ id, title }) => [id, title]));
 
 export const routingLabels: Record<AgentReply["routing_reason"], string> = {
   stage: "Matched the learning stage",

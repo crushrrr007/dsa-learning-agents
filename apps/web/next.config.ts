@@ -5,7 +5,7 @@ const apiOrigin = (process.env.LAB_API_URL || process.env.NEXT_PUBLIC_API_URL ||
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
-      { source: "/lab-api/:group(topics|problems|progress|agents)/:path*", destination: `${apiOrigin}/:group/:path*` },
+      { source: "/lab-api/:group(topics|problems|progress|agents|sheets)/:path*", destination: `${apiOrigin}/:group/:path*` },
       { source: "/lab-api/:action(run|test|predict|viva)", destination: `${apiOrigin}/:action` },
     ];
   },
